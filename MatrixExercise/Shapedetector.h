@@ -14,6 +14,7 @@
 // Local
 #include "opencv2/imgcodecs.hpp"
 #include "opencv2/highgui.hpp"
+#include "Matrix.hpp"
 
 // Namespace
 using namespace cv;
@@ -204,7 +205,7 @@ public:
    * @brief Function for handling the webcam mode
    * @param deviceId The webcam device Id
    */
-  void webcamMode(int deviceId);
+  Matrix<double, 2, 1> webcamMode(int deviceId);
   /**
    * @brief Function for handling the batch mode
    * @param cameraId The camera device id
@@ -290,6 +291,8 @@ public:
   Mat mBlurredImage;       // blurred image
   Mat mMaskImage;          // color filtered image
   Mat mDisplayImage;       // image with shape outlines
+
+  Matrix<double, 2, 1> mShapePosition;
 
 private:
   // Program variables

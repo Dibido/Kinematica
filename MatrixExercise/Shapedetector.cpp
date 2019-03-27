@@ -30,6 +30,8 @@ void Shapedetector::reset()
 
 void Shapedetector::initializeValues()
 {   
+    mShapePosition = {{{0}}, {{0}}};
+  
     // Set shape and color
     mCurrentColor = COLORS::UNKNOWNCOLOR;
     mCurrentShape = SHAPES::UNKNOWNSHAPE;
@@ -294,20 +296,19 @@ Mat Shapedetector::removeNoise(Mat aImage)
     return result;
 }
 
-void Shapedetector::webcamMode(int deviceId)
+Matrix<double, 2, 1> Shapedetector::webcamMode(int deviceId)
 {
     initCamera(deviceId);
-
     // Start webcam mode
     std::cout << "### Webcam mode ###" << std::endl;
 
     //Calibrate colors
-    std::cout << "Calibrate colors" << std::endl;
-    calibrateColors();
+    // std::cout << "Calibrate colors" << std::endl;
+    // calibrateColors();
 
     std::cout << "Please enter [vorm] [kleur]" << std::endl;
-    while (true)
-    {
+    // while (true)
+    // {
         std::cout << "> ";
         std::string command;
         getline(std::cin, command); // Get command
@@ -322,12 +323,13 @@ void Shapedetector::webcamMode(int deviceId)
 
             detectRealtime();
         }
-        else
-        {
-            std::cout << "Closing program.." << std::endl;
-            break;
-        }
-    }
+    //     else
+    //     {
+    //         std::cout << "Closing program.." << std::endl;
+    //         break;
+    //     }
+    // // }
+    return mShapePosition;
 }
 
 void Shapedetector::batchMode(int cameraId, std::string batchPath)

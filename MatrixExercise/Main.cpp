@@ -33,12 +33,14 @@ int main( 	int argc,
 		}
 		else
 		{
-      // Read target from input
-      
-      // Detect target
-
+      Matrix<double, 2, 1> lDetectedShapeCoordinates;
+      if (argc > 1)
+      {
+      Shapedetector shapeDetector;
       // Get target coordinates
-
+      lDetectedShapeCoordinates = shapeDetector.webcamMode(atoi(argv[1]));
+      std::cout << "Detected : " << lDetectedShapeCoordinates << std::endl;
+      }
       // Calculate new arm angles
 			double l1 = 5;
 			double theta1 = 90;

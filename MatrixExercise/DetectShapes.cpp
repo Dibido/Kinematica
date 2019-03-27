@@ -203,6 +203,9 @@ void Shapedetector::setShapeValues(Mat aImage, Mat aContour)
 
   // Print to stdout
   std::cout << "\tShape location:\t" << xPosString << "\t" << yPosString << "\t" << areaString << std::endl;
+
+  // Set the shape position return value
+  mShapePosition = {{{double(currentCenter.x)}}, {{double(currentCenter.y)}}};
 }
 
 void Shapedetector::drawShapeContours(Mat aImage, Mat aContour)
