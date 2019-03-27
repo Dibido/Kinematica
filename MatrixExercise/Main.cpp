@@ -7,8 +7,17 @@
 #define BOOST_TEST_NO_MAIN
 #include <boost/test/unit_test.hpp>
 #include <cmath>
+#include <opencv2/opencv.hpp>
 
+/// Local
+#include "Shapedetector.h"
 #include "Matrix.hpp"
+#include <iostream>
+#include <fstream>
+#include <sstream>
+#include <string>
+#include <memory>
+#include <stdlib.h>
 
 #define UNIT_TEST false
 
@@ -24,6 +33,13 @@ int main( 	int argc,
 		}
 		else
 		{
+      // Read target from input
+      
+      // Detect target
+
+      // Get target coordinates
+
+      // Calculate new arm angles
 			double l1 = 5;
 			double theta1 = 90;
 			double l2 = 10;
