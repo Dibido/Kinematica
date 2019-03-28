@@ -7,17 +7,27 @@
 #define BOOST_TEST_NO_MAIN
 #include <boost/test/unit_test.hpp>
 #include <cmath>
+#include <opencv2/opencv.hpp>
 
+/// Local
+#include "Shapedetector.h"
 #include "Matrix.hpp"
 #include "MatrixFunctions.h"
+
+#include <iostream>
+#include <fstream>
+#include <sstream>
+#include <string>
+#include <memory>
+#include <stdlib.h>
 
 #define UNIT_TEST false
 
 MatrixFunctions gMatrixFunctions;
 
-Matrix<double, 3, 1> gSidelengths = {{{5}},
-                                     {{10}},
-                                     {{15}}};
+Matrix<double, 3, 1> gSidelengths = {{{14.605}},
+                                     {{18.733}},
+                                     {{8.573}}};
 
 Matrix<double, 3, 1> gThetas = {{{0}},
                                 {{0}},
@@ -26,6 +36,7 @@ Matrix<double, 3, 1> gThetas = {{{0}},
 int main(int argc,
          char **argv)
 {
+
   try
   {
     // In a real program we should test whether we should call the real main or run the unit_test_main
@@ -35,6 +46,15 @@ int main(int argc,
     }
     else
     {
+
+      Matrix<double, 2, 1> lDetectedShapeCoordinates;
+      if (argc > 1)
+      {
+        Shapedetector shapeDetector;
+        // Get target coordinates
+        lDetectedShapeCoordinates = shapeDetector.webcamMode(atoi(argv[1]));
+        std::cout << "Detected : " << lDetectedShapeCoordinates << std::endl;
+      }
 
       Matrix<double, 2, 1> lGoal = {{{5}}, {{2}}};
       Matrix<double, 2, 1> lCurrentEndEffector = {{{5}}, {{15}}};
