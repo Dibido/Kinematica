@@ -9,62 +9,64 @@
 #include <cmath>
 
 #include "Matrix.hpp"
+#include "MatrixFunctions.h"
 
 #define UNIT_TEST false
 
-int main( 	int argc,
-			char** argv)
-{
-	try
-	{
-		// In a real program we should test whether we should call the real main or run the unit_test_main
-		if(UNIT_TEST)
-		{
-			return boost::unit_test::unit_test_main( &init_unit_test, argc, argv ); // @suppress("Symbol is not resolved") // @suppress("Invalid arguments")
-		}
-		else
-		{
-			double l1 = 5;
-			double theta1 = 90;
-			double l2 = 10;
-			double theta2 = 120;
-			double l3 = 15;
-			double theta3 = 180;
+MatrixFunctions gMatrixFunctions;
 
-			Matrix<double, 2 , 1> lGoal = {{{5}}, {{2}}};
-			Matrix<double, 2 , 1> lCurrentEndEffector = {{{5}}, {{15}}};
-			Matrix<double, 2 , 1> lCalculatedEndEffector = {{{5}}, {{15}}};
-			// Run the inverse kinematics algorithm
-			while(!equals(lCalculatedEndEffector, lGoal))
-			{
-				// Calculate the Jordan matrix
-				// Get the 2 * 3 Matrix
-				Matrix<double, 2, 3> originalJordan;
-				// X row
-				originalJordan.at(0, 0) = (l1 * cos(theta1 * (M_PI / 180.0))) + (l2 * cos((theta1 + theta2) * (M_PI / 180.0))) + (l3 * cos((theta1 + theta2 + theta3) * (M_PI / 180.0)));
-				originalJordan.at(0, 1) = 0 + (l2 * cos((theta1 + theta2) * (M_PI / 180.0))) + (l3 * cos((theta1 + theta2 + theta3) * (M_PI / 180.0)));
-				originalJordan.at(0, 2) = 0 + 0 + (l3 * cos((theta1 + theta2 + theta3) * (M_PI / 180.0)));
-				// Y row
-				originalJordan.at(1, 0) = (l1 * sin(theta1 * (M_PI / 180.0))) - (l2 * sin((theta1 + theta2) * (M_PI / 180.0))) - (l3 * sin((theta1 + theta2 + theta3) * (M_PI / 180.0)));
-				originalJordan.at(1, 1) = 0 - (l2 * sin((theta1 + theta2) * (M_PI / 180.0))) - (l3 * sin((theta1 + theta2 + theta3) * (M_PI / 180.0)));
-				originalJordan.at(1, 2) = 0 - 0 - (l3 * sin((theta1 + theta2 + theta3) * (M_PI / 180.0)));
-				// Create the 3 * 3 Matrix using transpose
-				Matrix<double, 3, 2> JordanTranspose = originalJordan.transpose();
-				Matrix<double, 2, 2> Jordan = originalJordan * JordanTranspose;
-				// Invert the matrix
-				Matrix<double, 2, 2> InvertedJordan = Jordan.inverse();
-				Matrix<double, 3, 2> PartialInvertedJordan = JordanTranspose * InvertedJordan;
-				// Calculate end effector delta
-				// Calculate theta delta
-				// Calculate new theta delta
-				// Compute new end effector
-				break;
-			}
-		}
-	}
-	catch (std::exception& e)
-	{
-		std::cout << e.what() << std::endl;
-	}
-	return 0;
+Matrix<double, 3, 1> gSidelengths = {{{5}},
+                                     {{10}},
+                                     {{15}}};
+
+Matrix<double, 3, 1> gThetas = {{{0}},
+                                {{0}},
+                                {{90}}};
+
+int main(int argc,
+         char **argv)
+{
+  try
+  {
+    // In a real program we should test whether we should call the real main or run the unit_test_main
+    if (UNIT_TEST)
+    {
+      return boost::unit_test::unit_test_main(&init_unit_test, argc, argv); // @suppress("Symbol is not resolved") // @suppress("Invalid arguments")
+    }
+    else
+    {
+
+      Matrix<double, 2, 1> lGoal = {{{5}}, {{2}}};
+      Matrix<double, 2, 1> lCurrentEndEffector = {{{5}}, {{15}}};
+
+      Matrix<double, 2, 1> lCalculatedEndEffector = gMatrixFunctions.computeEndEffector(gSidelengths, gThetas);
+      std::cout << "Effector: " << lCalculatedEndEffector << std::endl;
+
+      // Run the inverse kinematics algorithm
+      while (!equals(lCalculatedEndEffector, lGoal))
+      {
+        // Calculate the Jacobi matrix
+        // Get the 2 * 3 Matrix
+        Matrix<double, 2, 3> originalJacobi = gMatrixFunctions.computeJacobi(gSidelengths, gThetas);
+
+        // Create the 3 * 3 Matrix using transpose
+        Matrix<double, 3, 2> JacobiTranspose = originalJacobi.transpose();
+        Matrix<double, 2, 2> Jacobi = originalJacobi * JacobiTranspose;
+        // Invert the matrix
+        Matrix<double, 2, 2> InvertedJacobi = Jacobi.inverse();
+        Matrix<double, 3, 2> PartialInvertedJacobi = JacobiTranspose * InvertedJacobi;
+        // Calculate end effector delta
+        // Calculate theta delta
+        // Calculate new theta delta
+        // Compute new end effector
+        lCalculatedEndEffector = gMatrixFunctions.computeEndEffector(gSidelengths, gThetas);
+        break;
+      }
+    }
+  }
+  catch (std::exception &e)
+  {
+    std::cout << e.what() << std::endl;
+  }
+  return 0;
 }
