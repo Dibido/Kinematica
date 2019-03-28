@@ -20,6 +20,8 @@
 #include <string>
 #include <memory>
 #include <stdlib.h>
+#include <thread>
+#include <chrono>
 
 #define UNIT_TEST false
 
@@ -32,6 +34,21 @@ Matrix<double, 3, 1> gSidelengths = {{{14.605}},
 Matrix<double, 3, 1> gThetas = {{{0}},
                                 {{0}},
                                 {{90}}};
+
+// The allowed theta ranges, row 1 contains min max of theta 1 in degrees etc.
+Matrix<double, 3, 2> gThetaRanges = {{{-30}, {90}}, {{0}, {135}}, {{-90}, {90}}};
+
+Matrix<double, 3, 1> gGoalConfiguration =  {{{-25}},
+                                           {{11}},
+                                           {{31}}};
+
+// Goal effector based on a valid gGoalConfiguration:
+Matrix<double, 2, 1>
+    gGoal = {{{gMatrixFunctions.computeEndEffector(gSidelengths, gGoalConfiguration)[0][0]}}, {{gMatrixFunctions.computeEndEffector(gSidelengths, gGoalConfiguration)[1][0]}}};
+
+Matrix<double, 2, 1> gDeltaEffector = {{{0}}, {{0}}};
+
+double gDeltaFactor = 0.1;
 
 int main(int argc,
          char **argv)
@@ -46,7 +63,6 @@ int main(int argc,
     }
     else
     {
-
       Matrix<double, 2, 1> lDetectedShapeCoordinates;
       if (argc > 1)
       {
@@ -56,31 +72,51 @@ int main(int argc,
         std::cout << "Detected : " << lDetectedShapeCoordinates << std::endl;
       }
 
-      Matrix<double, 2, 1> lGoal = {{{5}}, {{2}}};
-      Matrix<double, 2, 1> lCurrentEndEffector = {{{5}}, {{15}}};
-
       Matrix<double, 2, 1> lCalculatedEndEffector = gMatrixFunctions.computeEndEffector(gSidelengths, gThetas);
-      std::cout << "Effector: " << lCalculatedEndEffector << std::endl;
 
-      // Run the inverse kinematics algorithm
-      while (!equals(lCalculatedEndEffector, lGoal))
+      bool foundValidConfiguration = false;
+      while (!foundValidConfiguration)
       {
-        // Calculate the Jacobi matrix
-        // Get the 2 * 3 Matrix
-        Matrix<double, 2, 3> originalJacobi = gMatrixFunctions.computeJacobi(gSidelengths, gThetas);
+        int iterations = 1;
+        // Run the inverse kinematics algorithm
+        while (!equals(lCalculatedEndEffector, gGoal, 0.01))
+        {
+          // Calculate the Jacobi matrix
+          Matrix<double, 2, 3> originalJacobi = gMatrixFunctions.computeJacobi(gSidelengths, gThetas);
 
-        // Create the 3 * 3 Matrix using transpose
-        Matrix<double, 3, 2> JacobiTranspose = originalJacobi.transpose();
-        Matrix<double, 2, 2> Jacobi = originalJacobi * JacobiTranspose;
-        // Invert the matrix
-        Matrix<double, 2, 2> InvertedJacobi = Jacobi.inverse();
-        Matrix<double, 3, 2> PartialInvertedJacobi = JacobiTranspose * InvertedJacobi;
-        // Calculate end effector delta
-        // Calculate theta delta
-        // Calculate new theta delta
-        // Compute new end effector
-        lCalculatedEndEffector = gMatrixFunctions.computeEndEffector(gSidelengths, gThetas);
-        break;
+          // Calculate (pseudo)inverse of Jacobi
+          Matrix<double, 3, 2> inverseJacobi = gMatrixFunctions.computeInverseJacobi(originalJacobi);
+
+          // Calculate delta end effector
+          Matrix<double, 2, 1> deltaEffector = (gGoal - lCalculatedEndEffector) * gDeltaFactor;
+
+          // Calculate the delta in theta's when moving delta effector
+          Matrix<double, 3, 1> deltaThetas = inverseJacobi * deltaEffector;
+
+          // Update new thetas
+          gThetas += deltaThetas;
+
+          // Calculate new position of the end effector with forward kinematics
+          lCalculatedEndEffector = gMatrixFunctions.computeEndEffector(gSidelengths, gThetas);
+        }
+
+        iterations++;
+
+        if (gMatrixFunctions.areThetasInRange(gThetas, gThetaRanges))
+        {
+          foundValidConfiguration = true;
+          std::cout << "Found valid configuration in " << iterations << " iterations for endpoint:" << std::endl;
+          std::cout << gGoal << std::endl;
+          std::cout << "Configuration:" << std::endl;
+          std::cout << gThetas << std::endl;
+        }
+        else
+        {
+          gMatrixFunctions.randomizeThetas(gThetas, gThetaRanges);
+
+          // Calculate new position of the end effector with forward kinematics
+          lCalculatedEndEffector = gMatrixFunctions.computeEndEffector(gSidelengths, gThetas);
+        }
       }
     }
   }
