@@ -31,6 +31,7 @@ void Shapedetector::reset()
 void Shapedetector::initializeValues()
 {   
     mShapePosition = {{{0}}, {{0}}};
+    mFindBase = false;
   
     // Set shape and color
     mCurrentColor = COLORS::UNKNOWNCOLOR;
@@ -91,14 +92,23 @@ void Shapedetector::initializeValues()
     mTimeYOffset = 20;
 
     // Set the color limits for color detection [0] = Min, [1] = Max
-    mBlueLimits[0] = Scalar(105, 0, 30);
-    mBlueLimits[1] = Scalar(135, 255, 95);
+    mBlueLimits[0] = Scalar(70, 0, 0);
+    mBlueLimits[1] = Scalar(95, 80, 45); 
 
-    mGreenLimits[0] = Scalar(0, 0, 10);
-    mGreenLimits[1] = Scalar(102, 255, 70);
+    // mBlueLimits[0] = Scalar(105, 0, 30);
+    // mBlueLimits[1] = Scalar(135, 255, 95);
 
-    mRedLimits[0] = Scalar(0, 60, 60);
-    mRedLimits[1] = Scalar(10, 255, 255);
+    mGreenLimits[0] = Scalar(45, 0, 0);
+    mGreenLimits[1] = Scalar(125, 255, 50);
+
+    // mGreenLimits[0] = Scalar(0, 0, 10);
+    // mGreenLimits[1] = Scalar(102, 255, 70);
+
+    mRedLimits[0] = Scalar(0, 0, 70);
+    mRedLimits[1] = Scalar(50, 85, 255);
+
+    // mRedLimits[0] = Scalar(0, 60, 60);
+    // mRedLimits[1] = Scalar(10, 255, 255);
     mRedLimits[2] = Scalar(170, 60, 60);
     mRedLimits[3] = Scalar(180, 255, 255);
 
@@ -247,7 +257,7 @@ void Shapedetector::recognize()
     cvtColor(blurredHSVImage, mBlurredImage, COLOR_HSV2BGR); // save blurred output
 
     // 3. Filter color
-    mMaskImage = detectColor(mCurrentColor, blurredHSVImage);
+    mMaskImage = detectColor(mCurrentColor, mOriginalImage);
 
     // 4. Remove noise
     Mat removedNoise = removeNoise(mMaskImage);
@@ -296,8 +306,88 @@ Mat Shapedetector::removeNoise(Mat aImage)
     return result;
 }
 
-Matrix<double, 2, 1> Shapedetector::webcamMode(int deviceId)
+double Shapedetector::calibrateCoordinates(int aDeviceId)
 {
+  const unsigned int SHAPE_SIZE_CM = 5;
+  unsigned int lPixels = 0;
+  double lReturn;
+
+  Scalar lRedLimits[2];
+  lRedLimits[0] = Scalar(0, 0, 70);
+  lRedLimits[1] = Scalar(50, 85, 255);
+
+  initCamera(aDeviceId);
+  Mat firstRetrievedFrame;
+  mVidCap.grab();
+  mVidCap.retrieve(firstRetrievedFrame);
+
+  calibrateColors();
+
+  while (true)
+  {
+      Mat retrievedFrame;
+      mVidCap.grab();
+      mVidCap.retrieve(retrievedFrame);
+      mOriginalImage = retrievedFrame;
+      reset();
+      // Recognize calibration object
+      // Filter color
+      Mat colorMask;
+      inRange(mOriginalImage, lRedLimits[0], lRedLimits[1], colorMask);
+      imshow("colorMask", colorMask);
+      // Find shape
+      findContours(colorMask, mCurrentContours, CV_RETR_EXTERNAL, CHAIN_APPROX_NONE);
+      removeCloseShapes(mCurrentContours);
+      for (size_t i = 0; i < mCurrentContours.size(); i++)
+      {
+        double epsilon = mEpsilonMultiply * arcLength(mCurrentContours.at(i), true);
+        approxPolyDP(mCurrentContours.at(i), mApproxImage, epsilon, true);
+        if (mApproxImage.size().height == SQUARE_CORNERCOUNT)
+        {
+          if (contourSizeAllowed(mCurrentContours.at(i)))
+          {
+            // Get longest side length
+            Moments currentmoments = moments(mCurrentContours.at(i));
+            // Rect lBoundingRect = boundingRect(mCurrentContours.at(i));
+            RotatedRect lRotatedRect = minAreaRect(mCurrentContours.at(i));
+            // rectangle(mDisplayImage, lBoundingRect, Scalar(255,0,0));
+            double lMaxDistance = 0.0;
+            Point2f vertices[4];
+            lRotatedRect.points(vertices);
+            for (int i = 0; i < 4; i++)
+            {
+              line(mDisplayImage, vertices[i], vertices[(i+1)%4], Scalar(0,255,0));
+              // Find longest side
+              std::cout << vertices[i] << " : " << vertices[(i+1)%4] << std::endl;
+              double lDistance = (double)cv::norm(vertices[i] - vertices[(i+1)%4]);
+              if(lDistance > lMaxDistance)
+              {
+                lMaxDistance = (double)lDistance;
+              }
+            }
+            std::cout << "MaxDistance : " <<  lMaxDistance << std::endl;
+            lPixels = lMaxDistance;
+            setShapeValues(mDisplayImage, mCurrentContours.at(i));
+            imshow("result", mDisplayImage);
+          }
+        }
+      }
+      //  Print pixels per centimeter
+      lReturn = (double)lPixels / (double)SHAPE_SIZE_CM;
+      std::cout << "Pixels/CM : " << lReturn << std::endl;
+      int pressedKey = waitKey(5);
+      if (pressedKey == 27) // ESC key
+      {
+          break;
+      }
+  }
+  destroyAllWindows();
+  return lReturn;
+}
+
+Matrix<double, 2, 1> Shapedetector::webcamMode(int deviceId, bool aFindBaseState)
+{
+    mFindBase = aFindBaseState;
     initCamera(deviceId);
     // Start webcam mode
     std::cout << "### Webcam mode ###" << std::endl;
@@ -306,6 +396,8 @@ Matrix<double, 2, 1> Shapedetector::webcamMode(int deviceId)
     // std::cout << "Calibrate colors" << std::endl;
     // calibrateColors();
 
+    if(!mFindBase)
+    {
     std::cout << "Please enter [vorm] [kleur]" << std::endl;
     // while (true)
     // {
@@ -323,12 +415,21 @@ Matrix<double, 2, 1> Shapedetector::webcamMode(int deviceId)
 
             detectRealtime();
         }
+    }
+    else // Find the base circle
+    {
+      // Canny and find the big white circle
+
+      // Get the center coordinates
+    }
+    
     //     else
     //     {
     //         std::cout << "Closing program.." << std::endl;
     //         break;
     //     }
     // // }
+    mFindBase = false;
     return mShapePosition;
 }
 

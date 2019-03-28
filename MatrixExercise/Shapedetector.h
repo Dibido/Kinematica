@@ -205,7 +205,7 @@ public:
    * @brief Function for handling the webcam mode
    * @param deviceId The webcam device Id
    */
-  Matrix<double, 2, 1> webcamMode(int deviceId);
+  Matrix<double, 2, 1> webcamMode(int deviceId, bool aFindBaseState);
   /**
    * @brief Function for handling the batch mode
    * @param cameraId The camera device id
@@ -285,6 +285,12 @@ public:
      */
   void handleShapeCommand(const std::string &aShapeCommand);
 
+  /**
+   * @brief calibrates the coordinate system by calculating the number of pixels per centimeter of a defined object
+   * @return double the number of pixels per centimeter
+   */
+  double calibrateCoordinates(int aDeviceId);
+
   // Image matrices to show
   Mat mOriginalImage;      // original
   Mat mBrightenedRgbImage; // brightness image
@@ -293,6 +299,7 @@ public:
   Mat mDisplayImage;       // image with shape outlines
 
   Matrix<double, 2, 1> mShapePosition;
+  bool mFindBase;
 
 private:
   // Program variables
