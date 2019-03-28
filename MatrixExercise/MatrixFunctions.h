@@ -2,6 +2,7 @@
 #define MATRIXFUNCTIONS_H
 
 #include <math.h>
+#include <random>
 
 #include "Matrix.hpp"
 
@@ -34,6 +35,26 @@ class MatrixFunctions
    */
   double degreesToRadians(double aAngle) const;
 
+  /**
+   * @brief Computes the pseudo-inverse of a jacobi matrix, uses the moore-penrose approach.
+   * @return Pseudo inverse
+   */
+  Matrix<double, 3, 2> computeInverseJacobi(Matrix<double, 2, 3> aOriginalJacobi) const;
+
+  /**
+   * @brief Checks whether a set of theta's falls within the allowed ranges. Ordering of aThetas should correspond with ordering of aThetaRanges
+   * @param aThetas - Three different theta's in degrees
+   * @param aThetaRanges - Three different pairs of {min, max} angles in degrees.
+   * @return Returns true if the given theta's fall within the thetaranges.
+   */
+  bool areThetasInRange(Matrix<double, 3, 1>& aThetas, Matrix<double, 3, 2>& aThetaRanges) const;
+
+  /**
+   * @brief Randomizes a set of given theta's to values within a given range. Ordering of aThetas should correspond with ordering of aThetaRanges
+   * @param aThetas - The given theta's, these are passed by reference and WILL BE ALTERED
+   * @param aThetaRanges - Three different pairs of {min, max} angles in degrees, the theta's will be randomized within this range.
+   */
+  void randomizeThetas(Matrix<double, 3, 1>& aThetas, Matrix<double, 3, 2>& aThetaRanges) const;
 };
 
 

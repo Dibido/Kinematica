@@ -400,6 +400,11 @@ Matrix< T, M, 1 > Matrix< T, M, N >::solve() const
 template< class T, std::size_t M, std::size_t N >
 Matrix< T, M, N > Matrix< T, M, N >::inverse() const
 {
+  if(M != N)
+  {
+    throw std::logic_error("Can't inverse a matrix with non-equal M and N.");
+  }
+  
 	// Copy the original matrix
 	Matrix< T, N, M > result = *this;
 	// Get the identity matrix

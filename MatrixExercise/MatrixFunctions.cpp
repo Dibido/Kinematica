@@ -12,7 +12,7 @@ Matrix<double, 2, 3> MatrixFunctions::computeJacobi(Matrix<double, 3, 1> aSidele
   double lTheta1 = degreesToRadians(aThetas[0][0]);
   double lTheta2 = degreesToRadians(aThetas[1][0]);
   double lTheta3 = degreesToRadians(aThetas[2][0]);
- 
+
   // Retrieving sidelengths from given matrix (for readability)
   double lSide1 = aSidelengths[0][0];
   double lSide2 = aSidelengths[1][0];
@@ -52,4 +52,32 @@ Matrix<double, 2, 1> MatrixFunctions::computeEndEffector(Matrix<double, 3, 1> aS
 double MatrixFunctions::degreesToRadians(double aAngle) const
 {
   return aAngle * (M_PI / 180.0);
+}
+
+Matrix<double, 3, 2> MatrixFunctions::computeInverseJacobi(Matrix<double, 2, 3> aOriginalJacobi) const
+{
+  return (aOriginalJacobi.transpose() * (aOriginalJacobi * aOriginalJacobi.transpose()).inverse());
+}
+
+bool MatrixFunctions::areThetasInRange(Matrix<double, 3, 1> &aThetas, Matrix<double, 3, 2> &aThetaRanges) const
+{
+  bool lReturn = true;
+  for (size_t i = 0; i < aThetas.getRows(); ++i)
+  {
+    // If theta not within the given boundaries
+    if (!(aThetas[i][0] >= aThetaRanges[i][0] && aThetas[i][0] <= aThetaRanges[i][1]))
+    {
+      lReturn = false;
+    }
+  }
+
+  return lReturn;
+}
+
+void MatrixFunctions::randomizeThetas(Matrix<double, 3, 1> &aThetas, Matrix<double, 3, 2> &aThetaRanges) const
+{
+  for (size_t i = 0; i < aThetas.getRows(); ++i)
+  {
+    aThetas[i][0] = (aThetaRanges[i][1] - aThetaRanges[i][0]) * ((double)rand() / (double)RAND_MAX) + aThetaRanges[i][0];
+  }
 }
