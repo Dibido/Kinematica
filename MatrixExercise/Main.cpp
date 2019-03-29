@@ -74,7 +74,7 @@ int main(int argc,
         lDetectedRobotarmBaseCoordinates = shapeDetector.calibrateRobotarmBase(lCoordinateSystemConversionValue, atoi(argv[1]));
         // Get target coordinates
         lDetectedShapeCoordinates = shapeDetector.detectShapeCoordinates(atoi(argv[1]));
-        lDetectedBaseCoordinates = shapeDetector.detectBaseCoordinates(atoi(argv[1]));
+        // lDetectedBaseCoordinates = shapeDetector.detectBaseCoordinates(atoi(argv[1]));
         // Calculate new X/Y using calibration
         lDetectedShapeCoordinates /= lCoordinateSystemConversionValue;
         lDetectedBaseCoordinates /= lCoordinateSystemConversionValue;
