@@ -1,0 +1,2 @@
+set(kinematics_MESSAGE_FILES "/home/owner/git/Kinematica/src/catkin_ws/src/kinematics/msg/servoPosition.msg;/home/owner/git/Kinematica/src/catkin_ws/src/kinematics/msg/singleServo.msg;/home/owner/git/Kinematica/src/catkin_ws/src/kinematics/msg/stopSingleServo.msg;/home/owner/git/Kinematica/src/catkin_ws/src/kinematics/msg/stopServos.msg;/home/owner/git/Kinematica/src/catkin_ws/src/kinematics/msg/moveServos.msg;/home/owner/git/Kinematica/src/catkin_ws/src/kinematics/msg/armInstruction.msg")
+set(kinematics_SERVICE_FILES "")

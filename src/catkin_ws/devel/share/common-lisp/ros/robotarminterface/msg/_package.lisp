@@ -1,0 +1,21 @@
+(cl:defpackage robotarminterface-msg
+  (:use )
+  (:export
+   "<ALLSERVO>"
+   "ALLSERVO"
+   "<ARMINSTRUCTION>"
+   "ARMINSTRUCTION"
+   "<MOVESERVOS>"
+   "MOVESERVOS"
+   "<SERVOPOSITION>"
+   "SERVOPOSITION"
+   "<SINGLESERVO>"
+   "SINGLESERVO"
+   "<STOPALLSERVO>"
+   "STOPALLSERVO"
+   "<STOPSERVOS>"
+   "STOPSERVOS"
+   "<STOPSINGLESERVO>"
+   "STOPSINGLESERVO"
+  ))
+

@@ -1,0 +1,2 @@
+- setup-file:
+    local-name: /home/owner/git/Kinematica/src/catkin_ws/devel/setup.sh
