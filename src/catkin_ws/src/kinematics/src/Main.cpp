@@ -136,7 +136,7 @@ int main(int argc,
         lMoveServosMessage.servos.push_back(lServoPosition);
 
         lServoPosition.servoId = 3;
-        lServoPosition.position = -lThetas[2][1];
+        lServoPosition.position = lThetas[2][1];
         lMoveServosMessage.servos.push_back(lServoPosition);
 
         lServoPosition.servoId = 4;
