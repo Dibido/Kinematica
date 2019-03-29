@@ -1,10 +1,6 @@
 #include "MatrixFunctions.h"
 
-MatrixFunctions::MatrixFunctions()
-{
-}
-
-Matrix<double, 2, 3> MatrixFunctions::computeJacobi(Matrix<double, 3, 1> aSidelengths, Matrix<double, 3, 1> aThetas) const
+Matrix<double, 2, 3> MatrixFunctions::computeJacobi(Matrix<double, 3, 1> aSidelengths, Matrix<double, 3, 1> aThetas)
 {
   Matrix<double, 2, 3> lJacobiMatrix;
 
@@ -31,7 +27,7 @@ Matrix<double, 2, 3> MatrixFunctions::computeJacobi(Matrix<double, 3, 1> aSidele
   return lJacobiMatrix;
 }
 
-Matrix<double, 2, 1> MatrixFunctions::computeEndEffector(Matrix<double, 3, 1> aSidelengths, Matrix<double, 3, 1> aThetas) const
+Matrix<double, 2, 1> MatrixFunctions::computeEndEffector(Matrix<double, 3, 1> aSidelengths, Matrix<double, 3, 1> aThetas)
 {
   Matrix<double, 2, 1> lEffectorMatrix;
 
@@ -49,17 +45,17 @@ Matrix<double, 2, 1> MatrixFunctions::computeEndEffector(Matrix<double, 3, 1> aS
   return lEffectorMatrix;
 }
 
-double MatrixFunctions::degreesToRadians(double aAngle) const
+double MatrixFunctions::degreesToRadians(double aAngle)
 {
   return aAngle * (M_PI / 180.0);
 }
 
-Matrix<double, 3, 2> MatrixFunctions::computeInverseJacobi(Matrix<double, 2, 3> aOriginalJacobi) const
+Matrix<double, 3, 2> MatrixFunctions::computeInverseJacobi(Matrix<double, 2, 3> aOriginalJacobi)
 {
   return (aOriginalJacobi.transpose() * (aOriginalJacobi * aOriginalJacobi.transpose()).inverse());
 }
 
-bool MatrixFunctions::areThetasInRange(Matrix<double, 3, 1> &aThetas, Matrix<double, 3, 2> &aThetaRanges) const
+bool MatrixFunctions::areThetasInRange(Matrix<double, 3, 1> &aThetas, Matrix<double, 3, 2> &aThetaRanges)
 {
   bool lReturn = true;
   for (size_t i = 0; i < aThetas.getRows(); ++i)
@@ -74,10 +70,70 @@ bool MatrixFunctions::areThetasInRange(Matrix<double, 3, 1> &aThetas, Matrix<dou
   return lReturn;
 }
 
-void MatrixFunctions::randomizeThetas(Matrix<double, 3, 1> &aThetas, Matrix<double, 3, 2> &aThetaRanges) const
+void MatrixFunctions::randomizeThetas(Matrix<double, 3, 1> &aThetas, Matrix<double, 3, 2> &aThetaRanges)
 {
   for (size_t i = 0; i < aThetas.getRows(); ++i)
   {
     aThetas[i][0] = (aThetaRanges[i][1] - aThetaRanges[i][0]) * ((double)rand() / (double)RAND_MAX) + aThetaRanges[i][0];
   }
+}
+
+std::pair<bool, Matrix<double, 3, 1>> MatrixFunctions::computeConfiguration(Matrix<double, 2, 1> &aGoal, Matrix<double, 3, 1>& aSidelengths, Matrix<double, 3, 1> aCurrentConfiguration, Matrix<double, 3, 2> &aThetaRanges, int aMaxIterations)
+{
+  std::pair<bool, Matrix<double, 3, 1>> lReturnPair;
+ 
+  bool lFoundValidConfiguration = false;
+
+  Matrix<double, 3, 1> lCurrentConfiguration = aCurrentConfiguration;
+
+  Matrix<double, 2, 1> lCalculatedEndEffector = MatrixFunctions::computeEndEffector(aSidelengths, lCurrentConfiguration);
+
+  // Factor which determines stepsize between pose and goal, 0.1 has proven to work just fine.
+  double lDeltaEffectorFactor = 0.1;
+
+  int lIterations = 0;
+
+  while (!lFoundValidConfiguration && lIterations < aMaxIterations)
+  {
+    // Run the inverse kinematics algorithm, 0.01 being the procession. If goal is 90.000 degrees, >= 89.99 and <= 90.01 will be close enough
+    while (!equals(lCalculatedEndEffector, aGoal, 0.01))
+    {
+      // Calculate the Jacobi matrix
+      Matrix<double, 2, 3> lOriginalJacobi = MatrixFunctions::computeJacobi(aSidelengths, lCurrentConfiguration);
+
+      // Calculate (pseudo)inverse of Jacobi
+      Matrix<double, 3, 2> inverseJacobi = MatrixFunctions::computeInverseJacobi(lOriginalJacobi);
+
+      // Calculate delta end effector based on 
+      Matrix<double, 2, 1> deltaEffector = (aGoal - lCalculatedEndEffector) * lDeltaEffectorFactor;
+
+      // Calculate the delta in theta's when moving delta effector
+      Matrix<double, 3, 1> deltaThetas = inverseJacobi * deltaEffector;
+
+      // Update new thetas
+      lCurrentConfiguration += deltaThetas;
+
+      // Calculate new position of the end effector with forward kinematics
+      lCalculatedEndEffector = MatrixFunctions::computeEndEffector(aSidelengths, lCurrentConfiguration);
+    }
+
+    lIterations++;
+
+    if (MatrixFunctions::areThetasInRange(lCurrentConfiguration, aThetaRanges))
+    {
+      lFoundValidConfiguration = true;
+    }
+    else
+    {
+      MatrixFunctions::randomizeThetas(lCurrentConfiguration, aThetaRanges);
+      
+      // Calculate new position of the end effector with forward kinematics
+      lCalculatedEndEffector = MatrixFunctions::computeEndEffector(aSidelengths, lCurrentConfiguration);
+    }
+  }
+
+  lReturnPair.first = lFoundValidConfiguration;
+  lReturnPair.second = lCurrentConfiguration;
+
+  return lReturnPair;
 }

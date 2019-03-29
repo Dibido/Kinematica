@@ -25,8 +25,6 @@
 
 #define UNIT_TEST false
 
-MatrixFunctions gMatrixFunctions;
-
 Matrix<double, 3, 1> gSidelengths = {{{14.605}},
                                      {{18.733}},
                                      {{8.573}}};
@@ -39,12 +37,12 @@ Matrix<double, 3, 1> gThetas = {{{0}},
 Matrix<double, 3, 2> gThetaRanges = {{{-30}, {90}}, {{0}, {135}}, {{-90}, {90}}};
 
 Matrix<double, 3, 1> gGoalConfiguration =  {{{-25}},
-                                           {{11}},
-                                           {{31}}};
+                                           {{125}},
+                                           {{80}}};
 
 // Goal effector based on a valid gGoalConfiguration:
 Matrix<double, 2, 1>
-    gGoal = {{{gMatrixFunctions.computeEndEffector(gSidelengths, gGoalConfiguration)[0][0]}}, {{gMatrixFunctions.computeEndEffector(gSidelengths, gGoalConfiguration)[1][0]}}};
+    gGoal = {{{MatrixFunctions::computeEndEffector(gSidelengths, gGoalConfiguration)[0][0]}}, {{MatrixFunctions::computeEndEffector(gSidelengths, gGoalConfiguration)[1][0]}}};
 
 Matrix<double, 2, 1> gDeltaEffector = {{{0}}, {{0}}};
 
@@ -91,51 +89,16 @@ int main(int argc,
         exit(0);
       }
 
-      Matrix<double, 2, 1> lCalculatedEndEffector = gMatrixFunctions.computeEndEffector(gSidelengths, gThetas);
+      std::pair<bool, Matrix<double, 3, 1>> lConfiguration = MatrixFunctions::computeConfiguration(gGoal, gSidelengths, gThetas, gThetaRanges, 10);
 
-      bool foundValidConfiguration = false;
-      while (!foundValidConfiguration)
+      if(lConfiguration.first == true)
       {
-        int iterations = 1;
-        // Run the inverse kinematics algorithm
-        while (!equals(lCalculatedEndEffector, gGoal, 0.01))
-        {
-          // Calculate the Jacobi matrix
-          Matrix<double, 2, 3> originalJacobi = gMatrixFunctions.computeJacobi(gSidelengths, gThetas);
-
-          // Calculate (pseudo)inverse of Jacobi
-          Matrix<double, 3, 2> inverseJacobi = gMatrixFunctions.computeInverseJacobi(originalJacobi);
-
-          // Calculate delta end effector
-          Matrix<double, 2, 1> deltaEffector = (gGoal - lCalculatedEndEffector) * gDeltaFactor;
-
-          // Calculate the delta in theta's when moving delta effector
-          Matrix<double, 3, 1> deltaThetas = inverseJacobi * deltaEffector;
-
-          // Update new thetas
-          gThetas += deltaThetas;
-
-          // Calculate new position of the end effector with forward kinematics
-          lCalculatedEndEffector = gMatrixFunctions.computeEndEffector(gSidelengths, gThetas);
-        }
-
-        iterations++;
-
-        if (gMatrixFunctions.areThetasInRange(gThetas, gThetaRanges))
-        {
-          foundValidConfiguration = true;
-          std::cout << "Found valid configuration in " << iterations << " iterations for endpoint:" << std::endl;
-          std::cout << gGoal << std::endl;
-          std::cout << "Configuration:" << std::endl;
-          std::cout << gThetas << std::endl;
-        }
-        else
-        {
-          gMatrixFunctions.randomizeThetas(gThetas, gThetaRanges);
-
-          // Calculate new position of the end effector with forward kinematics
-          lCalculatedEndEffector = gMatrixFunctions.computeEndEffector(gSidelengths, gThetas);
-        }
+        std::cout << "Succes, configuration found for point(" << std::to_string(gGoal[0][0]) << "," << std::to_string(gGoal[1][0]) << "):" << std::endl;
+        std::cout << lConfiguration.second << std::endl; 
+      } 
+      else
+      {
+        std::cout << "Failure, can't find configuration found for point(" << std::to_string(gGoal[0][0]) << "," << std::to_string(gGoal[1][0]) << "):" << std::endl;
       }
     }
   }
