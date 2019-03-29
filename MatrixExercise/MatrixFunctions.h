@@ -65,6 +65,18 @@ namespace MatrixFunctions
    * if the first element returns false, the second element should be ignored as it contains no useful information.
    */
   std::pair<bool, Matrix<double, 3, 1>> computeConfiguration(Matrix<double, 2, 1>& aGoal, Matrix<double, 3, 1>& aSidelengths, Matrix<double, 3, 1> aCurrentConfiguration, Matrix<double, 3, 2>& aThetaRanges, int aMaxIterations);
+
+
+  /**
+   * @brief Calculates the angle the target has to the base. To more exact, the base point is considered to have 
+   * a X-axis, one could draw this out by drawing a line horizontally over the midpoint of the. Then one could draw a line
+   * from the base to the target. The angle between that line and the X-axis, is considered 'the angle'. 
+   * @param aBase - Base point x,y
+   * @param aTarget - Target point x,y NOTE: x of target MUST be smaller then x of base
+   * @return double - Angle, when target is below the X-axis of the base this angle is negative 
+   * (reason behind it: Base can move from -90 to 90)
+   */
+  double calculateBaseAngle(Matrix<double, 2, 1> aBase, Matrix<double, 2, 1> aTarget);
 };
 
 #endif // MatrixFunctions.h

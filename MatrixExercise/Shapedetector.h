@@ -62,6 +62,7 @@ static const std::vector<std::string> SHAPESTRINGS =
         "rechthoek",
         "driehoek",
         "onbekend"};
+        
 static const std::vector<std::string> COLORSTRINGS =
     {
         "rood",

@@ -36,7 +36,7 @@ Matrix<double, 3, 1> gThetas = {{{0}},
 // The allowed theta ranges, row 1 contains min max of theta 1 in degrees etc.
 Matrix<double, 3, 2> gThetaRanges = {{{-30}, {90}}, {{0}, {135}}, {{-90}, {90}}};
 
-Matrix<double, 3, 1> gGoalConfiguration =  {{{-25}},
+Matrix<double, 3, 1> gGoalConfiguration = {{{-25}},
                                            {{125}},
                                            {{80}}};
 
@@ -51,7 +51,6 @@ double gDeltaFactor = 0.1;
 int main(int argc,
          char **argv)
 {
-
   try
   {
     // In a real program we should test whether we should call the real main or run the unit_test_main
@@ -80,7 +79,7 @@ int main(int argc,
         lDetectedBaseCoordinates /= lCoordinateSystemConversionValue;
         // Modify the X/Y coordinates to be in the refence frame of the arm base
         std::cout << "Detected Shape: " << lDetectedShapeCoordinates << std::endl;
-        std::cout << "Converted robotarm base coordinates : " << lDetectedRobotarmBaseCoordinates <<  std::endl;
+        std::cout << "Converted robotarm base coordinates : " << lDetectedRobotarmBaseCoordinates << std::endl;
         std::cout << "Detected Base: " << lDetectedBaseCoordinates << std::endl;
       }
       else
@@ -91,11 +90,11 @@ int main(int argc,
 
       std::pair<bool, Matrix<double, 3, 1>> lConfiguration = MatrixFunctions::computeConfiguration(gGoal, gSidelengths, gThetas, gThetaRanges, 10);
 
-      if(lConfiguration.first == true)
+      if (lConfiguration.first == true)
       {
         std::cout << "Succes, configuration found for point(" << std::to_string(gGoal[0][0]) << "," << std::to_string(gGoal[1][0]) << "):" << std::endl;
-        std::cout << lConfiguration.second << std::endl; 
-      } 
+        std::cout << lConfiguration.second << std::endl;
+      }
       else
       {
         std::cout << "Failure, can't find configuration found for point(" << std::to_string(gGoal[0][0]) << "," << std::to_string(gGoal[1][0]) << "):" << std::endl;

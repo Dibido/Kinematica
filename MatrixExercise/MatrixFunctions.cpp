@@ -137,3 +137,24 @@ std::pair<bool, Matrix<double, 3, 1>> MatrixFunctions::computeConfiguration(Matr
 
   return lReturnPair;
 }
+
+double MatrixFunctions::calculateBaseAngle(Matrix<double, 2, 1> aBase, Matrix<double, 2, 1> aTarget)
+{
+  if(!(aTarget[0][0] < aBase[0][0]))
+  {
+    throw std::logic_error("calculateBaseAngle preconditions are not met, aTarget.x must be smaller then aBase.x for valid calculations");
+  }
+
+  Matrix<double, 2, 1> lDeltaTargetBase = aTarget - aBase;
+  
+  // Tangens of corner = delta Y / delta X
+  double lTanAngle = std::abs(lDeltaTargetBase[1][0]) / std::abs(lDeltaTargetBase[0][0]);
+
+  // If delta Y is negative, we want the angle to be negative aswell.
+  double lReturnAngle = (lDeltaTargetBase[1][0] > 0) ? -atan(lTanAngle) : atan(lTanAngle); 
+
+  // Convert to degrees
+  lReturnAngle *=  180/M_PI;
+  
+  return lReturnAngle;
+}
