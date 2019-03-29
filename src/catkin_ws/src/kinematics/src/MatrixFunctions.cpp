@@ -163,3 +163,9 @@ double MatrixFunctions::calculateBaseAngle(Matrix<double, 2, 1> aBase, Matrix<do
 
   return lReturnAngle;
 }
+
+double MatrixFunctions::calcDistance(Matrix<double, 2, 1> aPoint1, Matrix<double, 2, 1> aPoint2)
+{
+  Matrix<double, 2, 1> lDelta = {{{aPoint1[0][0] - aPoint2[0][0]}}, {{aPoint1[1][0] - aPoint2[1][0]}}};
+  return sqrt(lDelta[0][0] * lDelta[0][0] + lDelta[1][0] * lDelta[1][0]);
+}

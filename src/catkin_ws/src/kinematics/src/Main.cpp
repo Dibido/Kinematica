@@ -33,6 +33,9 @@
 
 #define UNIT_TEST false
 
+// Base height is 6.1, we try to have effector 2 cm above ground so compensate -4.1
+#define BASE_HEIGHT_COMPENSATION -4.193
+
 Matrix<double, 3, 1> gSidelengths = {{{14.605}},
                                      {{18.733}},
                                      {{10.0}}};
@@ -48,9 +51,9 @@ Matrix<double, 3, 1> gGoalConfiguration = {{{-25}},
                                            {{125}},
                                            {{80}}};
 
-// Goal effector based on a valid gGoalConfiguration:
+// Goal effector based on a valid gGoalConfiguration: 
 Matrix<double, 2, 1>
-    gGoal = {{{MatrixFunctions::computeEndEffector(gSidelengths, gGoalConfiguration)[0][0]}}, {{MatrixFunctions::computeEndEffector(gSidelengths, gGoalConfiguration)[1][0]}}};
+    gGoal = {{{0}}, {{BASE_HEIGHT_COMPENSATION}}};
 
 Matrix<double, 2, 1> gDeltaEffector = {{{0}}, {{0}}};
 
@@ -102,6 +105,20 @@ int main(int argc,
 
         // Calculate base angle
         double lBaseAngle = MatrixFunctions::calculateBaseAngle(lDetectedRobotarmBaseCoordinates, lDetectedShapeCoordinates);
+
+        double lDeltaToObject = MatrixFunctions::calcDistance(lDetectedRobotarmBaseCoordinates, lDetectedShapeCoordinates);
+
+        gGoal = {{{lDeltaToObject}}, {{BASE_HEIGHT_COMPENSATION}}};
+
+        std::pair<bool, Matrix<double, 3, 1>> lConfiguration = MatrixFunctions::computeConfiguration(gGoal, gSidelengths, gThetas, gThetaRanges, 50);
+
+        Matrix<double, 3, 1> lThetas = lConfiguration.second;
+
+        if(lConfiguration.first == false)
+        {
+          throw std::logic_error("Couldn't compute configuration for desired end effector");
+        }
+        
         std::cout << "Arm angle : " << lBaseAngle << std::endl;
         // Send angle to higlevel
         robotarminterface::moveServos lMoveServosMessage;
@@ -111,15 +128,15 @@ int main(int argc,
         lMoveServosMessage.servos.push_back(lServoPosition);
 
         lServoPosition.servoId = 1;
-        lServoPosition.position = 30;
+        lServoPosition.position = lThetas[0][1];
         lMoveServosMessage.servos.push_back(lServoPosition);
 
         lServoPosition.servoId = 2;
-        lServoPosition.position = 135;
+        lServoPosition.position = lThetas[1][1];
         lMoveServosMessage.servos.push_back(lServoPosition);
 
         lServoPosition.servoId = 3;
-        lServoPosition.position = -60;
+        lServoPosition.position = -lThetas[2][1];
         lMoveServosMessage.servos.push_back(lServoPosition);
 
         lServoPosition.servoId = 4;
@@ -127,7 +144,7 @@ int main(int argc,
         lMoveServosMessage.servos.push_back(lServoPosition);
 
         lServoPosition.servoId = 5;
-        lServoPosition.position = 0;
+        lServoPosition.position = 180;
         lMoveServosMessage.servos.push_back(lServoPosition);
 
         // Move time of 100ms is unrealistic, highlevel should show warning.
