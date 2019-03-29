@@ -146,15 +146,20 @@ double MatrixFunctions::calculateBaseAngle(Matrix<double, 2, 1> aBase, Matrix<do
   }
 
   Matrix<double, 2, 1> lDeltaTargetBase = aTarget - aBase;
+
+  std::cout << "aBase : " << aBase << " : aTarget : " << aTarget << std::endl;
+  std::cout << "DeltaTargetBase : " << lDeltaTargetBase << std::endl;
   
   // Tangens of corner = delta Y / delta X
   double lTanAngle = std::abs(lDeltaTargetBase[1][0]) / std::abs(lDeltaTargetBase[0][0]);
 
+  std::cout << "TanAngle : " << lTanAngle << std::endl;
+
   // If delta Y is negative, we want the angle to be negative aswell.
-  double lReturnAngle = (lDeltaTargetBase[1][0] > 0) ? -atan(lTanAngle) : atan(lTanAngle); 
+  double lReturnAngle = (lDeltaTargetBase[1][0] > 0) ? -atan(lTanAngle) : atan(lTanAngle);
 
   // Convert to degrees
   lReturnAngle *=  180/M_PI;
-  
+
   return lReturnAngle;
 }

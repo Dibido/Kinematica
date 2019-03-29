@@ -60,6 +60,7 @@ int main(int argc,
     }
     else
     {
+      double lCoordinateSystemConversionValue;
       Matrix<double, 2, 1> lDetectedRobotarmBaseCoordinates;
       Matrix<double, 2, 1> lDetectedShapeCoordinates;
       Matrix<double, 2, 1> lDetectedBaseCoordinates;
@@ -67,7 +68,7 @@ int main(int argc,
       {
         Shapedetector shapeDetector;
         // Get the pixel/centimeter size using calibration
-        double lCoordinateSystemConversionValue = shapeDetector.calibrateCoordinates(atoi(argv[1]));
+        lCoordinateSystemConversionValue = shapeDetector.calibrateCoordinates(atoi(argv[1]));
         std::cout << "Calibration value : " << lCoordinateSystemConversionValue << "Pixels/CM" << std::endl;
         // Get the robotarm base coordinates
         lDetectedRobotarmBaseCoordinates = shapeDetector.calibrateRobotarmBase(lCoordinateSystemConversionValue, atoi(argv[1]));
@@ -81,6 +82,12 @@ int main(int argc,
         std::cout << "Detected Shape: " << lDetectedShapeCoordinates << std::endl;
         std::cout << "Converted robotarm base coordinates : " << lDetectedRobotarmBaseCoordinates << std::endl;
         std::cout << "Detected Base: " << lDetectedBaseCoordinates << std::endl;
+
+        // Calculate base angle
+        double lBaseAngle = MatrixFunctions::calculateBaseAngle(lDetectedRobotarmBaseCoordinates, lDetectedShapeCoordinates);
+        std::cout << "Arm angle : " << lBaseAngle << std::endl;
+        // Send angle to higlevel
+
       }
       else
       {
