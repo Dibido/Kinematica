@@ -291,6 +291,12 @@ public:
    */
   double calibrateCoordinates(int aDeviceId);
 
+  Matrix<double, 2, 1> calibrateRobotarmBase(double coordinateConversionValue, int aDeviceId);
+
+  Matrix<double, 2, 1> detectShapeCoordinates(int aDeviceId);
+
+  Matrix<double, 2, 1> detectBaseCoordinates(int deviceId);
+
   // Image matrices to show
   Mat mOriginalImage;      // original
   Mat mBrightenedRgbImage; // brightness image

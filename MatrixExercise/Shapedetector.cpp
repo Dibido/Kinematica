@@ -306,9 +306,80 @@ Mat Shapedetector::removeNoise(Mat aImage)
     return result;
 }
 
+Matrix<double, 2, 1> Shapedetector::calibrateRobotarmBase(double aCoordinateConversionValue, int aDeviceId)
+{
+  const unsigned int SHAPE_WIDTH_SIZE_CM = 5;
+  const unsigned int SHAPE_HEIGHT_SIZE_CM = 2;
+  const unsigned int BASE_Y_DISTANCE_CM = 6;
+
+  Matrix<double, 2, 1> lReturn;
+  Point lBlockCenterPoint;
+
+  Scalar lRedLimits[2];
+  lRedLimits[0] = Scalar(0, 0, 70);
+  lRedLimits[1] = Scalar(50, 85, 255);
+
+  initCamera(aDeviceId);
+  Mat firstRetrievedFrame;
+  mVidCap.grab();
+  mVidCap.retrieve(firstRetrievedFrame);
+
+  while (true)
+  {
+      Mat retrievedFrame;
+      mVidCap.grab();
+      mVidCap.retrieve(retrievedFrame);
+      mOriginalImage = retrievedFrame;
+      reset();
+      // Recognize calibration object
+      // Filter color
+      Mat colorMask;
+      inRange(mOriginalImage, lRedLimits[0], lRedLimits[1], colorMask);
+      imshow("colorMask", colorMask);
+      // Find shape
+      findContours(colorMask, mCurrentContours, CV_RETR_EXTERNAL, CHAIN_APPROX_NONE);
+      removeCloseShapes(mCurrentContours);
+      for (size_t i = 0; i < mCurrentContours.size(); i++)
+      {
+        double epsilon = mEpsilonMultiply * arcLength(mCurrentContours.at(i), true);
+        approxPolyDP(mCurrentContours.at(i), mApproxImage, epsilon, true);
+        if (mApproxImage.size().height == SQUARE_CORNERCOUNT)
+        {
+          if (contourSizeAllowed(mCurrentContours.at(i)))
+          {
+            // Get longest side length
+            lBlockCenterPoint = getContourCenter(mCurrentContours.at(i));
+            RotatedRect lRotatedRect = minAreaRect(mCurrentContours.at(i));
+            Point2f vertices[4];
+            lRotatedRect.points(vertices);
+            for (int i = 0; i < 4; i++)
+            {
+              line(mDisplayImage, vertices[i], vertices[(i+1)%4], Scalar(0,255,0));
+            }
+            setShapeValues(mDisplayImage, mCurrentContours.at(i));
+            imshow("result", mDisplayImage);
+          }
+        }
+      }
+      int pressedKey = waitKey(5);
+      if (pressedKey == 27) // ESC key
+      {
+          break;
+      }
+  }
+  // Calculate base coordinate
+  double lXCoordinateValue = lBlockCenterPoint.x / aCoordinateConversionValue;
+  double lYCoordinateValue = ((lBlockCenterPoint.y + (BASE_Y_DISTANCE_CM * aCoordinateConversionValue)) / aCoordinateConversionValue);
+  lReturn.at(0, 0) = lXCoordinateValue;
+  lReturn.at(1, 0) = lYCoordinateValue;
+  destroyAllWindows();
+  return lReturn;
+}
+
 double Shapedetector::calibrateCoordinates(int aDeviceId)
 {
-  const unsigned int SHAPE_SIZE_CM = 5;
+  const unsigned int SHAPE_WIDTH_SIZE_CM = 5;
+  const unsigned int SHAPE_HEIGHT_SIZE_CM = 2;
   unsigned int lPixels = 0;
   double lReturn;
 
@@ -348,9 +419,7 @@ double Shapedetector::calibrateCoordinates(int aDeviceId)
           {
             // Get longest side length
             Moments currentmoments = moments(mCurrentContours.at(i));
-            // Rect lBoundingRect = boundingRect(mCurrentContours.at(i));
             RotatedRect lRotatedRect = minAreaRect(mCurrentContours.at(i));
-            // rectangle(mDisplayImage, lBoundingRect, Scalar(255,0,0));
             double lMaxDistance = 0.0;
             Point2f vertices[4];
             lRotatedRect.points(vertices);
@@ -373,7 +442,7 @@ double Shapedetector::calibrateCoordinates(int aDeviceId)
         }
       }
       //  Print pixels per centimeter
-      lReturn = (double)lPixels / (double)SHAPE_SIZE_CM;
+      lReturn = (double)lPixels / (double)SHAPE_WIDTH_SIZE_CM;
       std::cout << "Pixels/CM : " << lReturn << std::endl;
       int pressedKey = waitKey(5);
       if (pressedKey == 27) // ESC key
@@ -385,9 +454,79 @@ double Shapedetector::calibrateCoordinates(int aDeviceId)
   return lReturn;
 }
 
+Matrix<double, 2, 1> Shapedetector::detectShapeCoordinates(int deviceId)
+{
+  initCamera(deviceId);
+  // Start webcam mode
+  std::cout << "### Webcam mode ###" << std::endl;
+  std::cout << "Please enter [vorm] [kleur]" << std::endl;
+  std::cout << "> ";
+  std::string command;
+  getline(std::cin, command); // Get command
+
+  if (command != EXIT_COMMAND)
+  {
+      bool parsingSucceeded = parseSpec(command);
+      if (parsingSucceeded == false)
+      {
+          std::cout << "Error: invalid specification entered" << std::endl;
+      }
+
+      detectRealtime();
+  }
+  return mShapePosition;
+}
+
+Matrix<double, 2, 1> Shapedetector::detectBaseCoordinates(int deviceId)
+{
+  initCamera(deviceId);
+  Mat firstRetrievedFrame;
+  mVidCap.grab();
+  mVidCap.retrieve(firstRetrievedFrame);
+
+  while (true)
+  {
+    Mat retrievedFrame;
+    mVidCap.grab();
+    mVidCap.retrieve(retrievedFrame);
+    mOriginalImage = retrievedFrame;
+    reset();
+    // Recognize calibration object
+    // Create bitmap
+    Mat lBitmap;
+    Mat lDetectedEdges;
+    std::vector<Vec3f> lCircles;
+    
+    // threshold(mOriginalImage, lBitmap, )
+
+    // Canny
+    // Canny(lGreyImage, lDetectedEdges, 100, 300, 3);
+    
+    // HoughCircles
+    HoughCircles(lBitmap, lCircles, HOUGH_GRADIENT, 1, (mOriginalImage.rows / 16), 100, 30, 10, 100);
+    
+    // Get center
+    for( size_t i = 0; i < lCircles.size(); i++ )
+    {
+         Point center(cvRound(lCircles[i][0]), cvRound(lCircles[i][1]));
+         int radius = cvRound(lCircles[i][2]);
+         // draw the circle center
+         circle( mOriginalImage, center, 3, Scalar(0,255,0), -1, 8, 0 );
+         // draw the circle outline
+         circle( mOriginalImage, center, radius, Scalar(0,0,255), 3, 8, 0 );
+    }
+    imshow("circles", lBitmap);
+    int pressedKey = waitKey(5);
+    if (pressedKey == 27) // ESC key
+    {
+        break;
+    }
+  }
+  return mShapePosition;
+}
+
 Matrix<double, 2, 1> Shapedetector::webcamMode(int deviceId, bool aFindBaseState)
 {
-    mFindBase = aFindBaseState;
     initCamera(deviceId);
     // Start webcam mode
     std::cout << "### Webcam mode ###" << std::endl;

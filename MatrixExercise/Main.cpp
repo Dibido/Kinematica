@@ -63,6 +63,7 @@ int main(int argc,
     }
     else
     {
+      Matrix<double, 2, 1> lDetectedRobotarmBaseCoordinates;
       Matrix<double, 2, 1> lDetectedShapeCoordinates;
       Matrix<double, 2, 1> lDetectedBaseCoordinates;
       if (argc > 1)
@@ -71,14 +72,17 @@ int main(int argc,
         // Get the pixel/centimeter size using calibration
         double lCoordinateSystemConversionValue = shapeDetector.calibrateCoordinates(atoi(argv[1]));
         std::cout << "Calibration value : " << lCoordinateSystemConversionValue << "Pixels/CM" << std::endl;
+        // Get the robotarm base coordinates
+        lDetectedRobotarmBaseCoordinates = shapeDetector.calibrateRobotarmBase(lCoordinateSystemConversionValue, atoi(argv[1]));
         // Get target coordinates
-        lDetectedShapeCoordinates = shapeDetector.webcamMode(atoi(argv[1]), false);
-        lDetectedBaseCoordinates = shapeDetector.webcamMode(atoi(argv[1]), true);
+        lDetectedShapeCoordinates = shapeDetector.detectShapeCoordinates(atoi(argv[1]));
+        lDetectedBaseCoordinates = shapeDetector.detectBaseCoordinates(atoi(argv[1]));
         // Calculate new X/Y using calibration
         lDetectedShapeCoordinates /= lCoordinateSystemConversionValue;
         lDetectedBaseCoordinates /= lCoordinateSystemConversionValue;
         // Modify the X/Y coordinates to be in the refence frame of the arm base
         std::cout << "Detected Shape: " << lDetectedShapeCoordinates << std::endl;
+        std::cout << "Converted robotarm base coordinates : " << lDetectedRobotarmBaseCoordinates <<  std::endl;
         std::cout << "Detected Base: " << lDetectedBaseCoordinates << std::endl;
       }
       else
