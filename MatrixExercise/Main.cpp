@@ -62,12 +62,27 @@ int main(int argc,
     else
     {
       Matrix<double, 2, 1> lDetectedShapeCoordinates;
+      Matrix<double, 2, 1> lDetectedBaseCoordinates;
       if (argc > 1)
       {
         Shapedetector shapeDetector;
+        // Get the pixel/centimeter size using calibration
+        double lCoordinateSystemConversionValue = shapeDetector.calibrateCoordinates(atoi(argv[1]));
+        std::cout << "Calibration value : " << lCoordinateSystemConversionValue << "Pixels/CM" << std::endl;
         // Get target coordinates
-        lDetectedShapeCoordinates = shapeDetector.webcamMode(atoi(argv[1]));
-        std::cout << "Detected : " << lDetectedShapeCoordinates << std::endl;
+        lDetectedShapeCoordinates = shapeDetector.webcamMode(atoi(argv[1]), false);
+        lDetectedBaseCoordinates = shapeDetector.webcamMode(atoi(argv[1]), true);
+        // Calculate new X/Y using calibration
+        lDetectedShapeCoordinates /= lCoordinateSystemConversionValue;
+        lDetectedBaseCoordinates /= lCoordinateSystemConversionValue;
+        // Modify the X/Y coordinates to be in the refence frame of the arm base
+        std::cout << "Detected Shape: " << lDetectedShapeCoordinates << std::endl;
+        std::cout << "Detected Base: " << lDetectedBaseCoordinates << std::endl;
+      }
+      else
+      {
+        std::cout << "Invalid usage, expected form ./kinematics [webcamId]" << std::endl;
+        exit(0);
       }
 
       std::pair<bool, Matrix<double, 3, 1>> lConfiguration = MatrixFunctions::computeConfiguration(gGoal, gSidelengths, gThetas, gThetaRanges, 10);
