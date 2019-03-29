@@ -77,6 +77,14 @@ namespace MatrixFunctions
    * (reason behind it: Base can move from -90 to 90)
    */
   double calculateBaseAngle(Matrix<double, 2, 1> aBase, Matrix<double, 2, 1> aTarget);
+
+  /**
+   * @brief Calculates the minimum distance between two points (pythagoras)
+   * @param aPoint1 - First point 
+   * @param aPoint2 - Second point
+   * @return The distance between both points
+   */
+  double calcDistance(Matrix<double, 2, 1> aPoint1, Matrix<double, 2, 1> aPoint2);
 };
 
 #endif // MatrixFunctions.h
