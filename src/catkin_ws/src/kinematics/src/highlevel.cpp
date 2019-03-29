@@ -99,6 +99,7 @@ void highlevel::moveServosCallback(const robotarminterface::moveServosConstPtr& 
   {
     lMoveCommand.servoIds.push_back(aMoveServosMessage->servos[i].servoId);
     lMoveCommand.servoDegrees.push_back(aMoveServosMessage->servos[i].position);
+    std::cout << "Servo : " << aMoveServosMessage->servos[i].servoId << " Angle : " << aMoveServosMessage->servos[i].position << std::endl;
   }
 
   lMoveCommand.time = aMoveServosMessage->time;

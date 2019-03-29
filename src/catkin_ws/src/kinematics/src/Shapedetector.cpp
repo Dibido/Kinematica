@@ -308,9 +308,9 @@ Mat Shapedetector::removeNoise(Mat aImage)
 
 Matrix<double, 2, 1> Shapedetector::calibrateRobotarmBase(double aCoordinateConversionValue, int aDeviceId)
 {
-  const unsigned int SHAPE_WIDTH_SIZE_CM = 5;
-  const unsigned int SHAPE_HEIGHT_SIZE_CM = 2;
-  const unsigned int BASE_Y_DISTANCE_CM = 6;
+  const double SHAPE_WIDTH_SIZE_CM = 4.95;
+  const double SHAPE_HEIGHT_SIZE_CM = 2.47;
+  const double BASE_Y_DISTANCE_CM = (4.75 + (SHAPE_HEIGHT_SIZE_CM / 2));
 
   Matrix<double, 2, 1> lReturn;
   Point lBlockCenterPoint;
@@ -356,6 +356,8 @@ Matrix<double, 2, 1> Shapedetector::calibrateRobotarmBase(double aCoordinateConv
             {
               line(mDisplayImage, vertices[i], vertices[(i+1)%4], Scalar(0,255,0));
             }
+            Point lBasePoint = Point(lBlockCenterPoint.x, lBlockCenterPoint.y + (BASE_Y_DISTANCE_CM * aCoordinateConversionValue));
+            circle(mDisplayImage, lBasePoint, 3, Scalar(0,0,255), -1, 8, 0 );
             setShapeValues(mDisplayImage, mCurrentContours.at(i));
             imshow("result", mDisplayImage);
           }
@@ -392,7 +394,7 @@ double Shapedetector::calibrateCoordinates(int aDeviceId)
   mVidCap.grab();
   mVidCap.retrieve(firstRetrievedFrame);
 
-  calibrateColors();
+  // calibrateColors();
 
   while (true)
   {
@@ -427,7 +429,7 @@ double Shapedetector::calibrateCoordinates(int aDeviceId)
             {
               line(mDisplayImage, vertices[i], vertices[(i+1)%4], Scalar(0,255,0));
               // Find longest side
-              std::cout << vertices[i] << " : " << vertices[(i+1)%4] << std::endl;
+              // std::cout << vertices[i] << " : " << vertices[(i+1)%4] << std::endl;
               double lDistance = (double)cv::norm(vertices[i] - vertices[(i+1)%4]);
               if(lDistance > lMaxDistance)
               {
@@ -443,7 +445,7 @@ double Shapedetector::calibrateCoordinates(int aDeviceId)
       }
       //  Print pixels per centimeter
       lReturn = (double)lPixels / (double)SHAPE_WIDTH_SIZE_CM;
-      std::cout << "Pixels/CM : " << lReturn << std::endl;
+      // std::cout << "Pixels/CM : " << lReturn << std::endl;
       int pressedKey = waitKey(5);
       if (pressedKey == 27) // ESC key
       {

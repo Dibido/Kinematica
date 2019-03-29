@@ -34,7 +34,8 @@
 #define UNIT_TEST false
 
 // Base height is 6.1, we try to have effector 2 cm above ground so compensate -4.1
-#define BASE_HEIGHT_COMPENSATION -4.193
+#define BEFORE_HEIGHT_COMPENSATION 10.193
+#define BASE_HEIGHT_COMPENSATION 2.193 // -2.193
 
 Matrix<double, 3, 1> gSidelengths = {{{14.605}},
                                      {{18.733}},
@@ -54,6 +55,9 @@ Matrix<double, 3, 1> gGoalConfiguration = {{{-25}},
 // Goal effector based on a valid gGoalConfiguration: 
 Matrix<double, 2, 1>
     gGoal = {{{0}}, {{BASE_HEIGHT_COMPENSATION}}};
+
+Matrix<double, 2, 1>
+gInbetweenGoal = {{{0}}, {{BASE_HEIGHT_COMPENSATION}}};
 
 Matrix<double, 2, 1> gDeltaEffector = {{{0}}, {{0}}};
 
@@ -94,27 +98,31 @@ int main(int argc,
         lDetectedRobotarmBaseCoordinates = shapeDetector.calibrateRobotarmBase(lCoordinateSystemConversionValue, atoi(argv[1]));
         // Get target coordinates
         lDetectedShapeCoordinates = shapeDetector.detectShapeCoordinates(atoi(argv[1]));
-        lDetectedBaseCoordinates = shapeDetector.detectBaseCoordinates(atoi(argv[1]));
+        // lDetectedBaseCoordinates = shapeDetector.detectBaseCoordinates(atoi(argv[1]));
         // Calculate new X/Y using calibration
         lDetectedShapeCoordinates /= lCoordinateSystemConversionValue;
-        lDetectedBaseCoordinates /= lCoordinateSystemConversionValue;
+        // lDetectedBaseCoordinates /= lCoordinateSystemConversionValue;
         // Modify the X/Y coordinates to be in the refence frame of the arm base
         std::cout << "Detected Shape: " << lDetectedShapeCoordinates << std::endl;
         std::cout << "Converted robotarm base coordinates : " << lDetectedRobotarmBaseCoordinates << std::endl;
-        std::cout << "Detected Base: " << lDetectedBaseCoordinates << std::endl;
+        // std::cout << "Detected Base: " << lDetectedBaseCoordinates << std::endl;
 
         // Calculate base angle
         double lBaseAngle = MatrixFunctions::calculateBaseAngle(lDetectedRobotarmBaseCoordinates, lDetectedShapeCoordinates);
 
         double lDeltaToObject = MatrixFunctions::calcDistance(lDetectedRobotarmBaseCoordinates, lDetectedShapeCoordinates);
 
-        gGoal = {{{lDeltaToObject}}, {{BASE_HEIGHT_COMPENSATION}}};
+        std::cout << "lDelta " << lDeltaToObject << std::endl;
+        gGoal = {{{lDeltaToObject + 4.0}}, {{BASE_HEIGHT_COMPENSATION}}};
+        gInbetweenGoal = {{{lDeltaToObject + 4.0}}, {{BEFORE_HEIGHT_COMPENSATION}}};
 
         std::pair<bool, Matrix<double, 3, 1>> lConfiguration = MatrixFunctions::computeConfiguration(gGoal, gSidelengths, gThetas, gThetaRanges, 50);
+        std::pair<bool, Matrix<double, 3, 1>> lBeforeConfiguration = MatrixFunctions::computeConfiguration(gInbetweenGoal, gSidelengths, gThetas, gThetaRanges, 50);
 
         Matrix<double, 3, 1> lThetas = lConfiguration.second;
+        Matrix<double, 3, 1> lBeforeThetas = lBeforeConfiguration.second;
 
-        if(lConfiguration.first == false)
+        if(lConfiguration.first == false || lBeforeConfiguration.first == false)
         {
           throw std::logic_error("Couldn't compute configuration for desired end effector");
         }
@@ -128,24 +136,64 @@ int main(int argc,
         lMoveServosMessage.servos.push_back(lServoPosition);
 
         lServoPosition.servoId = 1;
-        lServoPosition.position = lThetas[0][1];
+        lServoPosition.position = -lBeforeThetas[0][0] + 2;
         lMoveServosMessage.servos.push_back(lServoPosition);
 
         lServoPosition.servoId = 2;
-        lServoPosition.position = lThetas[1][1];
+        lServoPosition.position = lBeforeThetas[1][0] + 30;
         lMoveServosMessage.servos.push_back(lServoPosition);
 
         lServoPosition.servoId = 3;
-        lServoPosition.position = lThetas[2][1];
+        lServoPosition.position = -lBeforeThetas[2][0] - 5;
         lMoveServosMessage.servos.push_back(lServoPosition);
 
         lServoPosition.servoId = 4;
-        lServoPosition.position = 180;
+        lServoPosition.position = 0;
         lMoveServosMessage.servos.push_back(lServoPosition);
 
         lServoPosition.servoId = 5;
-        lServoPosition.position = 180;
+        lServoPosition.position = 10;
         lMoveServosMessage.servos.push_back(lServoPosition);
+
+        std::cout << "calculated Thetas : " << lThetas << std::endl;
+
+        // Move time of 100ms is unrealistic, highlevel should show warning.
+        lMoveServosMessage.time = 3000;
+        ROS_INFO("Sending allServoPos");
+
+        // Send message
+        lMoveServosPublisher.publish(lMoveServosMessage);
+        ros::spinOnce();
+        sleep(5);
+
+        std::cout << "Arm angle : " << lBaseAngle << std::endl;
+        // Send angle to higlevel
+        lMoveServosMessage.servos.clear();
+        lServoPosition.servoId = 0;
+        lServoPosition.position = lBaseAngle;
+        lMoveServosMessage.servos.push_back(lServoPosition);
+
+        lServoPosition.servoId = 1;
+        lServoPosition.position = -lThetas[0][0] + 2;
+        lMoveServosMessage.servos.push_back(lServoPosition);
+
+        lServoPosition.servoId = 2;
+        lServoPosition.position = lThetas[1][0] + 30;
+        lMoveServosMessage.servos.push_back(lServoPosition);
+
+        lServoPosition.servoId = 3;
+        lServoPosition.position = -lThetas[2][0] - 5;
+        lMoveServosMessage.servos.push_back(lServoPosition);
+
+        lServoPosition.servoId = 4;
+        lServoPosition.position = 0;
+        lMoveServosMessage.servos.push_back(lServoPosition);
+
+        lServoPosition.servoId = 5;
+        lServoPosition.position = 10;
+        lMoveServosMessage.servos.push_back(lServoPosition);
+
+        std::cout << "calculated Thetas : " << lThetas << std::endl;
 
         // Move time of 100ms is unrealistic, highlevel should show warning.
         lMoveServosMessage.time = 3000;

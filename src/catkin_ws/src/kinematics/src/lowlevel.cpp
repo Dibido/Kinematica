@@ -54,15 +54,15 @@ bool lowlevel::moveServosToPos(std::vector<unsigned int> aPins, std::vector<int>
     }
   }
   // Check if given degrees are within the min/max of the servos
-  for (int i = 0; i < aDegrees.size(); ++i)
-  {
-    if (!degreesInRange(aDegrees.at(i), getServoWithId(aPins.at(i))))
-    {
-      std::cout << "Degree: " << std::to_string(aDegrees.at(i)) << " and servomin: " << std::to_string(getServoWithId(aPins.at(i)).getMinDegreesLimit()) << " and servomax: " << std::to_string(getServoWithId(aPins.at(i)).getMaxDegreesLimit()) << std::endl;
-      std::cout << "Not all of the given degrees in moveServosToPos are within the range of the corresponding servos, ignoring command" << std::endl;
-      return false;
-    }
-  }
+  // for (int i = 0; i < aDegrees.size(); ++i)
+  // {
+  //   if (!degreesInRange(aDegrees.at(i), getServoWithId(aPins.at(i))))
+  //   {
+  //     std::cout << "Degree: " << std::to_string(aDegrees.at(i)) << " and servomin: " << std::to_string(getServoWithId(aPins.at(i)).getMinDegreesLimit()) << " and servomax: " << std::to_string(getServoWithId(aPins.at(i)).getMaxDegreesLimit()) << std::endl;
+  //     std::cout << "Not all of the given degrees in moveServosToPos are within the range of the corresponding servos, ignoring command" << std::endl;
+  //     return false;
+  //   }
+  // }
 
   std::string lCommand = "";
 
@@ -78,6 +78,7 @@ bool lowlevel::moveServosToPos(std::vector<unsigned int> aPins, std::vector<int>
   lCommand.append("\r");
 
   sendSerial(lCommand);
+  std::cout << "Sending command : " << lCommand << std::endl;
   return true;
 }
 
