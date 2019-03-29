@@ -23,11 +23,19 @@
 #include <thread>
 #include <chrono>
 
+#include <ros/ros.h>
+
+#include "robotarminterface/singleServo.h"
+#include "robotarminterface/stopSingleServo.h"
+#include "robotarminterface/moveServos.h"
+#include "robotarminterface/stopServos.h"
+#include "robotarminterface/armInstruction.h"
+
 #define UNIT_TEST false
 
 Matrix<double, 3, 1> gSidelengths = {{{14.605}},
                                      {{18.733}},
-                                     {{8.573}}};
+                                     {{10.0}}};
 
 Matrix<double, 3, 1> gThetas = {{{0}},
                                 {{0}},
@@ -53,6 +61,15 @@ int main(int argc,
 {
   try
   {
+    ros::init(argc, argv, "servo_client");
+
+    ros::NodeHandle lNodeHandler;
+    ros::Publisher lSingleServoPublisher = lNodeHandler.advertise<robotarminterface::singleServo>("singleServo", 1000);
+    ros::Publisher lStopSingleServoPublisher = lNodeHandler.advertise<robotarminterface::stopSingleServo>("stopSingleServo", 1000);
+    ros::Publisher lMoveServosPublisher = lNodeHandler.advertise<robotarminterface::moveServos>("moveServos", 1000);
+    ros::Publisher lStopServosPublisher = lNodeHandler.advertise<robotarminterface::stopServos>("stopServos", 1000);
+    ros::Publisher lArmInstructionPublisher = lNodeHandler.advertise<robotarminterface::armInstruction>("armInstructionPosition", 1000);
+
     // In a real program we should test whether we should call the real main or run the unit_test_main
     if (UNIT_TEST)
     {
@@ -87,7 +104,39 @@ int main(int argc,
         double lBaseAngle = MatrixFunctions::calculateBaseAngle(lDetectedRobotarmBaseCoordinates, lDetectedShapeCoordinates);
         std::cout << "Arm angle : " << lBaseAngle << std::endl;
         // Send angle to higlevel
+        robotarminterface::moveServos lMoveServosMessage;
+        robotarminterface::servoPosition lServoPosition;
+        lServoPosition.servoId = 0;
+        lServoPosition.position = lBaseAngle;
+        lMoveServosMessage.servos.push_back(lServoPosition);
 
+        lServoPosition.servoId = 1;
+        lServoPosition.position = 30;
+        lMoveServosMessage.servos.push_back(lServoPosition);
+
+        lServoPosition.servoId = 2;
+        lServoPosition.position = 135;
+        lMoveServosMessage.servos.push_back(lServoPosition);
+
+        lServoPosition.servoId = 3;
+        lServoPosition.position = -60;
+        lMoveServosMessage.servos.push_back(lServoPosition);
+
+        lServoPosition.servoId = 4;
+        lServoPosition.position = 180;
+        lMoveServosMessage.servos.push_back(lServoPosition);
+
+        lServoPosition.servoId = 5;
+        lServoPosition.position = 0;
+        lMoveServosMessage.servos.push_back(lServoPosition);
+
+        // Move time of 100ms is unrealistic, highlevel should show warning.
+        lMoveServosMessage.time = 3000;
+        ROS_INFO("Sending allServoPos");
+
+        // Send message
+        lMoveServosPublisher.publish(lMoveServosMessage);
+        ros::spinOnce();
       }
       else
       {

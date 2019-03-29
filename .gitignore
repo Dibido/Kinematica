@@ -1,3 +1,15 @@
+# VSCODE
+.vscode
+
+# ROS build dir
+src/catkin_ws/build
+src/catkin_ws/src/kinematics/src/build
+src/catkin_ws/devel
+
+# MatrixExcercise
+MatrixExcercise/build
+MatrixExcercise/Debug
+
 # Prerequisites
 *.d
 

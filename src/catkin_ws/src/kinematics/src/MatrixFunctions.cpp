@@ -147,6 +147,9 @@ double MatrixFunctions::calculateBaseAngle(Matrix<double, 2, 1> aBase, Matrix<do
 
   Matrix<double, 2, 1> lDeltaTargetBase = aTarget - aBase;
 
+  std::cout << "aBase : " << aBase << " : aTarget : " << aTarget << std::endl;
+  std::cout << "DeltaTargetBase : " << lDeltaTargetBase << std::endl;
+  
   // Tangens of corner = delta Y / delta X
   double lTanAngle = std::abs(lDeltaTargetBase[1][0]) / std::abs(lDeltaTargetBase[0][0]);
 
@@ -159,10 +162,4 @@ double MatrixFunctions::calculateBaseAngle(Matrix<double, 2, 1> aBase, Matrix<do
   lReturnAngle *=  180/M_PI;
 
   return lReturnAngle;
-}
-
-double MatrixFunctions::calcDistance(Matrix<double, 2, 1> aPoint1, Matrix<double, 2, 1> aPoint2)
-{
-  Matrix<double, 2, 1> lDelta = {{{aPoint1[0][0] - aPoint2[0][0]}}, {{aPoint1[1][0] - aPoint2[1][0]}}};
-  return sqrt(lDelta[0][0] * lDelta[0][0] + lDelta[1][0] * lDelta[1][0]);
 }
