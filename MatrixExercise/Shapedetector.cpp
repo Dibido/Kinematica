@@ -80,7 +80,7 @@ void Shapedetector::initializeValues()
     mContourCenterMargin = 30;
     mCurrentShapeCount = 0;
     mEpsilonMultiply = 0.03;
-    mMinContourSize = 500.0;
+    mMinContourSize = 1000.0;
     mMaxContourSize = 30000.0;
     mMinHalfCirclePercentage = 50.0;
     mMaxHalfCirclePercentage = 72.0;
@@ -493,29 +493,35 @@ Matrix<double, 2, 1> Shapedetector::detectBaseCoordinates(int deviceId)
     reset();
     // Recognize calibration object
     // Create bitmap
+    Mat lHSVImage;
+    Mat lGreyScale;
     Mat lBitmap;
     Mat lDetectedEdges;
     std::vector<Vec3f> lCircles;
+    std::vector<Mat> lChannels;
     
-    // threshold(mOriginalImage, lBitmap, )
-
-    // Canny
-    // Canny(lGreyImage, lDetectedEdges, 100, 300, 3);
+    cvtColor(mOriginalImage, lHSVImage, CV_BGR2HSV);
+    split(lHSVImage, lChannels);
     
-    // HoughCircles
-    HoughCircles(lBitmap, lCircles, HOUGH_GRADIENT, 1, (mOriginalImage.rows / 16), 100, 30, 10, 100);
-    
-    // Get center
-    for( size_t i = 0; i < lCircles.size(); i++ )
-    {
-         Point center(cvRound(lCircles[i][0]), cvRound(lCircles[i][1]));
-         int radius = cvRound(lCircles[i][2]);
-         // draw the circle center
-         circle( mOriginalImage, center, 3, Scalar(0,255,0), -1, 8, 0 );
-         // draw the circle outline
-         circle( mOriginalImage, center, radius, Scalar(0,0,255), 3, 8, 0 );
-    }
+    inRange(lHSVImage, Scalar(0, 0, 220), Scalar(180,255, 255), lBitmap);
     imshow("circles", lBitmap);
+
+    // Find shape
+    findContours(lBitmap, mCurrentContours, CV_RETR_EXTERNAL, CHAIN_APPROX_NONE);
+    removeCloseShapes(mCurrentContours);
+    for (size_t i = 0; i < mCurrentContours.size(); i++)
+    {
+      if (contourSizeAllowed(mCurrentContours.at(i)))
+      {
+        // Get center
+        Point circleCenter = getContourCenter(mCurrentContours.at(i));
+        drawContours(mOriginalImage, mCurrentContours.at(i), -1, Scalar(0, 255, 0), 3);
+        mShapePosition.at(0,0) = circleCenter.x;
+        mShapePosition.at(1,0) = circleCenter.y;
+        circle( mOriginalImage, circleCenter, 3, Scalar(0,0,255), -1, 8, 0 );
+      }
+    }
+    imshow("result", mOriginalImage);
     int pressedKey = waitKey(5);
     if (pressedKey == 27) // ESC key
     {
@@ -689,6 +695,8 @@ void Shapedetector::calibrateColors()
       
       minCalibrationValues = Scalar(mMinCalibrationHue, mMinCalibrationSaturation, mMinCalibrationValue);
       maxCalibrationValues = Scalar(mMaxCalibrationHue, mMaxCalibrationSaturation, mMaxCalibrationValue);
+      // std::cout << mMinCalibrationHue << " : " << mMinCalibrationSaturation << " : " << mMinCalibrationValue << std::endl;
+      // std::cout << mMaxCalibrationHue << " : " << mMaxCalibrationSaturation << " : " << mMaxCalibrationValue << std::endl;
       inRange(retrievedFrame, minCalibrationValues, maxCalibrationValues, maskedFrame);
 
       imshow("orgininal", retrievedFrame);
