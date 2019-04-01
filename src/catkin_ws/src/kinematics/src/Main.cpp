@@ -35,6 +35,7 @@
 
 // Base height is 6.1, we try to have effector 2 cm above ground so compensate -4.1
 #define BEFORE_HEIGHT_COMPENSATION 13.193
+#define BEFORE_HEIGHT_BASE_COMPENSATION 5.193
 #define BASE_HEIGHT_COMPENSATION 0.693 // -2.193
 
 Matrix<double, 3, 1> gSidelengths = {{{14.605}},
@@ -281,7 +282,7 @@ int main(int argc,
         double lDeltaToBase = MatrixFunctions::calcDistance(lDetectedRobotarmBaseCoordinates, lDetectedBaseCoordinates);
 
         gBaseGoal = {{{lDeltaToBase + 4.0}}, {{BASE_HEIGHT_COMPENSATION}}};
-        gInbetweenBaseGoal = {{{lDeltaToBase + 4.0}}, {{BEFORE_HEIGHT_COMPENSATION}}};
+        gInbetweenBaseGoal = {{{lDeltaToBase + 4.0}}, {{BEFORE_HEIGHT_BASE_COMPENSATION}}};
 
         std::pair<bool, Matrix<double, 3, 1>> lBaseConfiguration = MatrixFunctions::computeConfiguration(gBaseGoal, gSidelengths, gThetas, gThetaRanges, 50);
         std::pair<bool, Matrix<double, 3, 1>> lBeforeBaseConfiguration = MatrixFunctions::computeConfiguration(gInbetweenBaseGoal, gSidelengths, gThetas, gThetaRanges, 50);
