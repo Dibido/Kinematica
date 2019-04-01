@@ -448,7 +448,7 @@ private:
    * @param aContour the contour to check
    * @return whether the contour is within the range
    */
-  bool contourSizeAllowed(Mat aContour) const;
+  bool contourSizeAllowed(Mat aContour, unsigned int aMinContourSize, unsigned int aMaxContourSize) const;
 
   /**
    * @brief finds the halfcircles in an image

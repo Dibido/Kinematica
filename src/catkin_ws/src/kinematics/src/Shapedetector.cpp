@@ -82,6 +82,8 @@ void Shapedetector::initializeValues()
     mEpsilonMultiply = 0.03;
     mMinContourSize = 1000.0;
     mMaxContourSize = 30000.0;
+    mMinBaseContourSize = 3000.0;
+    mMaxBaseContourSize = 30000.0;
     mMinHalfCirclePercentage = 50.0;
     mMaxHalfCirclePercentage = 72.0;
     mTextOffset = 20;
@@ -98,7 +100,7 @@ void Shapedetector::initializeValues()
     // mBlueLimits[0] = Scalar(105, 0, 30);
     // mBlueLimits[1] = Scalar(135, 255, 95);
 
-    mGreenLimits[0] = Scalar(45, 0, 0);
+    mGreenLimits[0] = Scalar(75, 0, 0);
     mGreenLimits[1] = Scalar(125, 255, 50);
 
     // mGreenLimits[0] = Scalar(0, 0, 10);
@@ -345,7 +347,7 @@ Matrix<double, 2, 1> Shapedetector::calibrateRobotarmBase(double aCoordinateConv
         approxPolyDP(mCurrentContours.at(i), mApproxImage, epsilon, true);
         if (mApproxImage.size().height == SQUARE_CORNERCOUNT)
         {
-          if (contourSizeAllowed(mCurrentContours.at(i)))
+          if (contourSizeAllowed(mCurrentContours.at(i), mMinContourSize, mMaxContourSize))
           {
             // Get longest side length
             lBlockCenterPoint = getContourCenter(mCurrentContours.at(i));
@@ -394,7 +396,7 @@ double Shapedetector::calibrateCoordinates(int aDeviceId)
   mVidCap.grab();
   mVidCap.retrieve(firstRetrievedFrame);
 
-  // calibrateColors();
+  calibrateColors();
 
   while (true)
   {
@@ -417,7 +419,7 @@ double Shapedetector::calibrateCoordinates(int aDeviceId)
         approxPolyDP(mCurrentContours.at(i), mApproxImage, epsilon, true);
         if (mApproxImage.size().height == SQUARE_CORNERCOUNT)
         {
-          if (contourSizeAllowed(mCurrentContours.at(i)))
+          if (contourSizeAllowed(mCurrentContours.at(i), mMinContourSize, mMaxContourSize))
           {
             // Get longest side length
             Moments currentmoments = moments(mCurrentContours.at(i));
@@ -513,7 +515,7 @@ Matrix<double, 2, 1> Shapedetector::detectBaseCoordinates(int deviceId)
     removeCloseShapes(mCurrentContours);
     for (size_t i = 0; i < mCurrentContours.size(); i++)
     {
-      if (contourSizeAllowed(mCurrentContours.at(i)))
+      if (contourSizeAllowed(mCurrentContours.at(i), mMinBaseContourSize, mMaxBaseContourSize))
       {
         // Get center
         Point circleCenter = getContourCenter(mCurrentContours.at(i));

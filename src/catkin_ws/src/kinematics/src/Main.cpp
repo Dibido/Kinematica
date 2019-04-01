@@ -34,8 +34,8 @@
 #define UNIT_TEST false
 
 // Base height is 6.1, we try to have effector 2 cm above ground so compensate -4.1
-#define BEFORE_HEIGHT_COMPENSATION 10.193
-#define BASE_HEIGHT_COMPENSATION 2.193 // -2.193
+#define BEFORE_HEIGHT_COMPENSATION 13.193
+#define BASE_HEIGHT_COMPENSATION 0.693 // -2.193
 
 Matrix<double, 3, 1> gSidelengths = {{{14.605}},
                                      {{18.733}},
@@ -54,10 +54,16 @@ Matrix<double, 3, 1> gGoalConfiguration = {{{-25}},
 
 // Goal effector based on a valid gGoalConfiguration: 
 Matrix<double, 2, 1>
-    gGoal = {{{0}}, {{BASE_HEIGHT_COMPENSATION}}};
+    gShapeGoal = {{{0}}, {{BASE_HEIGHT_COMPENSATION}}};
 
 Matrix<double, 2, 1>
-gInbetweenGoal = {{{0}}, {{BASE_HEIGHT_COMPENSATION}}};
+gInbetweenShapeGoal = {{{0}}, {{BASE_HEIGHT_COMPENSATION}}};
+
+Matrix<double, 2, 1>
+    gBaseGoal = {{{0}}, {{BASE_HEIGHT_COMPENSATION}}};
+
+Matrix<double, 2, 1>
+gInbetweenBaseGoal = {{{0}}, {{BASE_HEIGHT_COMPENSATION}}};
 
 Matrix<double, 2, 1> gDeltaEffector = {{{0}}, {{0}}};
 
@@ -98,41 +104,43 @@ int main(int argc,
         lDetectedRobotarmBaseCoordinates = shapeDetector.calibrateRobotarmBase(lCoordinateSystemConversionValue, atoi(argv[1]));
         // Get target coordinates
         lDetectedShapeCoordinates = shapeDetector.detectShapeCoordinates(atoi(argv[1]));
-        // lDetectedBaseCoordinates = shapeDetector.detectBaseCoordinates(atoi(argv[1]));
+        lDetectedBaseCoordinates = shapeDetector.detectBaseCoordinates(atoi(argv[1]));
         // Calculate new X/Y using calibration
         lDetectedShapeCoordinates /= lCoordinateSystemConversionValue;
-        // lDetectedBaseCoordinates /= lCoordinateSystemConversionValue;
+        lDetectedBaseCoordinates /= lCoordinateSystemConversionValue;
         // Modify the X/Y coordinates to be in the refence frame of the arm base
         std::cout << "Detected Shape: " << lDetectedShapeCoordinates << std::endl;
         std::cout << "Converted robotarm base coordinates : " << lDetectedRobotarmBaseCoordinates << std::endl;
-        // std::cout << "Detected Base: " << lDetectedBaseCoordinates << std::endl;
 
-        // Calculate base angle
-        double lBaseAngle = MatrixFunctions::calculateBaseAngle(lDetectedRobotarmBaseCoordinates, lDetectedShapeCoordinates);
-
+        /*******
+         * Grab shape
+         *******/
+        // Calculate base angle for shape angle
+        double lShapeAngle = MatrixFunctions::calculateBaseAngle(lDetectedRobotarmBaseCoordinates, lDetectedShapeCoordinates);
+        // Calculate the distance to the object
         double lDeltaToObject = MatrixFunctions::calcDistance(lDetectedRobotarmBaseCoordinates, lDetectedShapeCoordinates);
-
         std::cout << "lDelta " << lDeltaToObject << std::endl;
-        gGoal = {{{lDeltaToObject + 4.0}}, {{BASE_HEIGHT_COMPENSATION}}};
-        gInbetweenGoal = {{{lDeltaToObject + 4.0}}, {{BEFORE_HEIGHT_COMPENSATION}}};
+        
+        gShapeGoal = {{{lDeltaToObject + 5.5}}, {{BASE_HEIGHT_COMPENSATION}}};
+        gInbetweenShapeGoal = {{{lDeltaToObject + 5.5}}, {{BEFORE_HEIGHT_COMPENSATION}}};
 
-        std::pair<bool, Matrix<double, 3, 1>> lConfiguration = MatrixFunctions::computeConfiguration(gGoal, gSidelengths, gThetas, gThetaRanges, 50);
-        std::pair<bool, Matrix<double, 3, 1>> lBeforeConfiguration = MatrixFunctions::computeConfiguration(gInbetweenGoal, gSidelengths, gThetas, gThetaRanges, 50);
+        std::pair<bool, Matrix<double, 3, 1>> lConfiguration = MatrixFunctions::computeConfiguration(gShapeGoal, gSidelengths, gThetas, gThetaRanges, 50);
+        std::pair<bool, Matrix<double, 3, 1>> lBeforeConfiguration = MatrixFunctions::computeConfiguration(gInbetweenShapeGoal, gSidelengths, gThetas, gThetaRanges, 50);
 
         Matrix<double, 3, 1> lThetas = lConfiguration.second;
         Matrix<double, 3, 1> lBeforeThetas = lBeforeConfiguration.second;
-
+        
         if(lConfiguration.first == false || lBeforeConfiguration.first == false)
         {
           throw std::logic_error("Couldn't compute configuration for desired end effector");
         }
         
-        std::cout << "Arm angle : " << lBaseAngle << std::endl;
-        // Send angle to higlevel
+        std::cout << "Arm angle : " << lShapeAngle << std::endl;
+        // Move to above the shape
         robotarminterface::moveServos lMoveServosMessage;
         robotarminterface::servoPosition lServoPosition;
         lServoPosition.servoId = 0;
-        lServoPosition.position = lBaseAngle;
+        lServoPosition.position = lShapeAngle;
         lMoveServosMessage.servos.push_back(lServoPosition);
 
         lServoPosition.servoId = 1;
@@ -148,7 +156,7 @@ int main(int argc,
         lMoveServosMessage.servos.push_back(lServoPosition);
 
         lServoPosition.servoId = 4;
-        lServoPosition.position = 0;
+        lServoPosition.position = 60;
         lMoveServosMessage.servos.push_back(lServoPosition);
 
         lServoPosition.servoId = 5;
@@ -156,21 +164,17 @@ int main(int argc,
         lMoveServosMessage.servos.push_back(lServoPosition);
 
         std::cout << "calculated Thetas : " << lThetas << std::endl;
-
-        // Move time of 100ms is unrealistic, highlevel should show warning.
         lMoveServosMessage.time = 3000;
         ROS_INFO("Sending allServoPos");
 
-        // Send message
         lMoveServosPublisher.publish(lMoveServosMessage);
         ros::spinOnce();
         sleep(5);
 
-        std::cout << "Arm angle : " << lBaseAngle << std::endl;
-        // Send angle to higlevel
+        // Move down to shape
         lMoveServosMessage.servos.clear();
         lServoPosition.servoId = 0;
-        lServoPosition.position = lBaseAngle;
+        lServoPosition.position = lShapeAngle;
         lMoveServosMessage.servos.push_back(lServoPosition);
 
         lServoPosition.servoId = 1;
@@ -186,7 +190,7 @@ int main(int argc,
         lMoveServosMessage.servos.push_back(lServoPosition);
 
         lServoPosition.servoId = 4;
-        lServoPosition.position = 0;
+        lServoPosition.position = 60;
         lMoveServosMessage.servos.push_back(lServoPosition);
 
         lServoPosition.servoId = 5;
@@ -195,13 +199,241 @@ int main(int argc,
 
         std::cout << "calculated Thetas : " << lThetas << std::endl;
 
-        // Move time of 100ms is unrealistic, highlevel should show warning.
         lMoveServosMessage.time = 3000;
         ROS_INFO("Sending allServoPos");
-
         // Send message
         lMoveServosPublisher.publish(lMoveServosMessage);
         ros::spinOnce();
+
+        // Close gripper
+        lMoveServosMessage.servos.clear();
+        lServoPosition.servoId = 0;
+        lServoPosition.position = lShapeAngle;
+        lMoveServosMessage.servos.push_back(lServoPosition);
+
+        lServoPosition.servoId = 1;
+        lServoPosition.position = -lThetas[0][0] + 2;
+        lMoveServosMessage.servos.push_back(lServoPosition);
+
+        lServoPosition.servoId = 2;
+        lServoPosition.position = lThetas[1][0] + 30;
+        lMoveServosMessage.servos.push_back(lServoPosition);
+
+        lServoPosition.servoId = 3;
+        lServoPosition.position = -lThetas[2][0] - 5;
+        lMoveServosMessage.servos.push_back(lServoPosition);
+
+        lServoPosition.servoId = 4;
+        lServoPosition.position = 180;
+        lMoveServosMessage.servos.push_back(lServoPosition);
+
+        lServoPosition.servoId = 5;
+        lServoPosition.position = 10;
+        lMoveServosMessage.servos.push_back(lServoPosition);
+
+        std::cout << "calculated Thetas : " << lThetas << std::endl;
+
+        lMoveServosMessage.time = 3000;
+        ROS_INFO("Sending allServoPos");
+        // Send message
+        lMoveServosPublisher.publish(lMoveServosMessage);
+        ros::spinOnce();
+
+        // Move to above the shape
+        lMoveServosMessage.servos.clear();
+        lServoPosition.servoId = 0;
+        lServoPosition.position = lShapeAngle;
+        lMoveServosMessage.servos.push_back(lServoPosition);
+
+        lServoPosition.servoId = 1;
+        lServoPosition.position = -lBeforeThetas[0][0] + 2;
+        lMoveServosMessage.servos.push_back(lServoPosition);
+
+        lServoPosition.servoId = 2;
+        lServoPosition.position = lBeforeThetas[1][0] + 30;
+        lMoveServosMessage.servos.push_back(lServoPosition);
+
+        lServoPosition.servoId = 3;
+        lServoPosition.position = -lBeforeThetas[2][0] - 5;
+        lMoveServosMessage.servos.push_back(lServoPosition);
+
+        lServoPosition.servoId = 4;
+        lServoPosition.position = 180;
+        lMoveServosMessage.servos.push_back(lServoPosition);
+
+        lServoPosition.servoId = 5;
+        lServoPosition.position = 10;
+        lMoveServosMessage.servos.push_back(lServoPosition);
+
+        std::cout << "calculated Thetas : " << lThetas << std::endl;
+        lMoveServosMessage.time = 3000;
+        ROS_INFO("Sending allServoPos");
+
+        lMoveServosPublisher.publish(lMoveServosMessage);
+        ros::spinOnce();
+        sleep(5);
+        
+        /*******
+         * Send shape to base
+         * ******/
+        // Calculate base angle for base angle
+        double lBaseAngle = MatrixFunctions::calculateBaseAngle(lDetectedRobotarmBaseCoordinates, lDetectedBaseCoordinates);
+        double lDeltaToBase = MatrixFunctions::calcDistance(lDetectedRobotarmBaseCoordinates, lDetectedBaseCoordinates);
+
+        gBaseGoal = {{{lDeltaToBase + 4.0}}, {{BASE_HEIGHT_COMPENSATION}}};
+        gInbetweenBaseGoal = {{{lDeltaToBase + 4.0}}, {{BEFORE_HEIGHT_COMPENSATION}}};
+
+        std::pair<bool, Matrix<double, 3, 1>> lBaseConfiguration = MatrixFunctions::computeConfiguration(gBaseGoal, gSidelengths, gThetas, gThetaRanges, 50);
+        std::pair<bool, Matrix<double, 3, 1>> lBeforeBaseConfiguration = MatrixFunctions::computeConfiguration(gInbetweenBaseGoal, gSidelengths, gThetas, gThetaRanges, 50);
+
+        Matrix<double, 3, 1> lBaseThetas = lBaseConfiguration.second;
+        Matrix<double, 3, 1> lBeforeBaseThetas = lBeforeBaseConfiguration.second;
+        
+        if(lBaseConfiguration.first == false || lBeforeBaseConfiguration.first == false)
+        {
+          throw std::logic_error("Couldn't compute configuration for desired end effector");
+        }
+        // Move to above base
+        lMoveServosMessage.servos.clear();
+        lServoPosition.servoId = 0;
+        lServoPosition.position = lBaseAngle;
+        lMoveServosMessage.servos.push_back(lServoPosition);
+
+        lServoPosition.servoId = 1;
+        lServoPosition.position = -lBeforeBaseThetas[0][0] + 2;
+        lMoveServosMessage.servos.push_back(lServoPosition);
+
+        lServoPosition.servoId = 2;
+        lServoPosition.position = lBeforeBaseThetas[1][0] + 30;
+        lMoveServosMessage.servos.push_back(lServoPosition);
+
+        lServoPosition.servoId = 3;
+        lServoPosition.position = -lBeforeBaseThetas[2][0] - 5;
+        lMoveServosMessage.servos.push_back(lServoPosition);
+
+        lServoPosition.servoId = 4;
+        lServoPosition.position = 180;
+        lMoveServosMessage.servos.push_back(lServoPosition);
+
+        lServoPosition.servoId = 5;
+        lServoPosition.position = 10;
+        lMoveServosMessage.servos.push_back(lServoPosition);
+
+        lMoveServosMessage.time = 3000;
+        ROS_INFO("Sending allServoPos");
+        // Send message
+        lMoveServosPublisher.publish(lMoveServosMessage);
+        ros::spinOnce();
+        sleep(3);
+
+        // Move down to base
+        lMoveServosMessage.servos.clear();
+        lServoPosition.servoId = 0;
+        lServoPosition.position = lBaseAngle;
+        lMoveServosMessage.servos.push_back(lServoPosition);
+
+        lServoPosition.servoId = 1;
+        lServoPosition.position = -lBaseThetas[0][0] + 2;
+        lMoveServosMessage.servos.push_back(lServoPosition);
+
+        lServoPosition.servoId = 2;
+        lServoPosition.position = lBaseThetas[1][0] + 30;
+        lMoveServosMessage.servos.push_back(lServoPosition);
+
+        lServoPosition.servoId = 3;
+        lServoPosition.position = -lBaseThetas[2][0] - 5;
+        lMoveServosMessage.servos.push_back(lServoPosition);
+
+        lServoPosition.servoId = 4;
+        lServoPosition.position = 180;
+        lMoveServosMessage.servos.push_back(lServoPosition);
+
+        lServoPosition.servoId = 5;
+        lServoPosition.position = 10;
+        lMoveServosMessage.servos.push_back(lServoPosition);
+
+        lMoveServosMessage.time = 3000;
+        ROS_INFO("Sending allServoPos");
+        // Send message
+        lMoveServosPublisher.publish(lMoveServosMessage);
+        ros::spinOnce();
+        sleep(3);
+
+        // Open gripper
+        lMoveServosMessage.servos.clear();
+        lServoPosition.servoId = 0;
+        lServoPosition.position = lBaseAngle;
+        lMoveServosMessage.servos.push_back(lServoPosition);
+
+        lServoPosition.servoId = 1;
+        lServoPosition.position = -lBaseThetas[0][0] + 2;
+        lMoveServosMessage.servos.push_back(lServoPosition);
+
+        lServoPosition.servoId = 2;
+        lServoPosition.position = lBaseThetas[1][0] + 30;
+        lMoveServosMessage.servos.push_back(lServoPosition);
+
+        lServoPosition.servoId = 3;
+        lServoPosition.position = -lBaseThetas[2][0] - 5;
+        lMoveServosMessage.servos.push_back(lServoPosition);
+
+        lServoPosition.servoId = 4;
+        lServoPosition.position = 60;
+        lMoveServosMessage.servos.push_back(lServoPosition);
+
+        lServoPosition.servoId = 5;
+        lServoPosition.position = 10;
+        lMoveServosMessage.servos.push_back(lServoPosition);
+
+        lMoveServosMessage.time = 3000;
+        ROS_INFO("Sending allServoPos");
+        // Send message
+        lMoveServosPublisher.publish(lMoveServosMessage);
+        ros::spinOnce();
+        sleep(3);
+
+        // Move to above base
+        lMoveServosMessage.servos.clear();
+        lServoPosition.servoId = 0;
+        lServoPosition.position = lBaseAngle;
+        lMoveServosMessage.servos.push_back(lServoPosition);
+
+        lServoPosition.servoId = 1;
+        lServoPosition.position = -lBeforeBaseThetas[0][0] + 2;
+        lMoveServosMessage.servos.push_back(lServoPosition);
+
+        lServoPosition.servoId = 2;
+        lServoPosition.position = lBeforeBaseThetas[1][0] + 30;
+        lMoveServosMessage.servos.push_back(lServoPosition);
+
+        lServoPosition.servoId = 3;
+        lServoPosition.position = -lBeforeBaseThetas[2][0] - 5;
+        lMoveServosMessage.servos.push_back(lServoPosition);
+
+        lServoPosition.servoId = 4;
+        lServoPosition.position = 60;
+        lMoveServosMessage.servos.push_back(lServoPosition);
+
+        lServoPosition.servoId = 5;
+        lServoPosition.position = 10;
+        lMoveServosMessage.servos.push_back(lServoPosition);
+
+        lMoveServosMessage.time = 5000;
+        ROS_INFO("Sending allServoPos");
+        // Send message
+        lMoveServosPublisher.publish(lMoveServosMessage);
+        ros::spinOnce();
+        sleep(5);
+
+        // Return to ready
+        robotarminterface::armInstruction lArmInstructionMessage;
+        lArmInstructionMessage.instruction = "park";
+        lArmInstructionMessage.time = 2000;
+        ROS_INFO("Sending armPosition park");
+        //Send message
+        lArmInstructionPublisher.publish(lArmInstructionMessage);
+        ros::spinOnce();
+        sleep(2);
       }
       else
       {
@@ -209,16 +441,16 @@ int main(int argc,
         exit(0);
       }
 
-      std::pair<bool, Matrix<double, 3, 1>> lConfiguration = MatrixFunctions::computeConfiguration(gGoal, gSidelengths, gThetas, gThetaRanges, 10);
+      std::pair<bool, Matrix<double, 3, 1>> lConfiguration = MatrixFunctions::computeConfiguration(gShapeGoal, gSidelengths, gThetas, gThetaRanges, 10);
 
       if (lConfiguration.first == true)
       {
-        std::cout << "Succes, configuration found for point(" << std::to_string(gGoal[0][0]) << "," << std::to_string(gGoal[1][0]) << "):" << std::endl;
+        std::cout << "Succes, configuration found for point(" << std::to_string(gShapeGoal[0][0]) << "," << std::to_string(gShapeGoal[1][0]) << "):" << std::endl;
         std::cout << lConfiguration.second << std::endl;
       }
       else
       {
-        std::cout << "Failure, can't find configuration found for point(" << std::to_string(gGoal[0][0]) << "," << std::to_string(gGoal[1][0]) << "):" << std::endl;
+        std::cout << "Failure, can't find configuration found for point(" << std::to_string(gShapeGoal[0][0]) << "," << std::to_string(gShapeGoal[1][0]) << "):" << std::endl;
       }
     }
   }

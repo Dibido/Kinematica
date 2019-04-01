@@ -8,7 +8,7 @@ void Shapedetector::detectSquares(std::vector<Mat> aContours)
     approxPolyDP(mCurrentContours.at(i), mApproxImage, epsilon, true);
     if (mApproxImage.size().height == SQUARE_CORNERCOUNT)
     {
-      if (contourSizeAllowed(mCurrentContours.at(i)))
+      if (contourSizeAllowed(mCurrentContours.at(i), mMinContourSize, mMaxContourSize))
       {
         //Check if it is a square
         Rect boundedRect = boundingRect(mCurrentContours.at(i));
@@ -32,7 +32,7 @@ void Shapedetector::detectRectangles(std::vector<Mat> aContours)
     approxPolyDP(mCurrentContours.at(i), mApproxImage, epsilon, true);
     if (mApproxImage.size().height == SQUARE_CORNERCOUNT)
     {
-      if (contourSizeAllowed(mCurrentContours.at(i)))
+      if (contourSizeAllowed(mCurrentContours.at(i), mMinContourSize, mMaxContourSize))
       {
         mCurrentShapeCount++;
         drawShapeContours(mDisplayImage, mCurrentContours.at(i));
@@ -50,7 +50,7 @@ void Shapedetector::detectTriangles(std::vector<Mat> aContours)
     approxPolyDP(mCurrentContours.at(i), mApproxImage, epsilon, true);
     if (mApproxImage.size().height == TRIANGLE_CORNERCOUNT)
     {
-      if (contourSizeAllowed(mCurrentContours.at(i)))
+      if (contourSizeAllowed(mCurrentContours.at(i), mMinContourSize, mMaxContourSize))
       {
         mCurrentShapeCount++;
         drawShapeContours(mDisplayImage, mCurrentContours.at(i));
@@ -68,7 +68,7 @@ void Shapedetector::detectCircles(std::vector<Mat> aContours)
     approxPolyDP(mCurrentContours.at(i), mApproxImage, epsilon, true);
     if (mApproxImage.size().height > 5)
     {
-      if (contourSizeAllowed(mCurrentContours.at(i)))
+      if (contourSizeAllowed(mCurrentContours.at(i), mMinContourSize, mMaxContourSize))
       {
         mCurrentShapeCount++;
         drawShapeContours(mDisplayImage, mCurrentContours.at(i));
@@ -86,7 +86,7 @@ void Shapedetector::detectHalfCircles(std::vector<Mat> aContours)
     approxPolyDP(aContours.at(i), mApproxImage, epsilon, true);
     if (mApproxImage.size().height == 5)
     {
-      if (contourSizeAllowed(aContours.at(i)))
+      if (contourSizeAllowed(aContours.at(i), mMinContourSize, mMaxContourSize))
       {
         //Check for half circle
         Rect boundedRect = boundingRect(aContours.at(i));
@@ -104,9 +104,9 @@ void Shapedetector::detectHalfCircles(std::vector<Mat> aContours)
   }
 }
 
-bool Shapedetector::contourSizeAllowed(Mat aContour) const
+bool Shapedetector::contourSizeAllowed(Mat aContour, double aMinContourSize, double aMaxContourSize) const
 {
-  return (contourArea(aContour) > mMinContourSize && contourArea(aContour) < mMaxContourSize);
+  return (contourArea(aContour) > aMinContourSize && contourArea(aContour) < aMaxContourSize);
 }
 
 std::vector<Mat> Shapedetector::detectShape(SHAPES aShape, Mat aShapeMask)
@@ -121,7 +121,7 @@ std::vector<Mat> Shapedetector::detectShape(SHAPES aShape, Mat aShapeMask)
       {
         double epsilon = mEpsilonMultiply * arcLength(mCurrentContours.at(i), true);
         approxPolyDP(mCurrentContours.at(i), mApproxImage, epsilon, true);
-        if(contourSizeAllowed(mCurrentContours.at(i)))
+        if(contourSizeAllowed(mCurrentContours.at(i), mMinContourSize, mMaxContourSize))
         {
           mCurrentShapeCount++;
           drawShapeContours(mDisplayImage, mCurrentContours.at(i));

@@ -389,6 +389,8 @@ private:
   double mEpsilonMultiply;
   double mMinContourSize;
   double mMaxContourSize;
+  double mMinBaseContourSize;
+  double mMaxBaseContourSize;
   double mMinHalfCirclePercentage;
   double mMaxHalfCirclePercentage;
 
@@ -448,7 +450,7 @@ private:
    * @param aContour the contour to check
    * @return whether the contour is within the range
    */
-  bool contourSizeAllowed(Mat aContour) const;
+  bool contourSizeAllowed(Mat aContour, double aMinContourSize, double aMaxContourSize) const;
 
   /**
    * @brief finds the halfcircles in an image
