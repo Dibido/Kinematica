@@ -119,7 +119,7 @@ std::pair<bool, Matrix<double, 3, 1>> MatrixFunctions::computeConfiguration(Matr
 
     lIterations++;
 
-    if (MatrixFunctions::areThetasInRange(lCurrentConfiguration, aThetaRanges))
+    if (MatrixFunctions::areThetasInRange(lCurrentConfiguration, aThetaRanges) && lCurrentConfiguration[2][0] >= 0)
     {
       lFoundValidConfiguration = true;
     }

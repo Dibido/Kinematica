@@ -3,7 +3,7 @@
 lowlevel::lowlevel() : serial(ioservice), mArmLocked(false)
 {
   // Set the servo ranges
-  mServos.push_back(Servo(0, -90, 90, -90, 90));
+  mServos.push_back(Servo(0, -100, 100, -100, 100));
   mServos.push_back(Servo(1, -30, 90, -90, 90));
   mServos.push_back(Servo(2, 0, 135, 0, 180));
   mServos.push_back(Servo(3, -90, 90, -90, 90));
@@ -54,15 +54,23 @@ bool lowlevel::moveServosToPos(std::vector<unsigned int> aPins, std::vector<int>
     }
   }
   // Check if given degrees are within the min/max of the servos
-  // for (int i = 0; i < aDegrees.size(); ++i)
-  // {
-  //   if (!degreesInRange(aDegrees.at(i), getServoWithId(aPins.at(i))))
-  //   {
-  //     std::cout << "Degree: " << std::to_string(aDegrees.at(i)) << " and servomin: " << std::to_string(getServoWithId(aPins.at(i)).getMinDegreesLimit()) << " and servomax: " << std::to_string(getServoWithId(aPins.at(i)).getMaxDegreesLimit()) << std::endl;
-  //     std::cout << "Not all of the given degrees in moveServosToPos are within the range of the corresponding servos, ignoring command" << std::endl;
-  //     return false;
-  //   }
-  // }
+  for (int i = 0; i < aDegrees.size(); ++i)
+  {
+    if (!degreesInRange(aDegrees.at(i), getServoWithId(aPins.at(i))))
+    {
+      std::cout << "Degree: " << std::to_string(aDegrees.at(i)) << " and servomin: " << std::to_string(getServoWithId(aPins.at(i)).getMinDegreesLimit()) << " and servomax: " << std::to_string(getServoWithId(aPins.at(i)).getMaxDegreesLimit()) << std::endl;
+      std::cout << "Not all of the given degrees in moveServosToPos are within the range of the corresponding servos, ignoring command" << std::endl;
+      if(aDegrees.at(i) < getServoWithId(aPins.at(i)).getMinDegreesLimit())
+      {
+        aDegrees.at(i) = getServoWithId(aPins.at(i)).getMinDegreesLimit();
+      }
+      else if(aDegrees.at(i) > getServoWithId(aPins.at(i)).getMaxDegreesLimit())
+      {
+        aDegrees.at(i) = getServoWithId(aPins.at(i)).getMaxDegreesLimit();
+      }
+      // return false;
+    }
+  }
 
   std::string lCommand = "";
 
@@ -86,13 +94,32 @@ unsigned int lowlevel::convertDegreesToPulsewidth(int aDegrees, Servo& aServo) c
 {
   unsigned int lPulseRange = MAX_PULSEWIDTH - MIN_PULSEWIDTH;
 
-  unsigned int lMappedValue = mapValues(aDegrees, aServo.getMinDegreesRange(), aServo.getMaxDegreesRange(), 0, 180);
+  unsigned int lMappedValue = mapValues(aDegrees, aServo.getMinDegreesRange(), aServo.getMaxDegreesRange(), 0, std::abs(aServo.getMaxDegreesRange() - aServo.getMinDegreesRange()));
+
+  std::cout << "MappedValue : " << lMappedValue << std::endl;
 
   unsigned int lDegreeRange = static_cast<unsigned int>(std::abs(aServo.getMaxDegreesRange() - aServo.getMinDegreesRange()));
 
+  std::cout << "lDegreeRange : " << lDegreeRange << std::endl;
+
   double lFactor = static_cast<double>(lMappedValue) / static_cast<double>(lDegreeRange);
 
-  unsigned int lReturn = static_cast<unsigned int>(MIN_PULSEWIDTH + (lPulseRange * lFactor));
+  std::cout << "lFactor : " << lFactor << std::endl;
+  
+  unsigned int lPulsewidthCompensation = 0;
+  if(aServo.getServoId() == 0)
+  {
+    lPulsewidthCompensation = -50;
+  }
+  else if(aServo.getServoId() == 1)
+  {
+    lPulsewidthCompensation = 30;
+  }
+  else if(aServo.getServoId() == 2)
+  {
+    lPulsewidthCompensation = 180;
+  }
+  unsigned int lReturn = static_cast<unsigned int>((MIN_PULSEWIDTH + (lPulseRange * lFactor)) + lPulsewidthCompensation);
 
   return lReturn;
 }

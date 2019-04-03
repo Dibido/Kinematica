@@ -206,7 +206,7 @@ public:
    * @brief Function for handling the webcam mode
    * @param deviceId The webcam device Id
    */
-  Matrix<double, 2, 1> webcamMode(int deviceId, bool aFindBaseState);
+  Matrix<double, 2, 1> webcamMode(int deviceId);
   /**
    * @brief Function for handling the batch mode
    * @param cameraId The camera device id
@@ -294,7 +294,7 @@ public:
 
   Matrix<double, 2, 1> calibrateRobotarmBase(double coordinateConversionValue, int aDeviceId);
 
-  Matrix<double, 2, 1> detectShapeCoordinates(int aDeviceId);
+  std::pair<Matrix<double, 2, 1>, double> detectShapeCoordinates(int aDeviceId);
 
   Matrix<double, 2, 1> detectBaseCoordinates(int deviceId);
 
@@ -306,6 +306,7 @@ public:
   Mat mDisplayImage;       // image with shape outlines
 
   Matrix<double, 2, 1> mShapePosition;
+  double mShapeMinDistance;
   bool mFindBase;
 
 private:

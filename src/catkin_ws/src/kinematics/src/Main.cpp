@@ -36,11 +36,15 @@
 // Base height is 6.1, we try to have effector 2 cm above ground so compensate -4.1
 #define BEFORE_HEIGHT_COMPENSATION 13.193
 #define BEFORE_HEIGHT_BASE_COMPENSATION 5.193
-#define BASE_HEIGHT_COMPENSATION 0.693 // -2.193
+#define BASE_HEIGHT_COMPENSATION -4.193 // -2.193
 
-Matrix<double, 3, 1> gSidelengths = {{{14.605}},
-                                     {{18.733}},
-                                     {{10.0}}};
+// Matrix<double, 3, 1> gSidelengths = {{{14.605}},
+//                                      {{18.733}}, /* 18.773 */
+//                                      {{10.0}}};
+
+Matrix<double, 3, 1> gSidelengths = {{{16.0}},
+{{16.0}}, /* 18.773 */
+{{12.0}}};
 
 Matrix<double, 3, 1> gThetas = {{{0}},
                                 {{0}},
@@ -93,7 +97,7 @@ int main(int argc,
     {
       double lCoordinateSystemConversionValue;
       Matrix<double, 2, 1> lDetectedRobotarmBaseCoordinates;
-      Matrix<double, 2, 1> lDetectedShapeCoordinates;
+      std::pair<Matrix<double, 2, 1>, double> lDetectedShapeCoordinates;
       Matrix<double, 2, 1> lDetectedBaseCoordinates;
       if (argc > 1)
       {
@@ -107,23 +111,25 @@ int main(int argc,
         lDetectedShapeCoordinates = shapeDetector.detectShapeCoordinates(atoi(argv[1]));
         lDetectedBaseCoordinates = shapeDetector.detectBaseCoordinates(atoi(argv[1]));
         // Calculate new X/Y using calibration
-        lDetectedShapeCoordinates /= lCoordinateSystemConversionValue;
+        lDetectedShapeCoordinates.first /= lCoordinateSystemConversionValue;
+        lDetectedShapeCoordinates.second /= lCoordinateSystemConversionValue;
+        std::cout << "Detected shape width : " << lDetectedShapeCoordinates.second << std::endl;
         lDetectedBaseCoordinates /= lCoordinateSystemConversionValue;
         // Modify the X/Y coordinates to be in the refence frame of the arm base
-        std::cout << "Detected Shape: " << lDetectedShapeCoordinates << std::endl;
+        std::cout << "Detected Shape: " << lDetectedShapeCoordinates.first << std::endl;
         std::cout << "Converted robotarm base coordinates : " << lDetectedRobotarmBaseCoordinates << std::endl;
 
         /*******
          * Grab shape
          *******/
         // Calculate base angle for shape angle
-        double lShapeAngle = MatrixFunctions::calculateBaseAngle(lDetectedRobotarmBaseCoordinates, lDetectedShapeCoordinates);
+        double lShapeAngle = MatrixFunctions::calculateBaseAngle(lDetectedRobotarmBaseCoordinates, lDetectedShapeCoordinates.first);
         // Calculate the distance to the object
-        double lDeltaToObject = MatrixFunctions::calcDistance(lDetectedRobotarmBaseCoordinates, lDetectedShapeCoordinates);
+        double lDeltaToObject = MatrixFunctions::calcDistance(lDetectedRobotarmBaseCoordinates, lDetectedShapeCoordinates.first);
         std::cout << "lDelta " << lDeltaToObject << std::endl;
         
-        gShapeGoal = {{{lDeltaToObject + 5.5}}, {{BASE_HEIGHT_COMPENSATION}}};
-        gInbetweenShapeGoal = {{{lDeltaToObject + 5.5}}, {{BEFORE_HEIGHT_COMPENSATION}}};
+        gShapeGoal = {{{lDeltaToObject}}, {{BASE_HEIGHT_COMPENSATION}}};
+        gInbetweenShapeGoal = {{{lDeltaToObject}}, {{BEFORE_HEIGHT_COMPENSATION}}};
 
         std::pair<bool, Matrix<double, 3, 1>> lConfiguration = MatrixFunctions::computeConfiguration(gShapeGoal, gSidelengths, gThetas, gThetaRanges, 50);
         std::pair<bool, Matrix<double, 3, 1>> lBeforeConfiguration = MatrixFunctions::computeConfiguration(gInbetweenShapeGoal, gSidelengths, gThetas, gThetaRanges, 50);
@@ -145,15 +151,15 @@ int main(int argc,
         lMoveServosMessage.servos.push_back(lServoPosition);
 
         lServoPosition.servoId = 1;
-        lServoPosition.position = -lBeforeThetas[0][0] + 2;
+        lServoPosition.position = -lBeforeThetas[0][0]; /* + 2 */
         lMoveServosMessage.servos.push_back(lServoPosition);
 
         lServoPosition.servoId = 2;
-        lServoPosition.position = lBeforeThetas[1][0] + 30;
+        lServoPosition.position = lBeforeThetas[1][0]; /* + 30 */
         lMoveServosMessage.servos.push_back(lServoPosition);
 
         lServoPosition.servoId = 3;
-        lServoPosition.position = -lBeforeThetas[2][0] - 5;
+        lServoPosition.position = -lBeforeThetas[2][0]; /* - 5 */
         lMoveServosMessage.servos.push_back(lServoPosition);
 
         lServoPosition.servoId = 4;
@@ -179,15 +185,15 @@ int main(int argc,
         lMoveServosMessage.servos.push_back(lServoPosition);
 
         lServoPosition.servoId = 1;
-        lServoPosition.position = -lThetas[0][0] + 2;
+        lServoPosition.position = -lThetas[0][0];
         lMoveServosMessage.servos.push_back(lServoPosition);
 
         lServoPosition.servoId = 2;
-        lServoPosition.position = lThetas[1][0] + 30;
+        lServoPosition.position = lThetas[1][0];
         lMoveServosMessage.servos.push_back(lServoPosition);
 
         lServoPosition.servoId = 3;
-        lServoPosition.position = -lThetas[2][0] - 5;
+        lServoPosition.position = -lThetas[2][0];
         lMoveServosMessage.servos.push_back(lServoPosition);
 
         lServoPosition.servoId = 4;
@@ -213,15 +219,15 @@ int main(int argc,
         lMoveServosMessage.servos.push_back(lServoPosition);
 
         lServoPosition.servoId = 1;
-        lServoPosition.position = -lThetas[0][0] + 2;
+        lServoPosition.position = -lThetas[0][0];
         lMoveServosMessage.servos.push_back(lServoPosition);
 
         lServoPosition.servoId = 2;
-        lServoPosition.position = lThetas[1][0] + 30;
+        lServoPosition.position = lThetas[1][0];
         lMoveServosMessage.servos.push_back(lServoPosition);
 
         lServoPosition.servoId = 3;
-        lServoPosition.position = -lThetas[2][0] - 5;
+        lServoPosition.position = -lThetas[2][0];
         lMoveServosMessage.servos.push_back(lServoPosition);
 
         lServoPosition.servoId = 4;
@@ -247,15 +253,15 @@ int main(int argc,
         lMoveServosMessage.servos.push_back(lServoPosition);
 
         lServoPosition.servoId = 1;
-        lServoPosition.position = -lBeforeThetas[0][0] + 2;
+        lServoPosition.position = -lBeforeThetas[0][0];
         lMoveServosMessage.servos.push_back(lServoPosition);
 
         lServoPosition.servoId = 2;
-        lServoPosition.position = lBeforeThetas[1][0] + 30;
+        lServoPosition.position = lBeforeThetas[1][0];
         lMoveServosMessage.servos.push_back(lServoPosition);
 
         lServoPosition.servoId = 3;
-        lServoPosition.position = -lBeforeThetas[2][0] - 5;
+        lServoPosition.position = -lBeforeThetas[2][0];
         lMoveServosMessage.servos.push_back(lServoPosition);
 
         lServoPosition.servoId = 4;
@@ -301,15 +307,15 @@ int main(int argc,
         lMoveServosMessage.servos.push_back(lServoPosition);
 
         lServoPosition.servoId = 1;
-        lServoPosition.position = -lBeforeBaseThetas[0][0] + 2;
+        lServoPosition.position = -lBeforeBaseThetas[0][0];
         lMoveServosMessage.servos.push_back(lServoPosition);
 
         lServoPosition.servoId = 2;
-        lServoPosition.position = lBeforeBaseThetas[1][0] + 30;
+        lServoPosition.position = lBeforeBaseThetas[1][0];
         lMoveServosMessage.servos.push_back(lServoPosition);
 
         lServoPosition.servoId = 3;
-        lServoPosition.position = -lBeforeBaseThetas[2][0] - 5;
+        lServoPosition.position = -lBeforeBaseThetas[2][0];
         lMoveServosMessage.servos.push_back(lServoPosition);
 
         lServoPosition.servoId = 4;
@@ -334,15 +340,15 @@ int main(int argc,
         lMoveServosMessage.servos.push_back(lServoPosition);
 
         lServoPosition.servoId = 1;
-        lServoPosition.position = -lBaseThetas[0][0] + 2;
+        lServoPosition.position = -lBaseThetas[0][0];
         lMoveServosMessage.servos.push_back(lServoPosition);
 
         lServoPosition.servoId = 2;
-        lServoPosition.position = lBaseThetas[1][0] + 30;
+        lServoPosition.position = lBaseThetas[1][0];
         lMoveServosMessage.servos.push_back(lServoPosition);
 
         lServoPosition.servoId = 3;
-        lServoPosition.position = -lBaseThetas[2][0] - 5;
+        lServoPosition.position = -lBaseThetas[2][0];
         lMoveServosMessage.servos.push_back(lServoPosition);
 
         lServoPosition.servoId = 4;
@@ -367,15 +373,15 @@ int main(int argc,
         lMoveServosMessage.servos.push_back(lServoPosition);
 
         lServoPosition.servoId = 1;
-        lServoPosition.position = -lBaseThetas[0][0] + 2;
+        lServoPosition.position = -lBaseThetas[0][0];
         lMoveServosMessage.servos.push_back(lServoPosition);
 
         lServoPosition.servoId = 2;
-        lServoPosition.position = lBaseThetas[1][0] + 30;
+        lServoPosition.position = lBaseThetas[1][0];
         lMoveServosMessage.servos.push_back(lServoPosition);
 
         lServoPosition.servoId = 3;
-        lServoPosition.position = -lBaseThetas[2][0] - 5;
+        lServoPosition.position = -lBaseThetas[2][0];
         lMoveServosMessage.servos.push_back(lServoPosition);
 
         lServoPosition.servoId = 4;
@@ -400,15 +406,15 @@ int main(int argc,
         lMoveServosMessage.servos.push_back(lServoPosition);
 
         lServoPosition.servoId = 1;
-        lServoPosition.position = -lBeforeBaseThetas[0][0] + 2;
+        lServoPosition.position = -lBeforeBaseThetas[0][0];
         lMoveServosMessage.servos.push_back(lServoPosition);
 
         lServoPosition.servoId = 2;
-        lServoPosition.position = lBeforeBaseThetas[1][0] + 30;
+        lServoPosition.position = lBeforeBaseThetas[1][0];
         lMoveServosMessage.servos.push_back(lServoPosition);
 
         lServoPosition.servoId = 3;
-        lServoPosition.position = -lBeforeBaseThetas[2][0] - 5;
+        lServoPosition.position = -lBeforeBaseThetas[2][0];
         lMoveServosMessage.servos.push_back(lServoPosition);
 
         lServoPosition.servoId = 4;

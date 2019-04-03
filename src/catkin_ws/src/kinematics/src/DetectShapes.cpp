@@ -205,10 +205,25 @@ void Shapedetector::setShapeValues(Mat aImage, Mat aContour)
   std::cout << "\tShape location:\t" << xPosString << "\t" << yPosString << "\t" << areaString << std::endl;
 
   // Set the shape position return value
-  if(!mFindBase)
+  mShapePosition = {{{double(currentCenter.x)}}, {{double(currentCenter.y)}}};
+  // Create minarearect
+  RotatedRect lRotatedRect = minAreaRect(aContour);
+  // Get the smallest side
+  Point2f vertices[4];
+  double lMinDistance = DBL_MAX;
+  lRotatedRect.points(vertices);
+  for (int i = 0; i < 4; i++)
   {
-    mShapePosition = {{{double(currentCenter.x)}}, {{double(currentCenter.y)}}};
+    line(mDisplayImage, vertices[i], vertices[(i+1)%4], Scalar(0,0,255));
+    double lDistance = (double)cv::norm(vertices[i] - vertices[(i+1)%4]);
+    if(lDistance < lMinDistance)
+    {
+      lMinDistance = (double)lDistance;
+    }
   }
+  circle(mDisplayImage, getContourCenter(aContour), 3, Scalar(0,0,255), -1, 8, 0 );
+  // Set the number of pixels in the return value
+  mShapeMinDistance = lMinDistance;
 }
 
 void Shapedetector::drawShapeContours(Mat aImage, Mat aContour)
