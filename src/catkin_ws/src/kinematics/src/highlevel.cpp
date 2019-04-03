@@ -195,7 +195,8 @@ void highlevel::initializeValues()
 
   mServoIds = {0, 1, 2, 3, 4, 5};
 
-  // Understanding values have been found by experimenting with the robot arm, and may differ slightly from robot to robot.
+  // Servo positions for the different stances
+  // These values have been found by experimenting with the robot arm, and may differ slightly from robot to robot.
   mParkPosition.servoIds = {0, 1, 2, 3, 4, 5};
   mParkPosition.servoDegrees = {0, 30, 135, -60, 60, 0};
   mReadyPosition.servoIds = {0, 1, 2, 3, 4, 5};

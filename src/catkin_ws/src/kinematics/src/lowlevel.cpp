@@ -3,12 +3,12 @@
 lowlevel::lowlevel() : serial(ioservice), mArmLocked(false)
 {
   // Set the servo ranges
-  mServos.push_back(Servo(0, -100, 100, -100, 100));
-  mServos.push_back(Servo(1, -30, 90, -90, 90));
-  mServos.push_back(Servo(2, 0, 135, 0, 220));
-  mServos.push_back(Servo(3, -90, 90, -90, 90));
-  mServos.push_back(Servo(4, 0, 180, 0, 180));
-  mServos.push_back(Servo(5, -90, 90, -90, 90));
+  mServos.push_back(Servo(0, -100, 100, -100, 100, -50));
+  mServos.push_back(Servo(1, -30, 90, -90, 90, 30));
+  mServos.push_back(Servo(2, 0, 135, 0, 220, 350));
+  mServos.push_back(Servo(3, -90, 90, -90, 90, 0));
+  mServos.push_back(Servo(4, 0, 180, 0, 180, 0));
+  mServos.push_back(Servo(5, -90, 90, -90, 90, 0));
 
   // Initializing serial
   boost::system::error_code ec;
@@ -106,34 +106,7 @@ unsigned int lowlevel::convertDegreesToPulsewidth(int aDegrees, Servo& aServo) c
 
   std::cout << "lFactor : " << lFactor << std::endl;
   
-  unsigned int lPulsewidthCompensation = 0;
-
-  if(aServo.getServoId() == 0)
-  {
-    lPulsewidthCompensation = JOINT_0_PULSEWIDTH_COMPENSATION;
-  }
-  else if(aServo.getServoId() == 1)
-  {
-    lPulsewidthCompensation = JOINT_1_PULSEWIDTH_COMPENSATION;
-  }
-  else if(aServo.getServoId() == 2)
-  {
-    lPulsewidthCompensation = JOINT_2_PULSEWIDTH_COMPENSATION;
-  }
-  else if(aServo.getServoId() == 3)
-  {
-    lPulsewidthCompensation = JOINT_3_PULSEWIDTH_COMPENSATION;
-  }
-  else if(aServo.getServoId() == 4)
-  {
-    lPulsewidthCompensation = JOINT_4_PULSEWIDTH_COMPENSATION;
-  }
-  else if(aServo.getServoId() == 5)
-  {
-    lPulsewidthCompensation = JOINT_5_PULSEWIDTH_COMPENSATION;
-  }
-  
-  unsigned int lReturn = static_cast<unsigned int>((MIN_PULSEWIDTH + (lPulseRange * lFactor)) + lPulsewidthCompensation);
+  unsigned int lReturn = static_cast<unsigned int>((MIN_PULSEWIDTH + (lPulseRange * lFactor)) + aServo.getPulsewidthCompensation());
 
   return lReturn;
 }

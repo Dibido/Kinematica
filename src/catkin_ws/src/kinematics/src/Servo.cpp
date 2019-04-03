@@ -1,7 +1,7 @@
 #include "Servo.h"
 
-Servo::Servo(unsigned int aServoId, int aMinDegreesLimit, int aMaxDegreesLimit, int aMinDegreesRange, int aMaxDegreesRange)
-    : mServoId(aServoId), mMinDegreesLimit(aMinDegreesLimit), mMaxDegreesLimit(aMaxDegreesLimit), mMinDegreesRange(aMinDegreesRange), mMaxDegreesRange(aMaxDegreesRange), mCurrentDegrees(0)
+Servo::Servo(unsigned int aServoId, int aMinDegreesLimit, int aMaxDegreesLimit, int aMinDegreesRange, int aMaxDegreesRange, int aPulsewidthCompensation)
+    : mServoId(aServoId), mMinDegreesLimit(aMinDegreesLimit), mMaxDegreesLimit(aMaxDegreesLimit), mMinDegreesRange(aMinDegreesRange), mMaxDegreesRange(aMaxDegreesRange), mCurrentDegrees(0), mPulsewidthCompensation(aPulsewidthCompensation)
 {
 }
 
@@ -42,6 +42,12 @@ int Servo::getCurrentDegrees() const
 {
   return mCurrentDegrees;
 }
+
+long Servo::getPulsewidthCompensation() const
+{
+  return mPulsewidthCompensation;
+}
+
 void Servo::setCurrentDegrees(int aDegrees)
 {
   mCurrentDegrees = aDegrees;
