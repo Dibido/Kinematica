@@ -43,6 +43,7 @@
 #define GRIPPER_CLOSED_DEGREES 180
 #define GRIPPER_OPEN_WIDTH_CM 3.0
 #define GRIPPER_CLOSED_WIDTH_CM 0.0
+#define GRIPPER_CLOSE_OFFSET 10
 
 
 Matrix<double, 3, 1> gSidelengths = {{{14.605}},
@@ -124,6 +125,7 @@ int main(int argc,
         std::cout << "Detected shape width : " << lDetectedShapeCoordinates.second << std::endl;
         // Calculate closed gripper degrees
         lCloseGripperDegrees = ((lDetectedShapeCoordinates.second - GRIPPER_CLOSED_WIDTH_CM) * (GRIPPER_OPEN_DEGREES - GRIPPER_CLOSED_DEGREES) / (GRIPPER_OPEN_WIDTH_CM - GRIPPER_CLOSED_WIDTH_CM)) + GRIPPER_CLOSED_DEGREES;
+        lCloseGripperDegrees += GRIPPER_CLOSE_OFFSET;
         std::cout << "lCloseGripperDegrees : " << lCloseGripperDegrees << std::endl;
         lDetectedBaseCoordinates /= lCoordinateSystemConversionValue;
         // Modify the X/Y coordinates to be in the refence frame of the arm base
