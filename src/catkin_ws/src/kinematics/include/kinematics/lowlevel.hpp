@@ -31,6 +31,13 @@
 #define MIN_PULSEWIDTH 500
 #define MAX_PULSEWIDTH 2500
 
+#define JOINT_0_PULSEWIDTH_COMPENSATION -50
+#define JOINT_1_PULSEWIDTH_COMPENSATION 30
+#define JOINT_2_PULSEWIDTH_COMPENSATION 350
+#define JOINT_3_PULSEWIDTH_COMPENSATION 0
+#define JOINT_4_PULSEWIDTH_COMPENSATION 0
+#define JOINT_5_PULSEWIDTH_COMPENSATION 0
+
 // The time it takes for a servo to move a single degree
 // https://www.servocity.com/hs-805bb-servo
 // No-Load Speed (4.8V) 	0.19sec/60° evaluates to 3.16 in 1ms
