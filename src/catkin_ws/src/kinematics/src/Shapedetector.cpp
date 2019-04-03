@@ -42,8 +42,8 @@ void Shapedetector::initializeValues()
   mContrastSliderValue = 0;
   mBlurSliderValue = 0;
   mNoiseSliderValue = 0;
-  mMinRatioSliderValue = 85;
-  mMaxRatioSliderValue = 108;
+  mMinRatioSliderValue = 75;
+  mMaxRatioSliderValue = 125;
 
   mMinCalibrationHue = 0;
   mMaxCalibrationHue = 180;
@@ -74,8 +74,8 @@ void Shapedetector::initializeValues()
   mMaxTreshold = 255;
   mTresholdType = ThresholdTypes::THRESH_BINARY;
 
-  mMinSquareRatio = 0.85;
-  mMaxSquareRatio = 1.08;
+  mMinSquareRatio = 0.60;
+  mMaxSquareRatio = 1.40;
 
   // Set the Contours variables
   mContourCenterMargin = 30;

@@ -34,17 +34,24 @@
 #define UNIT_TEST false
 
 // Base height is 6.1, we try to have effector 2 cm above ground so compensate -4.1
-#define BEFORE_HEIGHT_COMPENSATION 13.193
-#define BEFORE_HEIGHT_BASE_COMPENSATION 5.193
-#define BASE_HEIGHT_COMPENSATION -4.193 // -2.193
+#define BEFORE_HEIGHT_COMPENSATION 4.193
+#define BEFORE_HEIGHT_BASE_COMPENSATION 8.193
+#define BASE_HEIGHT_COMPENSATION -4.693 // -2.193
 
-// Matrix<double, 3, 1> gSidelengths = {{{14.605}},
-//                                      {{18.733}}, /* 18.773 */
-//                                      {{10.0}}};
+// Gripper values
+#define GRIPPER_OPEN_DEGREES 60
+#define GRIPPER_CLOSED_DEGREES 180
+#define GRIPPER_OPEN_WIDTH_CM 3.0
+#define GRIPPER_CLOSED_WIDTH_CM 0.0
 
-Matrix<double, 3, 1> gSidelengths = {{{16.0}},
-{{16.0}}, /* 18.773 */
-{{12.0}}};
+
+Matrix<double, 3, 1> gSidelengths = {{{14.605}},
+                                     {{18.733}}, /* 18.773 */
+                                     {{10.0}}};
+
+// Matrix<double, 3, 1> gSidelengths = {{{16.0}},
+//                                     {{16.0}}, /* 18.773 */
+//                                     {{12.0}}};
 
 Matrix<double, 3, 1> gThetas = {{{0}},
                                 {{0}},
@@ -95,6 +102,40 @@ int main(int argc,
     }
     else
     {
+      // sleep(1);
+      // robotarminterface::moveServos lMoveServosMessage;
+      // robotarminterface::servoPosition lServoPosition;
+      // lServoPosition.servoId = 0;
+      // lServoPosition.position = 0;
+      // lMoveServosMessage.servos.push_back(lServoPosition);
+
+      // lServoPosition.servoId = 1;
+      // lServoPosition.position = 0; /* + 2 */
+      // lMoveServosMessage.servos.push_back(lServoPosition);
+
+      // lServoPosition.servoId = 2;
+      // lServoPosition.position = 0; /* + 30 */
+      // lMoveServosMessage.servos.push_back(lServoPosition);
+
+      // lServoPosition.servoId = 3;
+      // lServoPosition.position = 0; /* - 5 */
+      // lMoveServosMessage.servos.push_back(lServoPosition);
+
+      // lServoPosition.servoId = 4;
+      // lServoPosition.position = 60;
+      // lMoveServosMessage.servos.push_back(lServoPosition);
+
+      // lServoPosition.servoId = 5;
+      // lServoPosition.position = 10;
+      // lMoveServosMessage.servos.push_back(lServoPosition);
+
+      // lMoveServosMessage.time = 3000;
+      // ROS_INFO("Sending allServoPos");
+
+      // lMoveServosPublisher.publish(lMoveServosMessage);
+      // ros::spinOnce();
+      // sleep(5);
+
       double lCoordinateSystemConversionValue;
       Matrix<double, 2, 1> lDetectedRobotarmBaseCoordinates;
       std::pair<Matrix<double, 2, 1>, double> lDetectedShapeCoordinates;
@@ -132,6 +173,7 @@ int main(int argc,
         gInbetweenShapeGoal = {{{lDeltaToObject}}, {{BEFORE_HEIGHT_COMPENSATION}}};
 
         std::pair<bool, Matrix<double, 3, 1>> lConfiguration = MatrixFunctions::computeConfiguration(gShapeGoal, gSidelengths, gThetas, gThetaRanges, 50);
+        std::cout << "^In between goal" << std::endl;
         std::pair<bool, Matrix<double, 3, 1>> lBeforeConfiguration = MatrixFunctions::computeConfiguration(gInbetweenShapeGoal, gSidelengths, gThetas, gThetaRanges, 50);
 
         Matrix<double, 3, 1> lThetas = lConfiguration.second;
@@ -287,8 +329,8 @@ int main(int argc,
         double lBaseAngle = MatrixFunctions::calculateBaseAngle(lDetectedRobotarmBaseCoordinates, lDetectedBaseCoordinates);
         double lDeltaToBase = MatrixFunctions::calcDistance(lDetectedRobotarmBaseCoordinates, lDetectedBaseCoordinates);
 
-        gBaseGoal = {{{lDeltaToBase + 4.0}}, {{BASE_HEIGHT_COMPENSATION}}};
-        gInbetweenBaseGoal = {{{lDeltaToBase + 4.0}}, {{BEFORE_HEIGHT_BASE_COMPENSATION}}};
+        gBaseGoal = {{{lDeltaToBase}}, {{BASE_HEIGHT_COMPENSATION}}};
+        gInbetweenBaseGoal = {{{lDeltaToBase}}, {{BEFORE_HEIGHT_BASE_COMPENSATION}}};
 
         std::pair<bool, Matrix<double, 3, 1>> lBaseConfiguration = MatrixFunctions::computeConfiguration(gBaseGoal, gSidelengths, gThetas, gThetaRanges, 50);
         std::pair<bool, Matrix<double, 3, 1>> lBeforeBaseConfiguration = MatrixFunctions::computeConfiguration(gInbetweenBaseGoal, gSidelengths, gThetas, gThetaRanges, 50);

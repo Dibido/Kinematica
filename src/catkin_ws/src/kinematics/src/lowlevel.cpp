@@ -5,7 +5,7 @@ lowlevel::lowlevel() : serial(ioservice), mArmLocked(false)
   // Set the servo ranges
   mServos.push_back(Servo(0, -100, 100, -100, 100));
   mServos.push_back(Servo(1, -30, 90, -90, 90));
-  mServos.push_back(Servo(2, 0, 135, 0, 180));
+  mServos.push_back(Servo(2, 0, 135, 0, 220));
   mServos.push_back(Servo(3, -90, 90, -90, 90));
   mServos.push_back(Servo(4, 0, 180, 0, 180));
   mServos.push_back(Servo(5, -90, 90, -90, 90));
@@ -117,7 +117,7 @@ unsigned int lowlevel::convertDegreesToPulsewidth(int aDegrees, Servo& aServo) c
   }
   else if(aServo.getServoId() == 2)
   {
-    lPulsewidthCompensation = 180;
+    lPulsewidthCompensation = 350; /* 400 */
   }
   unsigned int lReturn = static_cast<unsigned int>((MIN_PULSEWIDTH + (lPulseRange * lFactor)) + lPulsewidthCompensation);
 

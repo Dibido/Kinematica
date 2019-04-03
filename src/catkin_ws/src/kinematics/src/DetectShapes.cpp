@@ -15,10 +15,18 @@ void Shapedetector::detectSquares(std::vector<Mat> aContours)
         float ratio = (float)boundedRect.width / (float)boundedRect.height;
         if(ratio > mMinSquareRatio && ratio < mMaxSquareRatio)
         {
+          drawShapeContours(mDisplayImage, mCurrentContours.at(i));
+          setShapeValues(mDisplayImage, mCurrentContours.at(i));
           mCurrentShapeCount++;
           drawShapeContours(mDisplayImage, mCurrentContours.at(i));
           setShapeValues(mDisplayImage, mCurrentContours.at(i));
         }
+        else
+        {
+          std::cout << "Min : " << mMinSquareRatio << " Max : " << mMaxSquareRatio << std::endl;
+          std::cout << "Ratio : " << ratio << std::endl;
+        }
+        
       }
     }
   }
