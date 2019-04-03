@@ -102,41 +102,8 @@ int main(int argc,
     }
     else
     {
-      // sleep(1);
-      // robotarminterface::moveServos lMoveServosMessage;
-      // robotarminterface::servoPosition lServoPosition;
-      // lServoPosition.servoId = 0;
-      // lServoPosition.position = 0;
-      // lMoveServosMessage.servos.push_back(lServoPosition);
-
-      // lServoPosition.servoId = 1;
-      // lServoPosition.position = 0; /* + 2 */
-      // lMoveServosMessage.servos.push_back(lServoPosition);
-
-      // lServoPosition.servoId = 2;
-      // lServoPosition.position = 0; /* + 30 */
-      // lMoveServosMessage.servos.push_back(lServoPosition);
-
-      // lServoPosition.servoId = 3;
-      // lServoPosition.position = 0; /* - 5 */
-      // lMoveServosMessage.servos.push_back(lServoPosition);
-
-      // lServoPosition.servoId = 4;
-      // lServoPosition.position = 60;
-      // lMoveServosMessage.servos.push_back(lServoPosition);
-
-      // lServoPosition.servoId = 5;
-      // lServoPosition.position = 10;
-      // lMoveServosMessage.servos.push_back(lServoPosition);
-
-      // lMoveServosMessage.time = 3000;
-      // ROS_INFO("Sending allServoPos");
-
-      // lMoveServosPublisher.publish(lMoveServosMessage);
-      // ros::spinOnce();
-      // sleep(5);
-
       double lCoordinateSystemConversionValue;
+      double lCloseGripperDegrees;
       Matrix<double, 2, 1> lDetectedRobotarmBaseCoordinates;
       std::pair<Matrix<double, 2, 1>, double> lDetectedShapeCoordinates;
       Matrix<double, 2, 1> lDetectedBaseCoordinates;
@@ -155,6 +122,9 @@ int main(int argc,
         lDetectedShapeCoordinates.first /= lCoordinateSystemConversionValue;
         lDetectedShapeCoordinates.second /= lCoordinateSystemConversionValue;
         std::cout << "Detected shape width : " << lDetectedShapeCoordinates.second << std::endl;
+        // Calculate closed gripper degrees
+        lCloseGripperDegrees = ((lDetectedShapeCoordinates.second - GRIPPER_CLOSED_WIDTH_CM) * (GRIPPER_OPEN_DEGREES - GRIPPER_CLOSED_DEGREES) / (GRIPPER_OPEN_WIDTH_CM - GRIPPER_CLOSED_WIDTH_CM)) + GRIPPER_CLOSED_DEGREES;
+        std::cout << "lCloseGripperDegrees : " << lCloseGripperDegrees << std::endl;
         lDetectedBaseCoordinates /= lCoordinateSystemConversionValue;
         // Modify the X/Y coordinates to be in the refence frame of the arm base
         std::cout << "Detected Shape: " << lDetectedShapeCoordinates.first << std::endl;
@@ -273,7 +243,7 @@ int main(int argc,
         lMoveServosMessage.servos.push_back(lServoPosition);
 
         lServoPosition.servoId = 4;
-        lServoPosition.position = 180;
+        lServoPosition.position = lCloseGripperDegrees;
         lMoveServosMessage.servos.push_back(lServoPosition);
 
         lServoPosition.servoId = 5;
@@ -307,7 +277,7 @@ int main(int argc,
         lMoveServosMessage.servos.push_back(lServoPosition);
 
         lServoPosition.servoId = 4;
-        lServoPosition.position = 180;
+        lServoPosition.position = lCloseGripperDegrees;
         lMoveServosMessage.servos.push_back(lServoPosition);
 
         lServoPosition.servoId = 5;
@@ -361,7 +331,7 @@ int main(int argc,
         lMoveServosMessage.servos.push_back(lServoPosition);
 
         lServoPosition.servoId = 4;
-        lServoPosition.position = 180;
+        lServoPosition.position = lCloseGripperDegrees;
         lMoveServosMessage.servos.push_back(lServoPosition);
 
         lServoPosition.servoId = 5;
@@ -394,7 +364,7 @@ int main(int argc,
         lMoveServosMessage.servos.push_back(lServoPosition);
 
         lServoPosition.servoId = 4;
-        lServoPosition.position = 180;
+        lServoPosition.position = lCloseGripperDegrees;
         lMoveServosMessage.servos.push_back(lServoPosition);
 
         lServoPosition.servoId = 5;

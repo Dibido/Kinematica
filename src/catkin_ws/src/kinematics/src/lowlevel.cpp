@@ -110,7 +110,7 @@ unsigned int lowlevel::convertDegreesToPulsewidth(int aDegrees, Servo& aServo) c
 
   if(aServo.getServoId() == 0)
   {
-    lPulsewidthCompensation = JOINT_0_PULSEWIDTH_COMPENSATION
+    lPulsewidthCompensation = JOINT_0_PULSEWIDTH_COMPENSATION;
   }
   else if(aServo.getServoId() == 1)
   {
@@ -124,7 +124,7 @@ unsigned int lowlevel::convertDegreesToPulsewidth(int aDegrees, Servo& aServo) c
   {
     lPulsewidthCompensation = JOINT_3_PULSEWIDTH_COMPENSATION;
   }
-  else if(aServo.getServoId() == 4}
+  else if(aServo.getServoId() == 4)
   {
     lPulsewidthCompensation = JOINT_4_PULSEWIDTH_COMPENSATION;
   }
