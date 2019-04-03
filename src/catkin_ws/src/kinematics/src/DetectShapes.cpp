@@ -23,10 +23,9 @@ void Shapedetector::detectSquares(std::vector<Mat> aContours)
         }
         else
         {
-          std::cout << "Min : " << mMinSquareRatio << " Max : " << mMaxSquareRatio << std::endl;
-          std::cout << "Ratio : " << ratio << std::endl;
+          std::cout << "Min Ratio : " << mMinSquareRatio << " Max Ratio : " << mMaxSquareRatio << std::endl;
+          std::cout << "Curent Ratio : " << ratio << std::endl;
         }
-        
       }
     }
   }

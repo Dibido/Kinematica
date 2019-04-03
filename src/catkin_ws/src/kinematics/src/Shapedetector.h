@@ -292,10 +292,29 @@ public:
    */
   double calibrateCoordinates(int aDeviceId);
 
+  /**
+   * @brief Calculates the position of the robotarm base based on the calibration block
+   * 
+   * @param coordinateConversionValue - The amount of pixels per cm used for conversion
+   * @param aDeviceId - The id of the webcam to use
+   * @return Matrix<double, 2, 1>  - The robotarm base coordinates
+   */
   Matrix<double, 2, 1> calibrateRobotarmBase(double coordinateConversionValue, int aDeviceId);
 
+  /**
+   * @brief Finds the coordinates and the width of the requested shape
+   * 
+   * @param aDeviceId - The id of the webcam to use
+   * @return std::pair<Matrix<double, 2, 1>, double> - A pair with the width and coordinates of the object
+   */
   std::pair<Matrix<double, 2, 1>, double> detectShapeCoordinates(int aDeviceId);
 
+  /**
+   * @brief - detects and returns the coordinates of the base to drop the object at
+   * 
+   * @param deviceId - The id of the webcam to use
+   * @return Matrix<double, 2, 1> - A matrix with the coordinates of the base
+   */
   Matrix<double, 2, 1> detectBaseCoordinates(int deviceId);
 
   // Image matrices to show
@@ -305,9 +324,10 @@ public:
   Mat mMaskImage;          // color filtered image
   Mat mDisplayImage;       // image with shape outlines
 
+  // The location of the current shape
   Matrix<double, 2, 1> mShapePosition;
+  // The width of the shape
   double mShapeMinDistance;
-  bool mFindBase;
 
 private:
   // Program variables

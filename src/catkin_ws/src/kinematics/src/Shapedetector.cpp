@@ -32,7 +32,6 @@ void Shapedetector::initializeValues()
 {
   mShapePosition = {{{0}}, {{0}}};
   mShapeMinDistance = DBL_MAX;
-  mFindBase = false;
 
   // Set shape and color
   mCurrentColor = COLORS::UNKNOWNCOLOR;
@@ -98,20 +97,12 @@ void Shapedetector::initializeValues()
   mBlueLimits[0] = Scalar(70, 0, 0);
   mBlueLimits[1] = Scalar(95, 80, 45);
 
-  // mBlueLimits[0] = Scalar(105, 0, 30);
-  // mBlueLimits[1] = Scalar(135, 255, 95);
-
   mGreenLimits[0] = Scalar(75, 0, 0);
   mGreenLimits[1] = Scalar(125, 255, 50);
-
-  // mGreenLimits[0] = Scalar(0, 0, 10);
-  // mGreenLimits[1] = Scalar(102, 255, 70);
 
   mRedLimits[0] = Scalar(0, 0, 70);
   mRedLimits[1] = Scalar(50, 85, 255);
 
-  // mRedLimits[0] = Scalar(0, 60, 60);
-  // mRedLimits[1] = Scalar(10, 255, 255);
   mRedLimits[2] = Scalar(170, 60, 60);
   mRedLimits[3] = Scalar(180, 255, 255);
 
@@ -352,24 +343,25 @@ Matrix<double, 2, 1> Shapedetector::calibrateRobotarmBase(double aCoordinateConv
       {
         if (contourSizeAllowed(mCurrentContours.at(i), mMinContourSize, mMaxContourSize))
         {
-          // Get longest side length
+          // Get the center point
           lBlockCenterPoint = getContourCenter(mCurrentContours.at(i));
-
+          // Create a bounding rectangle
           RotatedRect lRotatedRect = minAreaRect(mCurrentContours.at(i));
           Point2f vertices[4];
           lRotatedRect.points(vertices);
           for (int i = 0; i < 4; i++)
           {
+            // Draw the rectangle
             line(mDisplayImage, vertices[i], vertices[(i + 1) % 4], Scalar(0, 255, 0));
           }
-          // lBlockCenterPoint.y += (BASE_Y_DISTANCE_CM * aCoordinateConversionValue);
-
+          // Calculate the base point using the block center point for reference
           lBasePoint = Point(lBlockCenterPoint.x, lBlockCenterPoint.y + BASE_Y_DISTANCE_CM * aCoordinateConversionValue);
 
           std::cout << "lXCoordinateValue base : " << lBasePoint.x  << std::endl;
           std::cout << "lYCoordinateValue base : " << lBasePoint.y  << std::endl;
-
+          // Draw the base point
           circle(mDisplayImage, lBasePoint, 3, Scalar(0, 0, 255), -1, 8, 0);
+          // Draw a line from the basepoint for positioning
           line(mDisplayImage, lBasePoint, Point(0.0, lBasePoint.y), Scalar(0, 255, 0));
           setShapeValues(mDisplayImage, mCurrentContours.at(i));
           imshow("result", mDisplayImage);
@@ -385,7 +377,6 @@ Matrix<double, 2, 1> Shapedetector::calibrateRobotarmBase(double aCoordinateConv
   // Calculate base coordinate
   double lXCoordinateValue = lBasePoint.x / aCoordinateConversionValue;
   double lYCoordinateValue = lBasePoint.y / aCoordinateConversionValue;
-
   lReturn.at(0, 0) = lXCoordinateValue;
   lReturn.at(1, 0) = lYCoordinateValue;
   destroyAllWindows();
@@ -408,6 +399,7 @@ double Shapedetector::calibrateCoordinates(int aDeviceId)
   mVidCap.grab();
   mVidCap.retrieve(firstRetrievedFrame);
 
+  // Calibrate the colors used for detecting the shapes
   calibrateColors();
 
   while (true)
@@ -442,8 +434,6 @@ double Shapedetector::calibrateCoordinates(int aDeviceId)
           for (int i = 0; i < 4; i++)
           {
             line(mDisplayImage, vertices[i], vertices[(i + 1) % 4], Scalar(0, 255, 0));
-            // Find longest side
-            // std::cout << vertices[i] << " : " << vertices[(i+1)%4] << std::endl;
             double lDistance = (double)cv::norm(vertices[i] - vertices[(i + 1) % 4]);
             if (lDistance > lMaxDistance)
             {
@@ -457,9 +447,8 @@ double Shapedetector::calibrateCoordinates(int aDeviceId)
         }
       }
     }
-    //  Print pixels per centimeter
+    //  Calculate pixels per centimeter
     lReturn = (double)lPixels / (double)SHAPE_WIDTH_SIZE_CM;
-    // std::cout << "Pixels/CM : " << lReturn << std::endl;
     int pressedKey = waitKey(5);
     if (pressedKey == 27) // ESC key
     {
@@ -540,7 +529,6 @@ Matrix<double, 2, 1> Shapedetector::detectBaseCoordinates(int deviceId)
         setShapeValues(mDisplayImage, mCurrentContours.at(i));
       }
     }
-
     imshow("result", mOriginalImage);
     int pressedKey = waitKey(5);
     if (pressedKey == 27) // ESC key
@@ -557,7 +545,7 @@ Matrix<double, 2, 1> Shapedetector::webcamMode(int deviceId)
   // Start webcam mode
   std::cout << "### Webcam mode ###" << std::endl;
 
-  //Calibrate colors
+  // Calibrate colors
   // std::cout << "Calibrate colors" << std::endl;
   // calibrateColors();
 
@@ -699,8 +687,6 @@ void Shapedetector::calibrateColors()
 
       minCalibrationValues = Scalar(mMinCalibrationHue, mMinCalibrationSaturation, mMinCalibrationValue);
       maxCalibrationValues = Scalar(mMaxCalibrationHue, mMaxCalibrationSaturation, mMaxCalibrationValue);
-      // std::cout << mMinCalibrationHue << " : " << mMinCalibrationSaturation << " : " << mMinCalibrationValue << std::endl;
-      // std::cout << mMaxCalibrationHue << " : " << mMaxCalibrationSaturation << " : " << mMaxCalibrationValue << std::endl;
       inRange(retrievedFrame, minCalibrationValues, maxCalibrationValues, maskedFrame);
 
       imshow("orgininal", retrievedFrame);
