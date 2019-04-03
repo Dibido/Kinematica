@@ -20,9 +20,10 @@ class Servo
      * @param aMinDegreesLimit - Minimum amount of degrees required to be considered a "safe/allowed" amount of degrees, software constraint.
      * @param aMaxDegreesLimit - Maximum amount of degrees required to be considered a "safe/allowed" amount of degrees, software constraint.
      * @param aMinDegreesRange - Lower limit of the range of degrees the servo is actually able to move (hardware-wise).
-     * @param aMaxDegreesRange - Uppr limit of the range of degrees the servo is actually able to move (hardware-wise).
+     * @param aMaxDegreesRange - Upper limit of the range of degrees the servo is actually able to move (hardware-wise).
+     * @param aPulsewidthCompensation - The pulsewidth compensation for the hardware servo
      */
-    Servo(unsigned int aServoId, int aMinDegreesLimit, int aMaxDegreesLimit, int aMinDegreesRange, int aMaxDegreesRange);
+    Servo(unsigned int aServoId, int aMinDegreesLimit, int aMaxDegreesLimit, int aMinDegreesRange, int aMaxDegreesRange, int aPulsewidthCompensation);
     
     /**
      * @brief Copy constructor
@@ -75,6 +76,12 @@ class Servo
     int getCurrentDegrees() const;
 
     /**
+     * @brief Get the pulsewidth compensation for the hardware servo
+     * @return The pulsewidth compensation
+     */
+    long getPulsewidthCompensation() const;
+
+    /**
      * @brief Sets the current degrees, is usually called when a move instruction is sent via serial to the servo.
      */
     void setCurrentDegrees(int aDegrees);
@@ -95,6 +102,9 @@ class Servo
     
     // Current degrees of the servo, to be more precise: The number of degrees the servo lastly got instructed to move to.
     int mCurrentDegrees;
+
+    // The pulsewidth compensation for the hardware servo
+    long mPulsewidthCompensation;
 };
 
 #endif
