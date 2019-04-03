@@ -107,18 +107,32 @@ unsigned int lowlevel::convertDegreesToPulsewidth(int aDegrees, Servo& aServo) c
   std::cout << "lFactor : " << lFactor << std::endl;
   
   unsigned int lPulsewidthCompensation = 0;
+
   if(aServo.getServoId() == 0)
   {
-    lPulsewidthCompensation = -50;
+    lPulsewidthCompensation = JOINT_0_PULSEWIDTH_COMPENSATION
   }
   else if(aServo.getServoId() == 1)
   {
-    lPulsewidthCompensation = 30;
+    lPulsewidthCompensation = JOINT_1_PULSEWIDTH_COMPENSATION;
   }
   else if(aServo.getServoId() == 2)
   {
-    lPulsewidthCompensation = 180;
+    lPulsewidthCompensation = JOINT_2_PULSEWIDTH_COMPENSATION;
   }
+  else if(aServo.getServoId() == 3)
+  {
+    lPulsewidthCompensation = JOINT_3_PULSEWIDTH_COMPENSATION;
+  }
+  else if(aServo.getServoId() == 4}
+  {
+    lPulsewidthCompensation = JOINT_4_PULSEWIDTH_COMPENSATION;
+  }
+  else if(aServo.getServoId() == 5)
+  {
+    lPulsewidthCompensation = JOINT_5_PULSEWIDTH_COMPENSATION;
+  }
+  
   unsigned int lReturn = static_cast<unsigned int>((MIN_PULSEWIDTH + (lPulseRange * lFactor)) + lPulsewidthCompensation);
 
   return lReturn;
