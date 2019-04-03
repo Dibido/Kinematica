@@ -385,8 +385,8 @@ Matrix<double, 2, 1> Shapedetector::calibrateRobotarmBase(double aCoordinateConv
 
 double Shapedetector::calibrateCoordinates(int aDeviceId)
 {
-  const unsigned int SHAPE_WIDTH_SIZE_CM = 5;
-  const unsigned int SHAPE_HEIGHT_SIZE_CM = 2;
+  const unsigned int SHAPE_WIDTH_SIZE_CM = 4.97;
+  const unsigned int SHAPE_HEIGHT_SIZE_CM = 2.45;
   unsigned int lPixels = 0;
   double lReturn;
 

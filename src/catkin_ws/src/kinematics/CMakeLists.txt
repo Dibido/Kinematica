@@ -140,7 +140,7 @@ find_package( Boost COMPONENTS system filesystem unit_test_framework REQUIRED )
 find_package(OpenCV 3.2.0 REQUIRED)
 include_directories( ${Boost_INCLUDE_DIR} )
 
-add_executable(kinematics src/Main.cpp src/Matrix_test.cpp src/MatrixFunctions.cpp src/DetectColor.cpp src/DetectShapes.cpp src/Shapedetector.cpp)
+add_executable(kinematics src/Main.cpp src/RobotarmController.cpp src/Matrix_test.cpp src/MatrixFunctions.cpp src/DetectColor.cpp src/DetectShapes.cpp src/Shapedetector.cpp)
 
 target_link_libraries(kinematics ${Boost_FILESYSTEM_LIBRARY}
                       ${Boost_SYSTEM_LIBRARY}
