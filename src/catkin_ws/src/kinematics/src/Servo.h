@@ -79,7 +79,7 @@ class Servo
      * @brief Get the pulsewidth compensation for the hardware servo
      * @return The pulsewidth compensation
      */
-    long getPulsewidthCompensation() const;
+    int getPulsewidthCompensation() const;
 
     /**
      * @brief Sets the current degrees, is usually called when a move instruction is sent via serial to the servo.
@@ -104,7 +104,7 @@ class Servo
     int mCurrentDegrees;
 
     // The pulsewidth compensation for the hardware servo
-    long mPulsewidthCompensation;
+    int mPulsewidthCompensation;
 };
 
 #endif

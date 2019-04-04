@@ -3,12 +3,17 @@
 lowlevel::lowlevel() : serial(ioservice), mArmLocked(false)
 {
   // Set the servo ranges
+  /*
+  The values for the servo's are based on the tests that we did on the hardware
+  The minimum and maximum ranges are based on the visual difference between the max value and the measured
+  The compensation is based on the difference between the set value and the measured value
+  */
   mServos.push_back(Servo(0, -100, 100, -100, 100, -50));
   mServos.push_back(Servo(1, -30, 90, -90, 90, 30));
   mServos.push_back(Servo(2, 0, 135, 0, 220, 350));
   mServos.push_back(Servo(3, -90, 90, -90, 90, 0));
   mServos.push_back(Servo(4, 0, 180, 0, 180, 0));
-  mServos.push_back(Servo(5, -90, 90, -90, 90, 0));
+  mServos.push_back(Servo(5, -90, 90, -90, 90, 111));
 
   // Initializing serial
   boost::system::error_code ec;
@@ -106,7 +111,10 @@ unsigned int lowlevel::convertDegreesToPulsewidth(int aDegrees, Servo& aServo) c
 
   std::cout << "lFactor : " << lFactor << std::endl;
   
+  std::cout << "Original pulsewidth : " << (MIN_PULSEWIDTH + (lPulseRange * lFactor)) << std::endl;
+  std::cout << "Compensation : " << aServo.getPulsewidthCompensation() << std::endl;
   unsigned int lReturn = static_cast<unsigned int>((MIN_PULSEWIDTH + (lPulseRange * lFactor)) + aServo.getPulsewidthCompensation());
+  std::cout << "Compensated value : " << lReturn << std::endl;
 
   return lReturn;
 }

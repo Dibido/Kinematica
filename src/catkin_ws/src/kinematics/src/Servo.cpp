@@ -5,7 +5,7 @@ Servo::Servo(unsigned int aServoId, int aMinDegreesLimit, int aMaxDegreesLimit, 
 {
 }
 
-Servo::Servo(const Servo& aOther) : mServoId(aOther.mServoId), mMinDegreesLimit(aOther.mMinDegreesLimit), mMaxDegreesLimit(aOther.mMaxDegreesLimit), mMinDegreesRange(aOther.mMinDegreesRange), mMaxDegreesRange(aOther.mMaxDegreesRange), mCurrentDegrees(aOther.mCurrentDegrees)
+Servo::Servo(const Servo& aOther) : mServoId(aOther.mServoId), mMinDegreesLimit(aOther.mMinDegreesLimit), mMaxDegreesLimit(aOther.mMaxDegreesLimit), mMinDegreesRange(aOther.mMinDegreesRange), mMaxDegreesRange(aOther.mMaxDegreesRange), mCurrentDegrees(aOther.mCurrentDegrees), mPulsewidthCompensation(aOther.mPulsewidthCompensation)
 {
 }
 
@@ -43,7 +43,7 @@ int Servo::getCurrentDegrees() const
   return mCurrentDegrees;
 }
 
-long Servo::getPulsewidthCompensation() const
+int Servo::getPulsewidthCompensation() const
 {
   return mPulsewidthCompensation;
 }
@@ -65,6 +65,7 @@ Servo& Servo::operator=(Servo aOther)
   this->mMinDegreesRange = aOther.getMinDegreesRange();
   this->mMaxDegreesRange = aOther.getMaxDegreesRange();
   this->mCurrentDegrees = aOther.getCurrentDegrees();
+  this->mPulsewidthCompensation = aOther.getPulsewidthCompensation();
   return *this;
 }
 

@@ -70,7 +70,7 @@ void highlevel::signalHandler(int aSignal)
   exit(1);
 }
 
-void highlevel::singleServoCallback(const robotarminterface::singleServoConstPtr& aSingleServoMessage)
+void highlevel::singleServoCallback(const kinematics::singleServoConstPtr& aSingleServoMessage)
 {
   ROS_INFO("Handling command, Position %d, Time %d", aSingleServoMessage->position, aSingleServoMessage->time);
   std::vector<unsigned int> lPins;
@@ -81,7 +81,7 @@ void highlevel::singleServoCallback(const robotarminterface::singleServoConstPtr
   mLowLevelDriver.moveServosToPos(lPins, lDegrees, lMillis);
 }
 
-void highlevel::stopSingleServoCallback(const robotarminterface::stopSingleServoConstPtr& aStopSingleServoMessage)
+void highlevel::stopSingleServoCallback(const kinematics::stopSingleServoConstPtr& aStopSingleServoMessage)
 {
   ROS_INFO("Handling stop command, Id %d", aStopSingleServoMessage->servoId);
   std::vector<unsigned int> lPins;
@@ -89,7 +89,7 @@ void highlevel::stopSingleServoCallback(const robotarminterface::stopSingleServo
   mLowLevelDriver.stopServos(lPins);
 }
 
-void highlevel::moveServosCallback(const robotarminterface::moveServosConstPtr& aMoveServosMessage)
+void highlevel::moveServosCallback(const kinematics::moveServosConstPtr& aMoveServosMessage)
 {
   ROS_INFO("Receiving moveMultipleServos command");
 
@@ -107,7 +107,7 @@ void highlevel::moveServosCallback(const robotarminterface::moveServosConstPtr& 
   mMoveCommands.push_back(lMoveCommand);
 }
 
-void highlevel::stopServosCallback(const robotarminterface::stopServosConstPtr& aStopServosMessage)
+void highlevel::stopServosCallback(const kinematics::stopServosConstPtr& aStopServosMessage)
 {
   ROS_INFO("Handling stopServos Command");
   mLowLevelDriver.stopServos(aStopServosMessage->servoIds);
@@ -115,7 +115,7 @@ void highlevel::stopServosCallback(const robotarminterface::stopServosConstPtr& 
   mMoveCommands.clear();
 }
 
-void highlevel::armInstructionCallback(const robotarminterface::armInstructionConstPtr& aArmInstructionMessage)
+void highlevel::armInstructionCallback(const kinematics::armInstructionConstPtr& aArmInstructionMessage)
 {
   ROS_INFO("Receiving armPosition command, position : %s, time : %d", aArmInstructionMessage->instruction.c_str(), aArmInstructionMessage->time);
 

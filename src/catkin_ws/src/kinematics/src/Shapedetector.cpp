@@ -304,7 +304,8 @@ Matrix<double, 2, 1> Shapedetector::calibrateRobotarmBase(double aCoordinateConv
 {
   const double SHAPE_WIDTH_SIZE_CM = 4.95;
   const double SHAPE_HEIGHT_SIZE_CM = 2.47;
-  const double BASE_Y_DISTANCE_CM = (4.75 + (SHAPE_HEIGHT_SIZE_CM / 2));
+  const double BASE_RADIUS_CM = 3.75;
+  const double BASE_Y_DISTANCE_CM = (BASE_RADIUS_CM + (SHAPE_HEIGHT_SIZE_CM / 2));
 
   Matrix<double, 2, 1> lReturn;
   Point lBlockCenterPoint;
@@ -344,9 +345,10 @@ Matrix<double, 2, 1> Shapedetector::calibrateRobotarmBase(double aCoordinateConv
         if (contourSizeAllowed(mCurrentContours.at(i), mMinContourSize, mMaxContourSize))
         {
           // Get the center point
-          lBlockCenterPoint = getContourCenter(mCurrentContours.at(i));
+          // lBlockCenterPoint = getContourCenter(mCurrentContours.at(i));
           // Create a bounding rectangle
           RotatedRect lRotatedRect = minAreaRect(mCurrentContours.at(i));
+          lBlockCenterPoint = lRotatedRect.center;
           Point2f vertices[4];
           lRotatedRect.points(vertices);
           for (int i = 0; i < 4; i++)
@@ -386,13 +388,10 @@ Matrix<double, 2, 1> Shapedetector::calibrateRobotarmBase(double aCoordinateConv
 double Shapedetector::calibrateCoordinates(int aDeviceId)
 {
   const unsigned int SHAPE_WIDTH_SIZE_CM = 4.97;
-  const unsigned int SHAPE_HEIGHT_SIZE_CM = 2.45;
+  // Factor to compensate for the camera angle, based on measurements
+  const double SHAPE_COMPENSATION_FACTOR = 0.85;
   unsigned int lPixels = 0;
   double lReturn;
-
-  Scalar lRedLimits[2];
-  lRedLimits[0] = Scalar(0, 0, 70);
-  lRedLimits[1] = Scalar(50, 85, 255);
 
   initCamera(aDeviceId);
   Mat firstRetrievedFrame;
@@ -412,7 +411,7 @@ double Shapedetector::calibrateCoordinates(int aDeviceId)
     // Recognize calibration object
     // Filter color
     Mat colorMask;
-    inRange(mOriginalImage, lRedLimits[0], lRedLimits[1], colorMask);
+    inRange(mOriginalImage, mRedLimits[0], mRedLimits[1], colorMask);
     imshow("colorMask", colorMask);
     // Find shape
     findContours(colorMask, mCurrentContours, CV_RETR_EXTERNAL, CHAIN_APPROX_NONE);
@@ -448,7 +447,10 @@ double Shapedetector::calibrateCoordinates(int aDeviceId)
       }
     }
     //  Calculate pixels per centimeter
-    lReturn = (double)lPixels / (double)SHAPE_WIDTH_SIZE_CM;
+    lReturn = (double)(lPixels * SHAPE_COMPENSATION_FACTOR) / (double)SHAPE_WIDTH_SIZE_CM;
+    std::cout << "Pixels per CM : " << lReturn << std::endl;
+    std::cout << "Image width : " << mDisplayImage.cols << std::endl;
+    std::cout << "Image height : " << mDisplayImage.rows << std::endl;
     int pressedKey = waitKey(5);
     if (pressedKey == 27) // ESC key
     {

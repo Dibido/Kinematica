@@ -20,11 +20,11 @@
 #include <chrono>
 
 #include "kinematics/lowlevel.hpp"
-#include "robotarminterface/singleServo.h"
-#include "robotarminterface/stopSingleServo.h"
-#include "robotarminterface/moveServos.h"
-#include "robotarminterface/stopServos.h"
-#include "robotarminterface/armInstruction.h"
+#include "kinematics/singleServo.h"
+#include "kinematics/stopSingleServo.h"
+#include "kinematics/moveServos.h"
+#include "kinematics/stopServos.h"
+#include "kinematics/armInstruction.h"
 
 #define DEFAULT_BAUDRATE 115200
 
@@ -153,11 +153,11 @@ private:
   static void signalHandler(int aSignal);
 
   // Message callbacks
-  void singleServoCallback(const robotarminterface::singleServoConstPtr& aSingleServoMessage);
-  void stopSingleServoCallback(const robotarminterface::stopSingleServoConstPtr& aStopSingleServoMessage);
-  void moveServosCallback(const robotarminterface::moveServosConstPtr& aSingleServoMessage);
-  void stopServosCallback(const robotarminterface::stopServosConstPtr& aStopAllServoMessage);
-  void armInstructionCallback(const robotarminterface::armInstructionConstPtr& aArmPosition);
+  void singleServoCallback(const kinematics::singleServoConstPtr& aSingleServoMessage);
+  void stopSingleServoCallback(const kinematics::stopSingleServoConstPtr& aStopSingleServoMessage);
+  void moveServosCallback(const kinematics::moveServosConstPtr& aSingleServoMessage);
+  void stopServosCallback(const kinematics::stopServosConstPtr& aStopAllServoMessage);
+  void armInstructionCallback(const kinematics::armInstructionConstPtr& aArmPosition);
 
   /**
    * @brief Initializes the arm by going to the park position

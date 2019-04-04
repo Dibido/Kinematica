@@ -4,11 +4,11 @@
 #include <ros/ros.h>
 
 // Message from other package
-#include "robotarminterface/moveServos.h"
+#include "kinematics/moveServos.h"
 
 #include "Shapedetector.h"
 #include "Matrix.hpp"
-#include "MatrixFunctions.h"
+#include "MatrixFunctions.h" 
 #include "Shape.h"
 
 // Robot constants, initialized in cpp
