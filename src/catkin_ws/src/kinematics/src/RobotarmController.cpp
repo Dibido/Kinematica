@@ -65,9 +65,9 @@ void RobotarmController::initialize()
 
 void RobotarmController::retrieveObject()
 {
-  std::pair<Matrix<double, 2, 1>, double> lShape = mShapeDetector.detectShapeCoordinates(mCamIndex);
-  mShape.mCenterPoint = lShape.first;
-  mShape.mShapeWidth = lShape.second;
+  mShape = mShapeDetector.detectShapeCoordinates(mCamIndex);
+  // mShape.mCenterPoint = lShape.first;
+  // mShape.mShapeWidth = lShape.second;
 
   // Convert to cm
 

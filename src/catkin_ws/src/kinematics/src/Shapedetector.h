@@ -15,6 +15,7 @@
 #include "opencv2/imgcodecs.hpp"
 #include "opencv2/highgui.hpp"
 #include "Matrix.hpp"
+#include "Shape.h"
 
 // Namespace
 using namespace cv;
@@ -307,7 +308,7 @@ public:
    * @param aDeviceId - The id of the webcam to use
    * @return std::pair<Matrix<double, 2, 1>, double> - A pair with the width and coordinates of the object
    */
-  std::pair<Matrix<double, 2, 1>, double> detectShapeCoordinates(int aDeviceId);
+  Shape detectShapeCoordinates(int aDeviceId);
 
   /**
    * @brief - detects and returns the coordinates of the base to drop the object at
@@ -328,6 +329,8 @@ public:
   Matrix<double, 2, 1> mShapePosition;
   // The width of the shape
   double mShapeMinDistance;
+  // A matrix with the x/y positions of every side of the bounding rect
+  Matrix<double, 4, 2> mShapeBoundingRect;
 
 private:
   // Program variables

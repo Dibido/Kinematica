@@ -202,6 +202,7 @@ void Shapedetector::setShapeValues(Mat aImage, Mat aContour)
   const std::string xPosString = std::string("X: " + std::to_string(currentCenter.x));
   const std::string yPosString = std::string("Y: " + std::to_string(currentCenter.y));
   const std::string areaString = std::string("A: " + std::to_string((int)contourArea(aContour)));
+  Point2f lVertices[4];
 
   // Place values in the image
   putText(aImage, xPosString, Point(currentCenter.x, currentCenter.y), FONT_HERSHEY_SIMPLEX, mTextSize, Scalar(255, 255, 255), 1);
@@ -216,13 +217,12 @@ void Shapedetector::setShapeValues(Mat aImage, Mat aContour)
   // Create minarearect
   RotatedRect lRotatedRect = minAreaRect(aContour);
   // Get the smallest side
-  Point2f vertices[4];
   double lMinDistance = DBL_MAX;
-  lRotatedRect.points(vertices);
+  lRotatedRect.points(lVertices);
   for (int i = 0; i < 4; i++)
   {
-    line(mDisplayImage, vertices[i], vertices[(i+1)%4], Scalar(0,0,255));
-    double lDistance = (double)cv::norm(vertices[i] - vertices[(i+1)%4]);
+    line(mDisplayImage, lVertices[i], lVertices[(i+1)%4], Scalar(0,0,255));
+    double lDistance = (double)cv::norm(lVertices[i] - lVertices[(i+1)%4]);
     if(lDistance < lMinDistance)
     {
       lMinDistance = (double)lDistance;
@@ -231,6 +231,12 @@ void Shapedetector::setShapeValues(Mat aImage, Mat aContour)
   circle(mDisplayImage, getContourCenter(aContour), 3, Scalar(0,0,255), -1, 8, 0 );
   // Set the number of pixels in the return value
   mShapeMinDistance = lMinDistance;
+  // Set the bounding rect corners in the return value
+  for (int i = 0; i < 4; i++)
+  {
+    mShapeBoundingRect.at(i,0) = lVertices[i].x;
+    mShapeBoundingRect.at(i,1) = lVertices[i].y;
+  }
 }
 
 void Shapedetector::drawShapeContours(Mat aImage, Mat aContour)

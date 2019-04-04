@@ -449,8 +449,6 @@ double Shapedetector::calibrateCoordinates(int aDeviceId)
     //  Calculate pixels per centimeter
     lReturn = (double)(lPixels * SHAPE_COMPENSATION_FACTOR) / (double)SHAPE_WIDTH_SIZE_CM;
     std::cout << "Pixels per CM : " << lReturn << std::endl;
-    std::cout << "Image width : " << mDisplayImage.cols << std::endl;
-    std::cout << "Image height : " << mDisplayImage.rows << std::endl;
     int pressedKey = waitKey(5);
     if (pressedKey == 27) // ESC key
     {
@@ -461,8 +459,9 @@ double Shapedetector::calibrateCoordinates(int aDeviceId)
   return lReturn;
 }
 
-std::pair<Matrix<double, 2, 1>, double> Shapedetector::detectShapeCoordinates(int deviceId)
+Shape Shapedetector::detectShapeCoordinates(int deviceId)
 {
+  Shape lReturnValue;
   initCamera(deviceId);
   // Start webcam mode
   std::cout << "### Webcam mode ###" << std::endl;
@@ -480,9 +479,9 @@ std::pair<Matrix<double, 2, 1>, double> Shapedetector::detectShapeCoordinates(in
     }
     detectRealtime();
   }
-  std::pair<Matrix<double, 2, 1>, double> lReturnValue;
-  lReturnValue.first = mShapePosition;
-  lReturnValue.second = mShapeMinDistance;
+  lReturnValue.mCenterPoint = mShapePosition;
+  lReturnValue.mShapeWidth = mShapeMinDistance;
+  lReturnValue.mBoundingRect = mShapeBoundingRect;
   return lReturnValue;
 }
 
