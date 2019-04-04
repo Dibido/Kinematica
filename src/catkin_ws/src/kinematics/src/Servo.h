@@ -80,12 +80,7 @@ class Servo
      * @return The pulsewidth compensation
      */
     int getPulsewidthCompensation() const;
-
-    /**
-     * @brief Sets the current degrees, is usually called when a move instruction is sent via serial to the servo.
-     */
-    void setCurrentDegrees(int aDegrees);
-
+    
     Servo& operator=(const Servo& aOther); // Assignment operator
     bool operator==(Servo aServo) const; // Comparison operator
 

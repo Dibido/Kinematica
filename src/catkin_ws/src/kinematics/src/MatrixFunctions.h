@@ -30,13 +30,13 @@ Matrix<double, 2, 1> computeEndEffector(Matrix<double, 3, 1> aSidelengths, Matri
    * @brief Converts a given angle (in degrees) into radians
    * @return Corresponding radians. 
    */
-double degreesToRadians(double aAngle);
+double degreesToRadians(const double aAngle);
 
 /**
    * @brief Computes the pseudo-inverse of a jacobi matrix, uses the moore-penrose approach.
    * @return Pseudo inverse
    */
-Matrix<double, 3, 2> computeInverseJacobi(Matrix<double, 2, 3> aOriginalJacobi);
+Matrix<double, 3, 2> computeInverseJacobi(const Matrix<double, 2, 3>& aOriginalJacobi);
 
 /**
    * @brief Checks whether a set of theta's falls within the allowed ranges. Ordering of aThetas should correspond with ordering of aThetaRanges
@@ -64,7 +64,7 @@ void randomizeThetas(Matrix<double, 3, 1> &aThetas, Matrix<double, 3, 2> &aTheta
    * @return A pair, first element of pair indicates whether a valid configuration was found. Second element is the corresponding configuration,
    * if the first element returns false, the second element should be ignored as it contains no useful information.
    */
-std::pair<bool, Matrix<double, 3, 1>> computeConfiguration(Matrix<double, 2, 1> &aGoal, Matrix<double, 3, 1> &aSidelengths, Matrix<double, 3, 1> aCurrentConfiguration, Matrix<double, 3, 2> &aThetaRanges, int aMaxIterations);
+std::pair<bool, Matrix<double, 3, 1>> computeConfiguration(Matrix<double, 2, 1> &aGoal, const Matrix<double, 3, 1> &aSidelengths, const Matrix<double, 3, 1>& aCurrentConfiguration, Matrix<double, 3, 2> &aThetaRanges, int aMaxIterations);
 
 /**
    * @brief Calculates the angle the target has to the base. To more exact, the base point is considered to have 

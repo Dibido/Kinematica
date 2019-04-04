@@ -45,7 +45,7 @@ public:
    * @brief Construct a new Robotarm Controller object
    * @param aCamIndex - Index of the cam used
    */
-  RobotarmController(int aCamIndex);
+  explicit RobotarmController(int aCamIndex);
   
   ~RobotarmController();
 
@@ -75,13 +75,6 @@ public:
    * @bool Returns true if route was succesfully executed, false if its not possible to plan a route.
    */
   bool planAndExecuteRoute();
-  
-  /**
-   * @brief Converts a given value to the corresponding centimeters, uses mPixelsPerCm for this.
-   * @param aValue - Value of pixels
-   * @return Corresponding amount of centimeters.
-   */
-  double convertToCm(int aValue) const;
 
   /**
    * @brief Maps a value from one range to the other
@@ -93,7 +86,7 @@ public:
    * @param aOutMax - The maximum value of the output range
    * @return unsigned int - The mapped value
    */
-  double mapValues(double aDegree, int aInMin, int aInMax, int aOutMin, int aOutMax) const;
+  static double mapValues(double aDegree, int aInMin, int aInMax, int aOutMin, int aOutMax);
 
   /** @brief Moves the robotarm to the right position
    * 

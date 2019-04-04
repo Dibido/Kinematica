@@ -71,7 +71,7 @@ public:
    * @brief Constructor
    * @param aBaudRate 
    */
-  highlevel(unsigned int aBaudRate);
+  explicit highlevel(unsigned int aBaudRate);
 
   /**
    * @brief Destroy the highlevel object
@@ -155,9 +155,9 @@ private:
   // Message callbacks
   void singleServoCallback(const kinematics::singleServoConstPtr& aSingleServoMessage);
   void stopSingleServoCallback(const kinematics::stopSingleServoConstPtr& aStopSingleServoMessage);
-  void moveServosCallback(const kinematics::moveServosConstPtr& aSingleServoMessage);
+  void moveServosCallback(const kinematics::moveServosConstPtr& aMoveServosMessage);
   void stopServosCallback(const kinematics::stopServosConstPtr& aStopAllServoMessage);
-  void armInstructionCallback(const kinematics::armInstructionConstPtr& aArmPosition);
+  void armInstructionCallback(const kinematics::armInstructionConstPtr& aArmInstructionMessage);
 
   /**
    * @brief Initializes the arm by going to the park position

@@ -48,11 +48,6 @@ int Servo::getPulsewidthCompensation() const
   return mPulsewidthCompensation;
 }
 
-void Servo::setCurrentDegrees(int aDegrees)
-{
-  mCurrentDegrees = aDegrees;
-}
-
 Servo& Servo::operator=(const Servo& aOther)
 {
   if (aOther == *this)

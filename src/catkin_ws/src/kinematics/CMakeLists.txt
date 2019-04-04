@@ -4,7 +4,7 @@ project(kinematics)
 ## Compile as C++11, supported in ROS Kinetic and newer
 set (CMAKE_CXX_STANDARD 14)
 
-set(CMAKE_CXX_CPPCHECK "cppcheck" "--enable=all" "--inconclusive")
+set(CMAKE_CXX_CPPCHECK "cppcheck" "--enable=all")
 
 set(CMAKE_VERBOSE_MAKEFILE ON)
 find_package(OpenCV 3.2.0 REQUIRED)
@@ -138,10 +138,6 @@ include_directories( ${Boost_INCLUDE_DIR} )
 
 add_library(lowleveldriver SHARED src/lowlevel.cpp src/Servo.cpp)
 
-add_executable(robotarmclient src/robotarm_client.cpp)
-add_dependencies(robotarmclient kinematics_generate_messages_cpp)
-target_link_libraries(robotarmclient ${catkin_LIBRARIES})
-
 add_executable(highleveldriver src/highlevel.cpp)
 add_dependencies(highleveldriver kinematics_generate_messages_cpp)
 target_link_libraries(highleveldriver ${catkin_LIBRARIES} lowleveldriver)
@@ -154,6 +150,7 @@ target_link_libraries(kinematics ${Boost_FILESYSTEM_LIBRARY}
                       ${catkin_LIBRARIES})
 
 target_link_libraries(kinematics ${OpenCV_LIBS})
+
 
 if ( CMAKE_COMPILER_IS_GNUCC )
     target_compile_options(kinematics PRIVATE "-Wall")

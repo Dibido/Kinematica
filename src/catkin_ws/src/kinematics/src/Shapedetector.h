@@ -204,18 +204,6 @@ public:
   void recognize();
 
   /**
-   * @brief Function for handling the webcam mode
-   * @param deviceId The webcam device Id
-   */
-  Matrix<double, 2, 1> webcamMode(int deviceId);
-  /**
-   * @brief Function for handling the batch mode
-   * @param cameraId The camera device id
-   * @param batchPath The path to the batch file to use
-   */
-  void batchMode(int cameraId, std::string batchPath);
-
-  /**
    * @brief Set the image to use for recognicion
    * @param aImage the image to set
    */
@@ -300,7 +288,7 @@ public:
    * @param aDeviceId - The id of the webcam to use
    * @return Matrix<double, 2, 1>  - The robotarm base coordinates
    */
-  Matrix<double, 2, 1> calibrateRobotarmBase(double coordinateConversionValue, int aDeviceId);
+  Matrix<double, 2, 1> calibrateRobotarmBase(double aCoordinateConversionValue, int aDeviceId);
 
   /**
    * @brief Finds the coordinates and the width of the requested shape
@@ -478,7 +466,7 @@ private:
    * @param aContour the contour to check
    * @return whether the contour is within the range
    */
-  bool contourSizeAllowed(Mat aContour, double aMinContourSize, double aMaxContourSize) const;
+  static bool contourSizeAllowed(Mat aContour, double aMinContourSize, double aMaxContourSize);
 
   /**
    * @brief finds the halfcircles in an image

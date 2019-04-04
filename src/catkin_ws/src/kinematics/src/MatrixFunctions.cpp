@@ -45,12 +45,12 @@ Matrix<double, 2, 1> MatrixFunctions::computeEndEffector(Matrix<double, 3, 1> aS
   return lEffectorMatrix;
 }
 
-double MatrixFunctions::degreesToRadians(double aAngle)
+double MatrixFunctions::degreesToRadians(const double aAngle)
 {
   return aAngle * (M_PI / 180.0);
 }
 
-Matrix<double, 3, 2> MatrixFunctions::computeInverseJacobi(Matrix<double, 2, 3> aOriginalJacobi)
+Matrix<double, 3, 2> MatrixFunctions::computeInverseJacobi(const Matrix<double, 2, 3>& aOriginalJacobi)
 {
   return (aOriginalJacobi.transpose() * (aOriginalJacobi * aOriginalJacobi.transpose()).inverse());
 }
@@ -78,7 +78,7 @@ void MatrixFunctions::randomizeThetas(Matrix<double, 3, 1> &aThetas, Matrix<doub
   }
 }
 
-std::pair<bool, Matrix<double, 3, 1>> MatrixFunctions::computeConfiguration(Matrix<double, 2, 1> &aGoal, Matrix<double, 3, 1>& aSidelengths, Matrix<double, 3, 1> aCurrentConfiguration, Matrix<double, 3, 2> &aThetaRanges, int aMaxIterations)
+std::pair<bool, Matrix<double, 3, 1>> MatrixFunctions::computeConfiguration(Matrix<double, 2, 1> &aGoal, const Matrix<double, 3, 1>& aSidelengths, const Matrix<double, 3, 1>& aCurrentConfiguration, Matrix<double, 3, 2> &aThetaRanges, int aMaxIterations)
 {
   std::pair<bool, Matrix<double, 3, 1>> lReturnPair;
  

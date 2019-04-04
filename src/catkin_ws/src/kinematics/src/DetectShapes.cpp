@@ -111,7 +111,7 @@ void Shapedetector::detectHalfCircles(std::vector<Mat> aContours)
   }
 }
 
-bool Shapedetector::contourSizeAllowed(Mat aContour, double aMinContourSize, double aMaxContourSize) const
+bool Shapedetector::contourSizeAllowed(Mat aContour, double aMinContourSize, double aMaxContourSize)
 {
   return (contourArea(aContour) > aMinContourSize && contourArea(aContour) < aMaxContourSize);
 }

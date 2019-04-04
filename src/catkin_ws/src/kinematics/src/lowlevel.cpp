@@ -192,21 +192,15 @@ bool lowlevel::servoExists(unsigned int aServoId) const
 
 Servo& lowlevel::getServoWithId(unsigned int aServoId)
 {
-  bool lFoundServo = false;
-
   for (int i = 0; i < mServos.size(); ++i)
   {
     if (mServos.at(i).getServoId() == aServoId)
     {
-      lFoundServo = true;
       return mServos.at(i);
     }
   }
 
-  if (!lFoundServo)
-  {
-    throw std::invalid_argument("Invalid servoId entered.");
-  }
+  throw std::invalid_argument("Invalid servoId entered.");
 }
 
 void lowlevel::setArmLocked(bool aLocked)

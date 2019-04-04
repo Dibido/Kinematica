@@ -359,7 +359,7 @@ Matrix< T, M, N > Matrix< T, M, N >::gaussJordan() const
 {
 	Matrix<T, M, N> result;
 	result = this->gauss();
-	for(std::size_t currentRow = M - 1, pivotColumn = N - 2; currentRow >= 0, pivotColumn > 0; currentRow--, pivotColumn--)
+	for(std::size_t currentRow = M - 1, pivotColumn = N - 2; pivotColumn > 0; currentRow--, pivotColumn--)
 	{
 		int zeroRow = currentRow - 1;
 		// 2. Multiply every other non-zero row by a multiple of the first row to get 0

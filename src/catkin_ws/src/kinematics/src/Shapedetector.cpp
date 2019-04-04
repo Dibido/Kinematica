@@ -2,7 +2,7 @@
 #include "Shapedetector.h"
 
 // Constructor
-Shapedetector::Shapedetector()
+Shapedetector::Shapedetector() : mShapeHeight(0), mShapeWidth(0), mShapeAngle(0)
 {
   initializeValues();
 }
@@ -302,7 +302,6 @@ Mat Shapedetector::removeNoise(Mat aImage)
 
 Matrix<double, 2, 1> Shapedetector::calibrateRobotarmBase(double aCoordinateConversionValue, int aDeviceId)
 {
-  const double SHAPE_WIDTH_SIZE_CM = 4.95;
   const double SHAPE_HEIGHT_SIZE_CM = 2.47;
   const double BASE_RADIUS_CM = 3.75;
   const double BASE_Y_DISTANCE_CM = (BASE_RADIUS_CM + (SHAPE_HEIGHT_SIZE_CM / 2));
@@ -351,10 +350,10 @@ Matrix<double, 2, 1> Shapedetector::calibrateRobotarmBase(double aCoordinateConv
           lBlockCenterPoint = lRotatedRect.center;
           Point2f vertices[4];
           lRotatedRect.points(vertices);
-          for (int i = 0; i < 4; i++)
+          for (int j = 0; j < 4; j++)
           {
             // Draw the rectangle
-            line(mDisplayImage, vertices[i], vertices[(i + 1) % 4], Scalar(0, 255, 0));
+            line(mDisplayImage, vertices[j], vertices[(j + 1) % 4], Scalar(0, 255, 0));
           }
           // Calculate the base point using the block center point for reference
           lBasePoint = Point(lBlockCenterPoint.x, lBlockCenterPoint.y + BASE_Y_DISTANCE_CM * aCoordinateConversionValue);
@@ -430,10 +429,10 @@ double Shapedetector::calibrateCoordinates(int aDeviceId)
           double lMaxDistance = 0.0;
           Point2f vertices[4];
           lRotatedRect.points(vertices);
-          for (int i = 0; i < 4; i++)
+          for (int j = 0; j < 4; j++)
           {
-            line(mDisplayImage, vertices[i], vertices[(i + 1) % 4], Scalar(0, 255, 0));
-            double lDistance = (double)cv::norm(vertices[i] - vertices[(i + 1) % 4]);
+            line(mDisplayImage, vertices[j], vertices[(j + 1) % 4], Scalar(0, 255, 0));
+            double lDistance = (double)cv::norm(vertices[j] - vertices[(j + 1) % 4]);
             if (lDistance > lMaxDistance)
             {
               lMaxDistance = (double)lDistance;
@@ -459,10 +458,10 @@ double Shapedetector::calibrateCoordinates(int aDeviceId)
   return lReturn;
 }
 
-Shape Shapedetector::detectShapeCoordinates(int deviceId)
+Shape Shapedetector::detectShapeCoordinates(int aDeviceId)
 {
   Shape lReturnValue;
-  initCamera(deviceId);
+  initCamera(aDeviceId);
   // Start webcam mode
   std::cout << "### Webcam mode ###" << std::endl;
   std::cout << "Please enter [vorm] [kleur]" << std::endl;
@@ -507,7 +506,6 @@ Matrix<double, 2, 1> Shapedetector::detectBaseCoordinates(int deviceId)
     Mat lGreyScale;
     Mat lBitmap;
     Mat lDetectedEdges;
-    std::vector<Vec3f> lCircles;
     std::vector<Mat> lChannels;
 
     cvtColor(mOriginalImage, lHSVImage, CV_BGR2HSV);
@@ -540,73 +538,6 @@ Matrix<double, 2, 1> Shapedetector::detectBaseCoordinates(int deviceId)
     }
   }
   return mShapePosition;
-}
-
-Matrix<double, 2, 1> Shapedetector::webcamMode(int deviceId)
-{
-  initCamera(deviceId);
-  // Start webcam mode
-  std::cout << "### Webcam mode ###" << std::endl;
-
-  // Calibrate colors
-  // std::cout << "Calibrate colors" << std::endl;
-  // calibrateColors();
-
-  std::cout << "Please enter [vorm] [kleur]" << std::endl;
-  while (true)
-  {
-    std::cout << "> ";
-    std::string command;
-    getline(std::cin, command); // Get command
-
-    if (command != EXIT_COMMAND)
-    {
-      bool parsingSucceeded = parseSpec(command);
-      if (parsingSucceeded == false)
-      {
-        std::cout << "Error: invalid specification entered" << std::endl;
-      }
-
-      detectRealtime();
-    }
-  }
-  return mShapePosition;
-}
-
-void Shapedetector::batchMode(int cameraId, std::string batchPath)
-{
-  initCamera(cameraId);
-
-  if (fileExists(batchPath) == false)
-  {
-    std::cout << "Error: batch file does not exist (" << batchPath << ")" << std::endl;
-  }
-  else
-  {
-    std::cout << "### Batch mode ###" << std::endl;
-
-    std::cout << "Calibrate colors" << std::endl;
-    calibrateColors();
-
-    std::string line;
-    std::ifstream batchFile(batchPath);
-
-    while (std::getline(batchFile, line)) // for every line in the file
-    {
-      if (line.at(0) != COMMENT_CHARACTER) // if line doesnt start with comment char
-      {
-        std::cout << "Detecting \"" << line << "\".." << std::endl;
-
-        bool parsingSucceeded = parseSpec(line);
-        if (parsingSucceeded == false)
-        {
-          std::cout << "Error: invalid specification entered" << std::endl;
-        }
-
-        detectRealtime();
-      }
-    }
-  }
 }
 
 void Shapedetector::detectRealtime()

@@ -107,10 +107,10 @@ void highlevel::moveServosCallback(const kinematics::moveServosConstPtr& aMoveSe
   mMoveCommands.push_back(lMoveCommand);
 }
 
-void highlevel::stopServosCallback(const kinematics::stopServosConstPtr& aStopServosMessage)
+void highlevel::stopServosCallback(const kinematics::stopServosConstPtr& aStopAllServoMessage)
 {
   ROS_INFO("Handling stopServos Command");
-  mLowLevelDriver.stopServos(aStopServosMessage->servoIds);
+  mLowLevelDriver.stopServos(aStopAllServoMessage->servoIds);
 
   mMoveCommands.clear();
 }
@@ -119,7 +119,6 @@ void highlevel::armInstructionCallback(const kinematics::armInstructionConstPtr&
 {
   ROS_INFO("Receiving armPosition command, position : %s, time : %d", aArmInstructionMessage->instruction.c_str(), aArmInstructionMessage->time);
 
-  bool lValidCommand = false;
   robotarmPosition lMoveCommand;
 
   if (aArmInstructionMessage->instruction == "park")

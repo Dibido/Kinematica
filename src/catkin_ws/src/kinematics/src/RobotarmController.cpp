@@ -26,28 +26,8 @@ Matrix<double, 3, 1> RobotConstants::cStartThetas = {{{0}},
 // The allowed theta ranges, row 1 contains min max of theta 1 in degrees etc.
 Matrix<double, 3, 2> RobotConstants::cThetaRanges = {{{-30}, {90}}, {{0}, {135}}, {{-90}, {90}}};
 
-RobotarmController::RobotarmController(int aCamIndex) : mCurrentThetas(RobotConstants::cStartThetas), mCamIndex(aCamIndex)
+RobotarmController::RobotarmController(int aCamIndex) : mCurrentThetas(RobotConstants::cStartThetas), mShape(Shape()), mCamIndex(aCamIndex)
 {
-  // // Testing purposes:
-  // Matrix<double, 1, 2> aPoint1Start = {{{0}, {10}}};
-  // Matrix<double, 1, 2> aPoint1End = {{{50}, {10}}};
-  // Matrix<double, 1, 2> aPoint2Start = {{{0}, {20}}};
-  // Matrix<double, 1, 2> aPoint2End = {{{30}, {0}}};
-  // Matrix<double, 1, 2> aIntersectionPoint;
-
-  // bool lSucces = intersection(aPoint1Start, aPoint1End, aPoint2Start, aPoint2End, aIntersectionPoint);
- 
-  // if(lSucces)
-  // {
-  //   std::cout << "Succes, intersection found at: " << std::endl;
-  //   std::cout << aIntersectionPoint << std::endl;
-  // }
-  // else
-  // {
-  //   std::cout << "No intersection" << std::endl;
-  // }
-
-  //
   ros::NodeHandle lNodeHandler;
   mMoveServosPublisher = lNodeHandler.advertise<kinematics::moveServos>("moveServos", 1000);
 
@@ -157,7 +137,7 @@ bool RobotarmController::planAndExecuteRoute()
   mCurrentThetas = lConfiguration.second;
 
   // Check if there exist valid configurations for the 4 points.
-  for (int lIndex; lIndex < lConfigurations.size(); ++lIndex)
+  for (int lIndex = 0; lIndex < lConfigurations.size(); ++lIndex)
   {
     if (lConfigurations.at(lIndex).first == false)
     {
@@ -188,12 +168,7 @@ bool RobotarmController::planAndExecuteRoute()
   return true;
 }
 
-double RobotarmController::convertToCm(int aValue) const
-{
-  return static_cast<double>(aValue) / mPixelsPerCm;
-}
-
-double RobotarmController::mapValues(double aDegree, int aInMin, int aInMax, int aOutMin, int aOutMax) const
+double RobotarmController::mapValues(double aDegree, int aInMin, int aInMax, int aOutMin, int aOutMax)
 {
   return (aDegree - aInMin) * (aOutMax - aOutMin) / (aInMax - aInMin) + aOutMin;
 }
