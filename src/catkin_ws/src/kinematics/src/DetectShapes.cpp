@@ -234,8 +234,8 @@ void Shapedetector::setShapeValues(Mat aImage, Mat aContour)
   // Set the bounding rect corners in the return value
   for (int i = 0; i < 4; i++)
   {
-    mShapeBoundingRect.at(i,0) = lVertices[i].x;
-    mShapeBoundingRect.at(i,1) = lVertices[i].y;
+    mShapeBoundingRect.at(0,i) = lVertices[i].x;
+    mShapeBoundingRect.at(1,i) = lVertices[i].y;
   }
 }
 

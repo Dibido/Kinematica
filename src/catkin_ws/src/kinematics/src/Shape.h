@@ -6,7 +6,7 @@
 struct Shape
 {
   Matrix<double, 2, 1> mCenterPoint;
-  Matrix<double, 4, 2> mBoundingRect;
+  Matrix<double, 2, 4> mBoundingRect;
   double mShapeWidth;
 };
 
