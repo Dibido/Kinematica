@@ -136,274 +136,22 @@ bool RobotarmController::planAndExecuteRoute()
   /* Executing of route, each move will take 3 seconds to complete.
   Note how servo's with channel 1/3 have their theta inverted,
   the servo's are inverted (probably due to wrong mechanical assembly) */
-  kinematics::moveServos lMoveServosMessage;
-  kinematics::servoPosition lServoPosition;
-  lMoveServosMessage.time = 3000;
-  double lTimeMarginMs = 100.0;
-
   // Action (1/8), moving gripper to above the object.
-  lServoPosition.servoId = 0;
-  lServoPosition.position = lShapeAngle;
-  lMoveServosMessage.servos.push_back(lServoPosition);
-
-  lServoPosition.servoId = 1;
-  lServoPosition.position = -lConfigurations.at(0).second[0][0];
-  lMoveServosMessage.servos.push_back(lServoPosition);
-
-  lServoPosition.servoId = 2;
-  lServoPosition.position = lConfigurations.at(0).second[1][0];
-  lMoveServosMessage.servos.push_back(lServoPosition);
-
-  lServoPosition.servoId = 3;
-  lServoPosition.position = -lConfigurations.at(0).second[2][0];
-  lMoveServosMessage.servos.push_back(lServoPosition);
-
-  lServoPosition.servoId = 4;
-  lServoPosition.position = RobotConstants::GRIPPER_OPEN_DEGREES;
-  lMoveServosMessage.servos.push_back(lServoPosition);
-
-  lServoPosition.servoId = 5;
-  lServoPosition.position = 0;
-  lMoveServosMessage.servos.push_back(lServoPosition);
-
-  ROS_INFO("Sending move servos message");
-  mMoveServosPublisher.publish(lMoveServosMessage);
-  ros::spinOnce();
-
-  // After every move we'll sleep for the time that is needed to complete the move, plus a small margin to make sure the move is completed.
-  sleep((lMoveServosMessage.time + lTimeMarginMs) / 1000.0);
-
+  moveRobotarmToPosition(lShapeAngle, lConfigurations, 0, RobotConstants::GRIPPER_OPEN_DEGREES, 3000, 100.0);
   // Action (2/8), moving gripper down to the object.
-  lMoveServosMessage.servos.clear();
-  lServoPosition.servoId = 0;
-  lServoPosition.position = lShapeAngle;
-  lMoveServosMessage.servos.push_back(lServoPosition);
-
-  lServoPosition.servoId = 1;
-  lServoPosition.position = -lConfigurations.at(1).second[0][0];
-  lMoveServosMessage.servos.push_back(lServoPosition);
-
-  lServoPosition.servoId = 2;
-  lServoPosition.position = lConfigurations.at(1).second[1][0];
-  lMoveServosMessage.servos.push_back(lServoPosition);
-
-  lServoPosition.servoId = 3;
-  lServoPosition.position = -lConfigurations.at(1).second[2][0];
-  lMoveServosMessage.servos.push_back(lServoPosition);
-
-  lServoPosition.servoId = 4;
-  lServoPosition.position = RobotConstants::GRIPPER_OPEN_DEGREES;
-  lMoveServosMessage.servos.push_back(lServoPosition);
-
-  lServoPosition.servoId = 5;
-  lServoPosition.position = 0;
-  lMoveServosMessage.servos.push_back(lServoPosition);
-
-  ROS_INFO("Sending move servos message");
-  mMoveServosPublisher.publish(lMoveServosMessage);
-  ros::spinOnce();
-
-  // Sleep for the time that is needed to complete the move, plus a small margin to make sure the move is completed.
-  sleep((lMoveServosMessage.time + lTimeMarginMs) / 1000.0);
-
+  moveRobotarmToPosition(lShapeAngle, lConfigurations, 1, RobotConstants::GRIPPER_OPEN_DEGREES, 3000, 100.0);
   // Action (3/8), closing gripper.
-  lMoveServosMessage.servos.clear();
-  lServoPosition.servoId = 0;
-  lServoPosition.position = lShapeAngle;
-  lMoveServosMessage.servos.push_back(lServoPosition);
-
-  lServoPosition.servoId = 1;
-  lServoPosition.position = -lConfigurations.at(1).second[0][0];
-  lMoveServosMessage.servos.push_back(lServoPosition);
-
-  lServoPosition.servoId = 2;
-  lServoPosition.position = lConfigurations.at(1).second[1][0];
-  lMoveServosMessage.servos.push_back(lServoPosition);
-
-  lServoPosition.servoId = 3;
-  lServoPosition.position = -lConfigurations.at(1).second[2][0];
-  lMoveServosMessage.servos.push_back(lServoPosition);
-
-  lServoPosition.servoId = 4;
-  lServoPosition.position = lClosedGripperDegrees;
-  lMoveServosMessage.servos.push_back(lServoPosition);
-
-  lServoPosition.servoId = 5;
-  lServoPosition.position = 0;
-  lMoveServosMessage.servos.push_back(lServoPosition);
-
-  ROS_INFO("Sending move servos message");
-  mMoveServosPublisher.publish(lMoveServosMessage);
-  ros::spinOnce();
-
-  // Sleep for the time that is needed to complete the move, plus a small margin to make sure the move is completed.
-  sleep((lMoveServosMessage.time + lTimeMarginMs) / 1000.0);
-
+  moveRobotarmToPosition(lShapeAngle, lConfigurations, 1, lClosedGripperDegrees, 3000, 100.0);
   // Action (4/8), moving upwards.
-  lMoveServosMessage.servos.clear();
-  lServoPosition.servoId = 0;
-  lServoPosition.position = lShapeAngle;
-  lMoveServosMessage.servos.push_back(lServoPosition);
-
-  lServoPosition.servoId = 1;
-  lServoPosition.position = -lConfigurations.at(0).second[0][0];
-  lMoveServosMessage.servos.push_back(lServoPosition);
-
-  lServoPosition.servoId = 2;
-  lServoPosition.position = lConfigurations.at(0).second[1][0];
-  lMoveServosMessage.servos.push_back(lServoPosition);
-
-  lServoPosition.servoId = 3;
-  lServoPosition.position = -lConfigurations.at(0).second[2][0];
-  lMoveServosMessage.servos.push_back(lServoPosition);
-
-  lServoPosition.servoId = 4;
-  lServoPosition.position = lClosedGripperDegrees;
-  lMoveServosMessage.servos.push_back(lServoPosition);
-
-  lServoPosition.servoId = 5;
-  lServoPosition.position = 0;
-  lMoveServosMessage.servos.push_back(lServoPosition);
-
-  ROS_INFO("Sending move servos message");
-  mMoveServosPublisher.publish(lMoveServosMessage);
-  ros::spinOnce();
-
-  // Sleep for the time that is needed to complete the move, plus a small margin to make sure the move is completed.
-  sleep((lMoveServosMessage.time + lTimeMarginMs) / 1000.0);
-
+  moveRobotarmToPosition(lShapeAngle, lConfigurations, 0, lClosedGripperDegrees, 3000, 100.0);
   // Action (5/8), moving to above the dropping point.
-  lMoveServosMessage.servos.clear();
-  lServoPosition.servoId = 0;
-  lServoPosition.position = lDropAngle;
-  lMoveServosMessage.servos.push_back(lServoPosition);
-
-  lServoPosition.servoId = 1;
-  lServoPosition.position = -lConfigurations.at(2).second[0][0];
-  lMoveServosMessage.servos.push_back(lServoPosition);
-
-  lServoPosition.servoId = 2;
-  lServoPosition.position = lConfigurations.at(2).second[1][0];
-  lMoveServosMessage.servos.push_back(lServoPosition);
-
-  lServoPosition.servoId = 3;
-  lServoPosition.position = -lConfigurations.at(2).second[2][0];
-  lMoveServosMessage.servos.push_back(lServoPosition);
-
-  lServoPosition.servoId = 4;
-  lServoPosition.position = lClosedGripperDegrees;
-  lMoveServosMessage.servos.push_back(lServoPosition);
-
-  lServoPosition.servoId = 5;
-  lServoPosition.position = 0;
-  lMoveServosMessage.servos.push_back(lServoPosition);
-
-  ROS_INFO("Sending move servos message");
-  mMoveServosPublisher.publish(lMoveServosMessage);
-  ros::spinOnce();
-
-  // Sleep for the time that is needed to complete the move, plus a small margin to make sure the move is completed.
-  sleep((lMoveServosMessage.time + lTimeMarginMs) / 1000.0);
-
+  moveRobotarmToPosition(lDropAngle, lConfigurations, 2, lClosedGripperDegrees, 3000, 100.0);
   // Action (6/8), moving down to the dropping point.
-  lMoveServosMessage.servos.clear();
-  lServoPosition.servoId = 0;
-  lServoPosition.position = lDropAngle;
-  lMoveServosMessage.servos.push_back(lServoPosition);
-
-  lServoPosition.servoId = 1;
-  lServoPosition.position = -lConfigurations.at(3).second[0][0];
-  lMoveServosMessage.servos.push_back(lServoPosition);
-
-  lServoPosition.servoId = 2;
-  lServoPosition.position = lConfigurations.at(3).second[1][0];
-  lMoveServosMessage.servos.push_back(lServoPosition);
-
-  lServoPosition.servoId = 3;
-  lServoPosition.position = -lConfigurations.at(3).second[2][0];
-  lMoveServosMessage.servos.push_back(lServoPosition);
-
-  lServoPosition.servoId = 4;
-  lServoPosition.position = lClosedGripperDegrees;
-  lMoveServosMessage.servos.push_back(lServoPosition);
-
-  lServoPosition.servoId = 5;
-  lServoPosition.position = 0;
-  lMoveServosMessage.servos.push_back(lServoPosition);
-
-  ROS_INFO("Sending move servos message");
-  mMoveServosPublisher.publish(lMoveServosMessage);
-  ros::spinOnce();
-
-  // Sleep for the time that is needed to complete the move, plus a small margin to make sure the move is completed.
-  sleep((lMoveServosMessage.time + lTimeMarginMs) / 1000.0);
-
+  moveRobotarmToPosition(lDropAngle, lConfigurations, 3, lClosedGripperDegrees, 3000, 100.0);
   // Action (7/8), opening the gripper dropping the object.
-  lMoveServosMessage.servos.clear();
-  lServoPosition.servoId = 0;
-  lServoPosition.position = lDropAngle;
-  lMoveServosMessage.servos.push_back(lServoPosition);
-
-  lServoPosition.servoId = 1;
-  lServoPosition.position = -lConfigurations.at(3).second[0][0];
-  lMoveServosMessage.servos.push_back(lServoPosition);
-
-  lServoPosition.servoId = 2;
-  lServoPosition.position = lConfigurations.at(3).second[1][0];
-  lMoveServosMessage.servos.push_back(lServoPosition);
-
-  lServoPosition.servoId = 3;
-  lServoPosition.position = -lConfigurations.at(3).second[2][0];
-  lMoveServosMessage.servos.push_back(lServoPosition);
-
-  lServoPosition.servoId = 4;
-  lServoPosition.position = RobotConstants::GRIPPER_OPEN_DEGREES;
-  lMoveServosMessage.servos.push_back(lServoPosition);
-
-  lServoPosition.servoId = 5;
-  lServoPosition.position = 0;
-  lMoveServosMessage.servos.push_back(lServoPosition);
-
-  ROS_INFO("Sending move servos message");
-  mMoveServosPublisher.publish(lMoveServosMessage);
-  ros::spinOnce();
-
-  // Sleep for the time that is needed to complete the move, plus a small margin to make sure the move is completed.
-  sleep((lMoveServosMessage.time + lTimeMarginMs) / 1000.0);
-
+  moveRobotarmToPosition(lDropAngle, lConfigurations, 3, RobotConstants::GRIPPER_OPEN_DEGREES, 3000, 100.0);
   // Action (8/8), moving gripper upwards again.
-  lMoveServosMessage.servos.clear();
-  lServoPosition.servoId = 0;
-  lServoPosition.position = lDropAngle;
-  lMoveServosMessage.servos.push_back(lServoPosition);
-
-  lServoPosition.servoId = 1;
-  lServoPosition.position = -lConfigurations.at(2).second[0][0];
-  lMoveServosMessage.servos.push_back(lServoPosition);
-
-  lServoPosition.servoId = 2;
-  lServoPosition.position = lConfigurations.at(2).second[1][0];
-  lMoveServosMessage.servos.push_back(lServoPosition);
-
-  lServoPosition.servoId = 3;
-  lServoPosition.position = -lConfigurations.at(2).second[2][0];
-  lMoveServosMessage.servos.push_back(lServoPosition);
-
-  lServoPosition.servoId = 4;
-  lServoPosition.position = RobotConstants::GRIPPER_OPEN_DEGREES;
-  lMoveServosMessage.servos.push_back(lServoPosition);
-
-  lServoPosition.servoId = 5;
-  lServoPosition.position = 0;
-  lMoveServosMessage.servos.push_back(lServoPosition);
-
-  ROS_INFO("Sending move servos message");
-  mMoveServosPublisher.publish(lMoveServosMessage);
-  ros::spinOnce();
-
-  // Sleep for the time that is needed to complete the move, plus a small margin to make sure the move is completed.
-  sleep((lMoveServosMessage.time + lTimeMarginMs) / 1000.0);
-
+  moveRobotarmToPosition(lDropAngle, lConfigurations, 2, RobotConstants::GRIPPER_OPEN_DEGREES, 3000, 100.0);
   return true;
 }
 
@@ -415,4 +163,44 @@ double RobotarmController::convertToCm(int aValue) const
 double RobotarmController::mapValues(double aDegree, int aInMin, int aInMax, int aOutMin, int aOutMax) const
 {
   return (aDegree - aInMin) * (aOutMax - aOutMin) / (aInMax - aInMin) + aOutMin;
+}
+
+void RobotarmController::moveRobotarmToPosition(double aShapeAngle, std::vector<std::pair<bool, Matrix<double, 3, 1>>> aConfiguration, unsigned int aConfigurationIndex, unsigned int aGripperDegree, unsigned int aMoveTime, double aMoveTimeDelay)
+{
+  kinematics::moveServos lMoveServosMessage;
+  kinematics::servoPosition lServoPosition;
+
+  lMoveServosMessage.time = aMoveTime;
+
+  lMoveServosMessage.servos.clear();
+  lServoPosition.servoId = 0;
+  lServoPosition.position = aShapeAngle;
+  lMoveServosMessage.servos.push_back(lServoPosition);
+
+  lServoPosition.servoId = 1;
+  lServoPosition.position = -aConfiguration.at(aConfigurationIndex).second[0][0];
+  lMoveServosMessage.servos.push_back(lServoPosition);
+
+  lServoPosition.servoId = 2;
+  lServoPosition.position = aConfiguration.at(aConfigurationIndex).second[1][0];
+  lMoveServosMessage.servos.push_back(lServoPosition);
+
+  lServoPosition.servoId = 3;
+  lServoPosition.position = -aConfiguration.at(aConfigurationIndex).second[2][0];
+  lMoveServosMessage.servos.push_back(lServoPosition);
+
+  lServoPosition.servoId = 4;
+  lServoPosition.position = aGripperDegree;
+  lMoveServosMessage.servos.push_back(lServoPosition);
+
+  lServoPosition.servoId = 5;
+  lServoPosition.position = 0;
+  lMoveServosMessage.servos.push_back(lServoPosition);
+
+  ROS_INFO("Sending move servos message");
+  mMoveServosPublisher.publish(lMoveServosMessage);
+  ros::spinOnce();
+
+  // Sleep for the time that is needed to complete the move, plus a small margin to make sure the move is completed.
+  sleep((lMoveServosMessage.time + aMoveTimeDelay) / 1000.0);
 }

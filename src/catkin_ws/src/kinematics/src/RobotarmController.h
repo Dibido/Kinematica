@@ -92,6 +92,18 @@ public:
    * @return unsigned int - The mapped value
    */
   double mapValues(double aDegree, int aInMin, int aInMax, int aOutMin, int aOutMax) const;
+
+  /**
+   * @brief Moves the robotarm to the right position
+   * 
+   * @param aShapeAngle - The angle to set the robotarm base to
+   * @param aConfiguration - The configuration for the robotarm servo's
+   * @param aConfigurationIndex - The index in the configuration for the right set of values
+   * @param aGripperDegree - The degree to set the gripper servo to
+   * @param aMoveTime - The time to take for the move
+   * @param aMoveTimeDelay - The time to wait after making the move for the robotarm to reach the position
+   */
+  void moveRobotarmToPosition(double aShapeAngle, std::vector<std::pair<bool, Matrix<double, 3, 1>>> aConfiguration, unsigned int aConfigurationIndex, unsigned int aGripperDegree, unsigned int aMoveTime, double aMoveTimeDelay);
    
   Matrix<double, 3, 1> mCurrentThetas;
 
