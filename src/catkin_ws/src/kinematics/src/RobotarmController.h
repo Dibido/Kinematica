@@ -4,7 +4,7 @@
 #include <ros/ros.h>
 
 // Message from other package
-#include "robotarminterface/moveServos.h"
+#include "kinematics/moveServos.h"
 
 #include "Shapedetector.h"
 #include "Matrix.hpp"
@@ -92,6 +92,17 @@ public:
    * @return unsigned int - The mapped value
    */
   double mapValues(double aDegree, int aInMin, int aInMax, int aOutMin, int aOutMax) const;
+
+  /**
+   * @brief This function is used to determine how to approach the shape.
+   * For example, if the shape has a side which
+   * @return double 
+   */
+  double baseApproachAngleToShape();
+
+  bool intersection(Matrix<double, 1, 2> aP1Start, Matrix<double, 1, 2> aP1End, Matrix <double, 1, 2> aP2Start, Matrix<double, 1, 2> aP2End,
+                     Matrix<double, 1, 2> &aIntersectionPoint);
+
    
   Matrix<double, 3, 1> mCurrentThetas;
 

@@ -28,6 +28,26 @@ Matrix<double, 3, 2> RobotConstants::cThetaRanges = {{{-30}, {90}}, {{0}, {135}}
 
 RobotarmController::RobotarmController(int aCamIndex) : mCurrentThetas(RobotConstants::cStartThetas), mCamIndex(aCamIndex)
 {
+  // Testing purposes:
+  Matrix<double, 1, 2> aPoint1Start = {{{0}, {10}}};
+  Matrix<double, 1, 2> aPoint1End = {{{50}, {10}}};
+  Matrix<double, 1, 2> aPoint2Start = {{{0}, {20}}};
+  Matrix<double, 1, 2> aPoint2End = {{{30}, {0}}};
+  Matrix<double, 1, 2> aIntersectionPoint;
+
+  bool lSucces = intersection(aPoint1Start, aPoint1End, aPoint2Start, aPoint2End, aIntersectionPoint);
+ 
+  if(lSucces)
+  {
+    std::cout << "Succes, intersection found at: " << std::endl;
+    std::cout << aIntersectionPoint << std::endl;
+  }
+  else
+  {
+    std::cout << "No intersection" << std::endl;
+  }
+
+  //
   ros::NodeHandle lNodeHandler;
   mMoveServosPublisher = lNodeHandler.advertise<robotarminterface::moveServos>("moveServos", 1000);
 
@@ -91,6 +111,8 @@ bool RobotarmController::planAndExecuteRoute()
   double lClosedGripperDegrees = mapValues(mShape.mShapeWidth, RobotConstants::GRIPPER_CLOSED_WIDTH_CM, RobotConstants::GRIPPER_OPEN_WIDTH_CM, RobotConstants::GRIPPER_CLOSED_DEGREES, RobotConstants::GRIPPER_OPEN_DEGREES);
 
   lClosedGripperDegrees += RobotConstants::GRIPPER_CLOSE_OFFSET;
+
+  double lApproachAngle = baseApproachAngleToShape();
 
   /* We have all the information needed, its time to plan the route. As we want to approach the object from above,
   we will first need to move to a point above the shape. Then we will move down to the object. Next we want to close
@@ -406,4 +428,30 @@ double RobotarmController::convertToCm(int aValue) const
 double RobotarmController::mapValues(double aDegree, int aInMin, int aInMax, int aOutMin, int aOutMax) const
 {
   return (aDegree - aInMin) * (aOutMax - aOutMin) / (aInMax - aInMin) + aOutMin;
+}
+
+double RobotarmController::baseApproachAngleToShape()
+{
+
+  for (int lIndex = 0; lIndex < mShape.mBoundingRect.getRows(); lIndex++)
+  {
+  }
+}
+
+bool RobotarmController::intersection(Matrix<double, 1, 2> aP1Start, Matrix<double, 1, 2> aP1End, Matrix<double, 1, 2> aP2Start, Matrix<double, 1, 2> aP2End,
+                  Matrix<double, 1, 2> &aIntersectionPoint)
+{
+  Matrix<double, 1, 2> x = aP2Start - aP1Start;
+  Matrix<double, 1, 2> d1 = aP1End - aP1Start;
+  Matrix<double, 1, 2> d2 = aP2End - aP2Start;
+
+  double cross = d1[0][0] * d2[0][1] - d1[0][1] * d2[0][0];
+  if (abs(cross) < /*EPS*/ 1e-8)
+  {
+    return false;
+  }
+
+  double t1 = (x[0][0] * d2[0][1] - x[0][1] * d2[0][0]) / cross;
+  aIntersectionPoint = aP1Start + d1 * t1;
+  return true;
 }

@@ -6,6 +6,7 @@
 struct Shape
 {
   Matrix<double, 2, 1> mCenterPoint;
+  Matrix<double, 4, 2> mBoundingRect;
   double mShapeWidth;
 
   // To-Do: add height/width of shape?
