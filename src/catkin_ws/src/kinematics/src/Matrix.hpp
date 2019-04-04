@@ -66,14 +66,14 @@ class Matrix
 		/**
 		 *
 		 */
-		inline std::size_t getRows() const
+		static inline std::size_t getRows() /*const*/
 		{
 			return M;
 		}
 		/**
 		 *
 		 */
-		inline std::size_t getColumns() const
+		static inline std::size_t getColumns() /*const*/
 		{
 			return N;
 		}

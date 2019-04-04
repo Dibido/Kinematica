@@ -86,8 +86,8 @@ class Servo
      */
     void setCurrentDegrees(int aDegrees);
 
-    Servo& operator=(Servo aOther); // Assignment operator
-    bool operator==(Servo aServo); // Comparison operator
+    Servo& operator=(const Servo& aOther); // Assignment operator
+    bool operator==(Servo aServo) const; // Comparison operator
 
   private:
     unsigned int mServoId;

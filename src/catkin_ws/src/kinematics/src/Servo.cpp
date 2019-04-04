@@ -53,7 +53,7 @@ void Servo::setCurrentDegrees(int aDegrees)
   mCurrentDegrees = aDegrees;
 }
 
-Servo& Servo::operator=(Servo aOther)
+Servo& Servo::operator=(const Servo& aOther)
 {
   if (aOther == *this)
   {
@@ -69,7 +69,7 @@ Servo& Servo::operator=(Servo aOther)
   return *this;
 }
 
-bool Servo::operator==(Servo aServo)
+bool Servo::operator==(Servo aServo) const
 {
   return ((this->mServoId == aServo.mServoId) && (this->mMinDegreesLimit == aServo.mMinDegreesLimit) && (this->mMaxDegreesLimit == aServo.mMaxDegreesLimit) && (this->mMinDegreesRange == aServo.mMinDegreesRange) && (this->mMaxDegreesRange == aServo.mMaxDegreesRange) && (this->mCurrentDegrees == aServo.mCurrentDegrees));
 }
