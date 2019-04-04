@@ -8,6 +8,9 @@ int main(int argc,
   ros::init(argc, argv, "kinematics");
   if (argc >= 2)
   {
+
+
+      
     RobotarmController lRobotarmController(atoi(argv[1]));
     lRobotarmController.run();
   }

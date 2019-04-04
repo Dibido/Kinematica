@@ -28,6 +28,26 @@ Matrix<double, 3, 2> RobotConstants::cThetaRanges = {{{-30}, {90}}, {{0}, {135}}
 
 RobotarmController::RobotarmController(int aCamIndex) : mCurrentThetas(RobotConstants::cStartThetas), mCamIndex(aCamIndex)
 {
+  // Testing purposes:
+  Matrix<double, 1, 2> aPoint1Start = {{{0}, {10}}};
+  Matrix<double, 1, 2> aPoint1End = {{{50}, {10}}};
+  Matrix<double, 1, 2> aPoint2Start = {{{0}, {20}}};
+  Matrix<double, 1, 2> aPoint2End = {{{30}, {0}}};
+  Matrix<double, 1, 2> aIntersectionPoint;
+
+  bool lSucces = intersection(aPoint1Start, aPoint1End, aPoint2Start, aPoint2End, aIntersectionPoint);
+ 
+  if(lSucces)
+  {
+    std::cout << "Succes, intersection found at: " << std::endl;
+    std::cout << aIntersectionPoint << std::endl;
+  }
+  else
+  {
+    std::cout << "No intersection" << std::endl;
+  }
+
+  //
   ros::NodeHandle lNodeHandler;
   mMoveServosPublisher = lNodeHandler.advertise<kinematics::moveServos>("moveServos", 1000);
 
@@ -107,6 +127,8 @@ bool RobotarmController::planAndExecuteRoute()
   double lClosedGripperDegrees = mapValues(mShape.mShapeWidth, RobotConstants::GRIPPER_CLOSED_WIDTH_CM, RobotConstants::GRIPPER_OPEN_WIDTH_CM, RobotConstants::GRIPPER_CLOSED_DEGREES, RobotConstants::GRIPPER_OPEN_DEGREES);
 
   lClosedGripperDegrees += RobotConstants::GRIPPER_CLOSE_OFFSET;
+
+  double lApproachAngle = baseApproachAngleToShape();
 
   /* We have all the information needed, its time to plan the route. As we want to approach the object from above,
   we will first need to move to a point above the shape. Then we will move down to the object. Next we want to close

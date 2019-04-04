@@ -93,8 +93,7 @@ public:
    */
   double mapValues(double aDegree, int aInMin, int aInMax, int aOutMin, int aOutMax) const;
 
-  /**
-   * @brief Moves the robotarm to the right position
+  /** @brief Moves the robotarm to the right position
    * 
    * @param aShapeAngle - The angle to set the robotarm base to
    * @param aConfiguration - The configuration for the robotarm servo's
@@ -105,6 +104,7 @@ public:
    */
   void moveRobotarmToPosition(double aShapeAngle, std::vector<std::pair<bool, Matrix<double, 3, 1>>> aConfiguration, unsigned int aConfigurationIndex, double aGripperRotationDegree, double aGripperDegree, unsigned int aMoveTime, double aMoveTimeDelay);
   
+
   Matrix<double, 3, 1> mCurrentThetas;
 
   Matrix<double, 3, 1> mGoalThetas;
