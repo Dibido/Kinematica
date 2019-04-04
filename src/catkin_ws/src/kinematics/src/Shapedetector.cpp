@@ -480,8 +480,10 @@ Shape Shapedetector::detectShapeCoordinates(int deviceId)
     detectRealtime();
   }
   lReturnValue.mCenterPoint = mShapePosition;
-  lReturnValue.mShapeWidth = mShapeMinDistance;
+  lReturnValue.mShapeWidth = mShapeWidth;
+  lReturnValue.mShapeHeight = mShapeHeight;
   lReturnValue.mBoundingRect = mShapeBoundingRect;
+  lReturnValue.mShapeAngle = mShapeAngle;
   return lReturnValue;
 }
 

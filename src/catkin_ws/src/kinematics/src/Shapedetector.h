@@ -330,7 +330,11 @@ public:
   // The width of the shape
   double mShapeMinDistance;
   // A matrix with the x/y positions of every side of the bounding rect
-  Matrix<double, 4, 2> mShapeBoundingRect;
+  Matrix<double, 2, 4> mShapeBoundingRect;
+  // Shape values
+  double mShapeHeight;
+  double mShapeWidth;
+  double mShapeAngle;
 
 private:
   // Program variables
