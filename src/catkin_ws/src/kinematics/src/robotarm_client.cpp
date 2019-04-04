@@ -2,29 +2,29 @@
 
 #include <iostream>
 
-#include "robotarminterface/singleServo.h"
-#include "robotarminterface/stopSingleServo.h"
-#include "robotarminterface/moveServos.h"
-#include "robotarminterface/stopServos.h"
-#include "robotarminterface/armInstruction.h"
+#include "kinematics/singleServo.h"
+#include "kinematics/stopSingleServo.h"
+#include "kinematics/moveServos.h"
+#include "kinematics/stopServos.h"
+#include "kinematics/armInstruction.h"
 
 int main(int argc, char **argv)
 {
   ros::init(argc, argv, "servo_client");
 
   ros::NodeHandle lNodeHandler;
-  ros::Publisher lSingleServoPublisher = lNodeHandler.advertise<robotarminterface::singleServo>("singleServo", 1000);
-  ros::Publisher lStopSingleServoPublisher = lNodeHandler.advertise<robotarminterface::stopSingleServo>("stopSingleServo", 1000);
-  ros::Publisher lMoveServosPublisher = lNodeHandler.advertise<robotarminterface::moveServos>("moveServos", 1000);
-  ros::Publisher lStopServosPublisher = lNodeHandler.advertise<robotarminterface::stopServos>("stopServos", 1000);
-  ros::Publisher lArmInstructionPublisher = lNodeHandler.advertise<robotarminterface::armInstruction>("armInstructionPosition", 1000);
+  ros::Publisher lSingleServoPublisher = lNodeHandler.advertise<kinematics::singleServo>("singleServo", 1000);
+  ros::Publisher lStopSingleServoPublisher = lNodeHandler.advertise<kinematics::stopSingleServo>("stopSingleServo", 1000);
+  ros::Publisher lMoveServosPublisher = lNodeHandler.advertise<kinematics::moveServos>("moveServos", 1000);
+  ros::Publisher lStopServosPublisher = lNodeHandler.advertise<kinematics::stopServos>("stopServos", 1000);
+  ros::Publisher lArmInstructionPublisher = lNodeHandler.advertise<kinematics::armInstruction>("armInstructionPosition", 1000);
 
   if (ros::ok())
   {
     // Delay, as messages might not get across right after starting
     sleep(2);
 
-    robotarminterface::armInstruction lArmInstructionMessage;
+    kinematics::armInstruction lArmInstructionMessage;
 
     // // Move to ready
     // lArmInstructionMessage.instruction = "ready";
@@ -44,8 +44,8 @@ int main(int argc, char **argv)
     // ros::spinOnce();
     // sleep(3);
   
-    robotarminterface::moveServos lMoveServosMessage;
-    robotarminterface::servoPosition lServoPosition;
+    kinematics::moveServos lMoveServosMessage;
+    kinematics::servoPosition lServoPosition;
 
     /* Sequence of 3 different positions (1/3) 
        Following positions will be sent without any delay. The queing mechanism of the highlevel will 
