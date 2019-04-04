@@ -80,6 +80,18 @@ public:
    * @return Corresponding amount of centimeters.
    */
   double convertToCm(int aValue) const;
+
+  /**
+   * @brief Maps a value from one range to the other
+   * 
+   * @param aDegree - The value to map
+   * @param aInMin - The minimum value of the input range
+   * @param aInMax - The maximum value of the input range
+   * @param aOutMin - The minimum value of the output range
+   * @param aOutMax - The maximum value of the output range
+   * @return unsigned int - The mapped value
+   */
+  double mapValues(double aDegree, int aInMin, int aInMax, int aOutMin, int aOutMax) const;
    
   Matrix<double, 3, 1> mCurrentThetas;
 
