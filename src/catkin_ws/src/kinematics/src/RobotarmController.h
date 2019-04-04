@@ -103,8 +103,8 @@ public:
    * @param aMoveTime - The time to take for the move
    * @param aMoveTimeDelay - The time to wait after making the move for the robotarm to reach the position
    */
-  void moveRobotarmToPosition(double aShapeAngle, std::vector<std::pair<bool, Matrix<double, 3, 1>>> aConfiguration, unsigned int aConfigurationIndex, unsigned int aGripperDegree, unsigned int aMoveTime, double aMoveTimeDelay);
-   
+  void moveRobotarmToPosition(double aShapeAngle, std::vector<std::pair<bool, Matrix<double, 3, 1>>> aConfiguration, unsigned int aConfigurationIndex, double aGripperRotationDegree, double aGripperDegree, unsigned int aMoveTime, double aMoveTimeDelay);
+  
   Matrix<double, 3, 1> mCurrentThetas;
 
   Matrix<double, 3, 1> mGoalThetas;

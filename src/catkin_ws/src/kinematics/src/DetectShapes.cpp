@@ -216,8 +216,18 @@ void Shapedetector::setShapeValues(Mat aImage, Mat aContour)
   mShapePosition = {{{double(currentCenter.x)}}, {{double(currentCenter.y)}}};
   // Create minarearect
   RotatedRect lRotatedRect = minAreaRect(aContour);
+  // Rect lBoundingRect = boundingRect(lRotatedRect.boundingRect;
+  rectangle(mDisplayImage, lRotatedRect.boundingRect(), Scalar(0,0,255));
+  double lShapeAngle = lRotatedRect.angle;
+  if (lRotatedRect.size.width < lRotatedRect.size.height) {
+    lShapeAngle = lShapeAngle - 90;
+  }
+
+  std::cout << "lShapeAngle : " << lShapeAngle << std::endl;
+  
   // Get the smallest side
   double lMinDistance = DBL_MAX;
+  double lMaxDistance = 0;
   lRotatedRect.points(lVertices);
   for (int i = 0; i < 4; i++)
   {
@@ -227,16 +237,23 @@ void Shapedetector::setShapeValues(Mat aImage, Mat aContour)
     {
       lMinDistance = (double)lDistance;
     }
+    if(lDistance > lMaxDistance)
+    {
+      lMaxDistance = (double)lDistance;
+    }
   }
   circle(mDisplayImage, getContourCenter(aContour), 3, Scalar(0,0,255), -1, 8, 0 );
-  // Set the number of pixels in the return value
-  mShapeMinDistance = lMinDistance;
   // Set the bounding rect corners in the return value
   for (int i = 0; i < 4; i++)
   {
     mShapeBoundingRect.at(0,i) = lVertices[i].x;
     mShapeBoundingRect.at(1,i) = lVertices[i].y;
   }
+  // Set the shape angle
+  mShapeAngle = lShapeAngle;
+  // Set the shape width and height
+  mShapeWidth = lMinDistance;
+  mShapeHeight = lMaxDistance;
 }
 
 void Shapedetector::drawShapeContours(Mat aImage, Mat aContour)

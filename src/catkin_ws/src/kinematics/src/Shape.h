@@ -8,6 +8,8 @@ struct Shape
   Matrix<double, 2, 1> mCenterPoint;
   Matrix<double, 2, 4> mBoundingRect;
   double mShapeWidth;
+  double mShapeHeight;
+  double mShapeAngle;
 };
 
 

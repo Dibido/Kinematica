@@ -331,6 +331,10 @@ public:
   double mShapeMinDistance;
   // A matrix with the x/y positions of every side of the bounding rect
   Matrix<double, 2, 4> mShapeBoundingRect;
+  // Shape values
+  double mShapeHeight;
+  double mShapeWidth;
+  double mShapeAngle;
 
 private:
   // Program variables

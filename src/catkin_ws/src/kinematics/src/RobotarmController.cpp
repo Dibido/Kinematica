@@ -137,21 +137,21 @@ bool RobotarmController::planAndExecuteRoute()
   Note how servo's with channel 1/3 have their theta inverted,
   the servo's are inverted (probably due to wrong mechanical assembly) */
   // Action (1/8), moving gripper to above the object.
-  moveRobotarmToPosition(lShapeAngle, lConfigurations, 0, RobotConstants::GRIPPER_OPEN_DEGREES, 3000, 100.0);
+  moveRobotarmToPosition(lShapeAngle, lConfigurations, 0, 0, RobotConstants::GRIPPER_OPEN_DEGREES, 3000, 100.0);
   // Action (2/8), moving gripper down to the object.
-  moveRobotarmToPosition(lShapeAngle, lConfigurations, 1, RobotConstants::GRIPPER_OPEN_DEGREES, 3000, 100.0);
+  moveRobotarmToPosition(lShapeAngle, lConfigurations, 1, 0, RobotConstants::GRIPPER_OPEN_DEGREES, 3000, 100.0);
   // Action (3/8), closing gripper.
-  moveRobotarmToPosition(lShapeAngle, lConfigurations, 1, lClosedGripperDegrees, 3000, 100.0);
+  moveRobotarmToPosition(lShapeAngle, lConfigurations, 1, 0, lClosedGripperDegrees, 3000, 100.0);
   // Action (4/8), moving upwards.
-  moveRobotarmToPosition(lShapeAngle, lConfigurations, 0, lClosedGripperDegrees, 3000, 100.0);
+  moveRobotarmToPosition(lShapeAngle, lConfigurations, 0, 0, lClosedGripperDegrees, 3000, 100.0);
   // Action (5/8), moving to above the dropping point.
-  moveRobotarmToPosition(lDropAngle, lConfigurations, 2, lClosedGripperDegrees, 3000, 100.0);
+  moveRobotarmToPosition(lDropAngle, lConfigurations, 2, 0, lClosedGripperDegrees, 3000, 100.0);
   // Action (6/8), moving down to the dropping point.
-  moveRobotarmToPosition(lDropAngle, lConfigurations, 3, lClosedGripperDegrees, 3000, 100.0);
+  moveRobotarmToPosition(lDropAngle, lConfigurations, 3, 0, lClosedGripperDegrees, 3000, 100.0);
   // Action (7/8), opening the gripper dropping the object.
-  moveRobotarmToPosition(lDropAngle, lConfigurations, 3, RobotConstants::GRIPPER_OPEN_DEGREES, 3000, 100.0);
+  moveRobotarmToPosition(lDropAngle, lConfigurations, 3, 0, RobotConstants::GRIPPER_OPEN_DEGREES, 3000, 100.0);
   // Action (8/8), moving gripper upwards again.
-  moveRobotarmToPosition(lDropAngle, lConfigurations, 2, RobotConstants::GRIPPER_OPEN_DEGREES, 3000, 100.0);
+  moveRobotarmToPosition(lDropAngle, lConfigurations, 2, 0, RobotConstants::GRIPPER_OPEN_DEGREES, 3000, 100.0);
   return true;
 }
 
@@ -165,7 +165,7 @@ double RobotarmController::mapValues(double aDegree, int aInMin, int aInMax, int
   return (aDegree - aInMin) * (aOutMax - aOutMin) / (aInMax - aInMin) + aOutMin;
 }
 
-void RobotarmController::moveRobotarmToPosition(double aShapeAngle, std::vector<std::pair<bool, Matrix<double, 3, 1>>> aConfiguration, unsigned int aConfigurationIndex, unsigned int aGripperDegree, unsigned int aMoveTime, double aMoveTimeDelay)
+void RobotarmController::moveRobotarmToPosition(double aShapeAngle, std::vector<std::pair<bool, Matrix<double, 3, 1>>> aConfiguration, unsigned int aConfigurationIndex, double aGripperRotationDegree, double aGripperDegree, unsigned int aMoveTime, double aMoveTimeDelay)
 {
   kinematics::moveServos lMoveServosMessage;
   kinematics::servoPosition lServoPosition;
@@ -194,7 +194,7 @@ void RobotarmController::moveRobotarmToPosition(double aShapeAngle, std::vector<
   lMoveServosMessage.servos.push_back(lServoPosition);
 
   lServoPosition.servoId = 5;
-  lServoPosition.position = 0;
+  lServoPosition.position = aGripperRotationDegree;
   lMoveServosMessage.servos.push_back(lServoPosition);
 
   ROS_INFO("Sending move servos message");
