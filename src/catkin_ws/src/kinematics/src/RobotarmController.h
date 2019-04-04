@@ -54,6 +54,7 @@ public:
    */
   void run();
 
+  private:
   /**
    * @brief Initializing function, is called at the end of the constructor.
    * Used to find things like coordinates of robot, pixels per cm etc.
@@ -61,6 +62,7 @@ public:
    */
   void initialize();
 
+  
   /**
    * @brief This function will let you locate and set a shape
    */
