@@ -2,7 +2,12 @@ cmake_minimum_required(VERSION 3.7.2)
 project(kinematics)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
-add_compile_options(-std=c++14)
+set (CMAKE_CXX_STANDARD 14)
+
+set(CMAKE_CXX_CPPCHECK "cppcheck" "--enable=all" "--inconclusive")
+
+set(CMAKE_VERBOSE_MAKEFILE ON)
+find_package(OpenCV 3.2.0 REQUIRED)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
@@ -149,6 +154,16 @@ target_link_libraries(kinematics ${Boost_FILESYSTEM_LIBRARY}
                       ${catkin_LIBRARIES})
 
 target_link_libraries(kinematics ${OpenCV_LIBS})
+
+if ( CMAKE_COMPILER_IS_GNUCC )
+    target_compile_options(kinematics PRIVATE "-Wall")
+    target_compile_options(kinematics PRIVATE "-g")
+    target_compile_options(kinematics PRIVATE "-Wextra")
+    target_compile_options(kinematics PRIVATE "-Wconversion")
+endif()
+if ( MSVC )
+    target_compile_options(kinematics PRIVATE "/W4")
+endif()
 
 
 ## Add cmake target dependencies of the library
