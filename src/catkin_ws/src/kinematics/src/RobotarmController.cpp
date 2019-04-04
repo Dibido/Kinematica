@@ -70,7 +70,9 @@ void RobotarmController::retrieveObject()
   mShape.mShapeWidth = lShape.second;
 
   // Convert to cm
+
   mShape.mCenterPoint = mShape.mCenterPoint * (1.0 / mPixelsPerCm);
+  mShape.mShapeWidth = mShape.mShapeWidth * (1.0 / mPixelsPerCm);
 }
 
 bool RobotarmController::planAndExecuteRoute()
@@ -88,10 +90,7 @@ bool RobotarmController::planAndExecuteRoute()
   double lDistanceToDropPoint = MatrixFunctions::calcDistance(mRobotBase, mDropPoint);
 
   // Calculate how far we'll need to close the gripper to pick up the object using mapping.
-  double lMapClosedGripperDegrees = mapValues(mShape.mShapeWidth, RobotConstants::GRIPPER_CLOSED_WIDTH_CM, RobotConstants::GRIPPER_OPEN_WIDTH_CM, RobotConstants::GRIPPER_CLOSED_DEGREES, RobotConstants::GRIPPER_OPEN_DEGREES);
-  // std::cout << "lMapClosedGripperDegrees : " << lMapClosedGripperDegrees << std::endl;
-  double lClosedGripperDegrees = (mShape.mShapeWidth - RobotConstants::GRIPPER_CLOSED_WIDTH_CM * (RobotConstants::GRIPPER_OPEN_DEGREES - RobotConstants::GRIPPER_CLOSED_DEGREES) / (RobotConstants::GRIPPER_OPEN_WIDTH_CM - RobotConstants::GRIPPER_CLOSED_WIDTH_CM)) + RobotConstants::GRIPPER_CLOSED_DEGREES;
-  // std::cout << "lClosedGripperDegrees : " << lClosedGripperDegrees << std::endl;
+  double lClosedGripperDegrees = mapValues(mShape.mShapeWidth, RobotConstants::GRIPPER_CLOSED_WIDTH_CM, RobotConstants::GRIPPER_OPEN_WIDTH_CM, RobotConstants::GRIPPER_CLOSED_DEGREES, RobotConstants::GRIPPER_OPEN_DEGREES);
 
   lClosedGripperDegrees += RobotConstants::GRIPPER_CLOSE_OFFSET;
 
