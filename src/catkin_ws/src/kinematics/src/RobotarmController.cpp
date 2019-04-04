@@ -88,7 +88,7 @@ bool RobotarmController::planAndExecuteRoute()
   double lDistanceToDropPoint = MatrixFunctions::calcDistance(mRobotBase, mDropPoint);
 
   // Calculate how far we'll need to close the gripper to pick up the object using mapping.
-  double lClosedGripperDegrees = mapValues(mShape.mShapeWidth, GRIPPER_CLOSED_WIDTH_CM, GRIPPER_OPEN_WIDTH_CM, GRIPPER_CLOSED_DEGREES, GRIPPER_OPEN_DEGREES);
+  double lClosedGripperDegrees = mapValues(mShape.mShapeWidth, RobotConstants::GRIPPER_CLOSED_WIDTH_CM, RobotConstants::GRIPPER_OPEN_WIDTH_CM, RobotConstants::GRIPPER_CLOSED_DEGREES, RobotConstants::GRIPPER_OPEN_DEGREES);
 
   lClosedGripperDegrees += RobotConstants::GRIPPER_CLOSE_OFFSET;
 
@@ -403,7 +403,7 @@ double RobotarmController::convertToCm(int aValue) const
   return static_cast<double>(aValue) / mPixelsPerCm;
 }
 
-double RobotarmController::mapValues(double aDegree, int aInMin, int aInMax, int aOutMin, int aOutMax) const;
+double RobotarmController::mapValues(double aDegree, int aInMin, int aInMax, int aOutMin, int aOutMax) const
 {
   return (aDegree - aInMin) * (aOutMax - aOutMin) / (aInMax - aInMin) + aOutMin;
 }
