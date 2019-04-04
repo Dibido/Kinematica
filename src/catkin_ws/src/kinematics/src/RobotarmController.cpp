@@ -87,9 +87,6 @@ void RobotarmController::retrieveObject()
 {
   mShape = mShapeDetector.detectShapeCoordinates(mCamIndex);
 
-  // mShape.mCenterPoint = lShape.first;
-  // mShape.mShapeWidth = lShape.second;
-
   // Convert to cm
 
   mShape.mCenterPoint = mShape.mCenterPoint * (1.0 / mPixelsPerCm);
