@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.7.2)
-project(robotarminterface)
+project(kinematics)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 add_compile_options(-std=c++14)
@@ -8,10 +8,10 @@ add_compile_options(-std=c++14)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
-  message_generation
   roscpp
   rospy
   std_msgs
+  message_generation
 )
 
 ## System dependencies are found with CMake's conventions
@@ -106,9 +106,9 @@ generate_messages(
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
 #  INCLUDE_DIRS include
-#  LIBRARIES robotarminterface
+#  LIBRARIES kinematics
 #  CATKIN_DEPENDS actionlib actionlib_msgs message_generation roscpp rospy std_msgs
- DEPENDS roscpp rospy std_msgs message_runtime
+ DEPENDS roscpp rospy std_msgs message_runtime message_generation
 )
 
 ###########
@@ -124,21 +124,22 @@ include_directories(
 
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
-#   src/${PROJECT_NAME}/robotarminterface.cpp
+#   src/${PROJECT_NAME}/kinematics.cpp
 # )
+find_package( Boost COMPONENTS system filesystem unit_test_framework REQUIRED )
+find_package(OpenCV 3.2.0 REQUIRED)
+
+include_directories( ${Boost_INCLUDE_DIR} )
+
 add_library(lowleveldriver SHARED src/lowlevel.cpp src/Servo.cpp)
 
 add_executable(robotarmclient src/robotarm_client.cpp)
-add_dependencies(robotarmclient robotarminterface_generate_messages_cpp)
+add_dependencies(robotarmclient kinematics_generate_messages_cpp)
 target_link_libraries(robotarmclient ${catkin_LIBRARIES})
 
 add_executable(highleveldriver src/highlevel.cpp)
-add_dependencies(highleveldriver robotarminterface_generate_messages_cpp)
+add_dependencies(highleveldriver kinematics_generate_messages_cpp)
 target_link_libraries(highleveldriver ${catkin_LIBRARIES} lowleveldriver)
-
-find_package( Boost COMPONENTS system filesystem unit_test_framework REQUIRED )
-find_package(OpenCV 3.2.0 REQUIRED)
-include_directories( ${Boost_INCLUDE_DIR} )
 
 add_executable(kinematics src/Main.cpp src/RobotarmController.cpp src/Matrix_test.cpp src/MatrixFunctions.cpp src/DetectColor.cpp src/DetectShapes.cpp src/Shapedetector.cpp)
 
@@ -158,7 +159,7 @@ target_link_libraries(kinematics ${OpenCV_LIBS})
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-# add_executable(${PROJECT_NAME}_node src/robotarminterface_node.cpp)
+# add_executable(${PROJECT_NAME}_node src/kinematics_node.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -215,7 +216,7 @@ target_link_libraries(kinematics ${OpenCV_LIBS})
 #############
 
 ## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_robotarminterface.cpp)
+# catkin_add_gtest(${PROJECT_NAME}-test test/test_kinematics.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()

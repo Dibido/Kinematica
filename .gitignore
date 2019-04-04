@@ -4,7 +4,8 @@
 # ROS build dir
 src/catkin_ws/build
 src/catkin_ws/src/kinematics/src/build
-# src/catkin_ws/devel
+src/catkin_ws/src/robotarminterface/src/build
+src/catkin_ws/devel
 
 # MatrixExcercise
 MatrixExcercise/build

@@ -49,7 +49,7 @@ RobotarmController::RobotarmController(int aCamIndex) : mCurrentThetas(RobotCons
 
   //
   ros::NodeHandle lNodeHandler;
-  mMoveServosPublisher = lNodeHandler.advertise<robotarminterface::moveServos>("moveServos", 1000);
+  mMoveServosPublisher = lNodeHandler.advertise<kinematics::moveServos>("moveServos", 1000);
 
   initialize();
 }
@@ -85,12 +85,14 @@ void RobotarmController::initialize()
 
 void RobotarmController::retrieveObject()
 {
-  std::pair<Matrix<double, 2, 1>, double> lShape = mShapeDetector.detectShapeCoordinates(mCamIndex);
-  mShape.mCenterPoint = lShape.first;
-  mShape.mShapeWidth = lShape.second;
+  mShape = mShapeDetector.detectShapeCoordinates(mCamIndex);
+  // mShape.mCenterPoint = lShape.first;
+  // mShape.mShapeWidth = lShape.second;
 
   // Convert to cm
+
   mShape.mCenterPoint = mShape.mCenterPoint * (1.0 / mPixelsPerCm);
+  mShape.mShapeWidth = mShape.mShapeWidth * (1.0 / mPixelsPerCm);
 }
 
 bool RobotarmController::planAndExecuteRoute()
@@ -156,8 +158,8 @@ bool RobotarmController::planAndExecuteRoute()
   /* Executing of route, each move will take 3 seconds to complete.
   Note how servo's with channel 1/3 have their theta inverted,
   the servo's are inverted (probably due to wrong mechanical assembly) */
-  robotarminterface::moveServos lMoveServosMessage;
-  robotarminterface::servoPosition lServoPosition;
+  kinematics::moveServos lMoveServosMessage;
+  kinematics::servoPosition lServoPosition;
   lMoveServosMessage.time = 3000;
   double lTimeMarginMs = 100.0;
 
@@ -194,6 +196,7 @@ bool RobotarmController::planAndExecuteRoute()
   sleep((lMoveServosMessage.time + lTimeMarginMs) / 1000.0);
 
   // Action (2/8), moving gripper down to the object.
+  lMoveServosMessage.servos.clear();
   lServoPosition.servoId = 0;
   lServoPosition.position = lShapeAngle;
   lMoveServosMessage.servos.push_back(lServoPosition);
@@ -226,6 +229,7 @@ bool RobotarmController::planAndExecuteRoute()
   sleep((lMoveServosMessage.time + lTimeMarginMs) / 1000.0);
 
   // Action (3/8), closing gripper.
+  lMoveServosMessage.servos.clear();
   lServoPosition.servoId = 0;
   lServoPosition.position = lShapeAngle;
   lMoveServosMessage.servos.push_back(lServoPosition);
@@ -258,6 +262,7 @@ bool RobotarmController::planAndExecuteRoute()
   sleep((lMoveServosMessage.time + lTimeMarginMs) / 1000.0);
 
   // Action (4/8), moving upwards.
+  lMoveServosMessage.servos.clear();
   lServoPosition.servoId = 0;
   lServoPosition.position = lShapeAngle;
   lMoveServosMessage.servos.push_back(lServoPosition);
@@ -290,6 +295,7 @@ bool RobotarmController::planAndExecuteRoute()
   sleep((lMoveServosMessage.time + lTimeMarginMs) / 1000.0);
 
   // Action (5/8), moving to above the dropping point.
+  lMoveServosMessage.servos.clear();
   lServoPosition.servoId = 0;
   lServoPosition.position = lDropAngle;
   lMoveServosMessage.servos.push_back(lServoPosition);
@@ -322,6 +328,7 @@ bool RobotarmController::planAndExecuteRoute()
   sleep((lMoveServosMessage.time + lTimeMarginMs) / 1000.0);
 
   // Action (6/8), moving down to the dropping point.
+  lMoveServosMessage.servos.clear();
   lServoPosition.servoId = 0;
   lServoPosition.position = lDropAngle;
   lMoveServosMessage.servos.push_back(lServoPosition);
@@ -354,6 +361,7 @@ bool RobotarmController::planAndExecuteRoute()
   sleep((lMoveServosMessage.time + lTimeMarginMs) / 1000.0);
 
   // Action (7/8), opening the gripper dropping the object.
+  lMoveServosMessage.servos.clear();
   lServoPosition.servoId = 0;
   lServoPosition.position = lDropAngle;
   lMoveServosMessage.servos.push_back(lServoPosition);
@@ -386,6 +394,7 @@ bool RobotarmController::planAndExecuteRoute()
   sleep((lMoveServosMessage.time + lTimeMarginMs) / 1000.0);
 
   // Action (8/8), moving gripper upwards again.
+  lMoveServosMessage.servos.clear();
   lServoPosition.servoId = 0;
   lServoPosition.position = lDropAngle;
   lMoveServosMessage.servos.push_back(lServoPosition);
