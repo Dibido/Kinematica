@@ -36,6 +36,7 @@ void Shapedetector::initializeValues()
   
   // Set shape position
   mShapePosition = {{{0}}, {{0}}};
+  mShapeMinDistance = DBL_MAX;
 
   // Set shape and color
   mCurrentColor = COLORS::UNKNOWNCOLOR;
@@ -318,10 +319,6 @@ Matrix<double, 2, 1> Shapedetector::calibrateRobotarmBase(double aCoordinateConv
   Point lBlockCenterPoint;
   Point lRobotarmBasePoint;
 
-  Scalar lRedLimits[2];
-  lRedLimits[0] = Scalar(0, 0, 70);
-  lRedLimits[1] = Scalar(50, 85, 255);
-
   initCamera(aDeviceId);
   Mat firstRetrievedFrame;
   mVidCap.grab();
@@ -338,7 +335,7 @@ Matrix<double, 2, 1> Shapedetector::calibrateRobotarmBase(double aCoordinateConv
     // Recognize calibration object
     // Filter color
     Mat colorMask;
-    inRange(mOriginalImage, lRedLimits[0], lRedLimits[1], colorMask);
+    inRange(mOriginalImage, mRedLimits[0], mRedLimits[1], colorMask);
     imshow("colorMask", colorMask);
     // Find shape
     findContours(colorMask, mCurrentContours, CV_RETR_EXTERNAL, CHAIN_APPROX_NONE);
@@ -484,6 +481,7 @@ std::pair<std::vector<Shape>, Matrix<double, 2, 1>> Shapedetector::detectShapeCo
     {
       std::cout << "Error: invalid specification entered" << std::endl;
     }
+    mShapes.clear();
     detectRealtime();
   }
   lReturnValue.first = mShapes;

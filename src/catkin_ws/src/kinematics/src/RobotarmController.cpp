@@ -81,13 +81,15 @@ bool RobotarmController::retrieveObject()
   {
     mShape = lShape;
     // Convert to cm
-    mShape.mCenterPoint = mShape.mCenterPoint * (1.0 / mPixelsPerCm);
+    mShape.mCenterPoint.at(0,0) = mShape.mCenterPoint.at(0,0) * (1.0 / mPixelsPerCm);
+    mShape.mCenterPoint.at(1,0) = mShape.mCenterPoint.at(1,0) * (1.0 / mPixelsPerCm);
     mShape.mShapeWidth = mShape.mShapeWidth * (1.0 / mPixelsPerCm);
     mShape.mShapeHeight = mShape.mShapeHeight * (1.0 / mPixelsPerCm);
     // Check if found shape meets requirements
     if(mShape.mShapeWidth <= mShapeSizeRequirements.at(0,0) + (mShape.mShapeWidth * RobotConstants::SHAPE_SIZE_COMPENSATION) && mShape.mShapeWidth >= mShapeSizeRequirements.at(0,0) - (mShape.mShapeWidth * RobotConstants::SHAPE_SIZE_COMPENSATION)
       && mShape.mShapeHeight <= mShapeSizeRequirements.at(1,0) + (mShape.mShapeHeight * RobotConstants::SHAPE_SIZE_COMPENSATION) && mShape.mShapeHeight >= mShapeSizeRequirements.at(1,0) - (mShape.mShapeHeight * RobotConstants::SHAPE_SIZE_COMPENSATION))
     {
+      std::cout << "Shape : " << mShape.mCenterPoint.at(0,0) << " : " << mShape.mCenterPoint.at(1,0) << std::endl;
       return true;
     }
   }

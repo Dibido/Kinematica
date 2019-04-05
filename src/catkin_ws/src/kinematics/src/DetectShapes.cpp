@@ -209,15 +209,15 @@ void Shapedetector::setShapeValues(Mat aImage, Mat aContour)
   putText(aImage, yPosString, Point(currentCenter.x, currentCenter.y + mTextOffset), FONT_HERSHEY_SIMPLEX, mTextSize, Scalar(255, 255, 255), 1);
   putText(aImage, areaString, Point(currentCenter.x, currentCenter.y + (mTextOffset * 2)), FONT_HERSHEY_SIMPLEX, mTextSize, Scalar(255, 255, 255), 1);
 
-  // Print to stdout
-  std::cout << "\tShape location:\t" << xPosString << "\t" << yPosString << "\t" << areaString << std::endl;
+  
   // Create minarearect
   RotatedRect lRotatedRect = minAreaRect(aContour);
   // Create shape
   Shape lShape;
   // Set the shape position return value
   lShape.mCenterPoint = {{{double(lRotatedRect.center.x)}}, {{double(lRotatedRect.center.y)}}};
-  // Rect lBoundingRect = boundingRect(lRotatedRect.boundingRect;
+  // Print to stdout
+  std::cout << "\tShape location:\t" << lRotatedRect.center.x << "\t" << lRotatedRect.center.y << "\t" << areaString << std::endl;
   rectangle(mDisplayImage, lRotatedRect.boundingRect(), Scalar(0,0,255));
   double lShapeAngle = lRotatedRect.angle;
   if (lRotatedRect.size.width < lRotatedRect.size.height) {
