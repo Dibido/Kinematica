@@ -4,14 +4,14 @@
       values have been tweaked slightly as it visibly improved the behavior of the robot */
 const double RobotConstants::BEFORE_HEIGHT_COMPENSATION = 4.193;
 const double RobotConstants::BEFORE_HEIGHT_BASE_COMPENSATION = 8.193;
-const double RobotConstants::BASE_HEIGHT_COMPENSATION = -4.693;
+const double RobotConstants::BASE_HEIGHT_COMPENSATION = -5.793;
 
 // Gripper values
 const unsigned int RobotConstants::GRIPPER_OPEN_DEGREES = 60;
 const unsigned int RobotConstants::GRIPPER_CLOSED_DEGREES = 180;
 const double RobotConstants::GRIPPER_OPEN_WIDTH_CM = 3.0;
 const double RobotConstants::GRIPPER_CLOSED_WIDTH_CM = 0.0;
-const unsigned int RobotConstants::GRIPPER_CLOSE_OFFSET = 20;
+const unsigned int RobotConstants::GRIPPER_CLOSE_OFFSET = 40;
 
 // Relevant side lengths of the robot in CM (0 = shoulder to elbow, 1 = elbow to wrist, 2 = wrist to gripper)
 Matrix<double, 3, 1> RobotConstants::cSidelengths = {{{14.605}},
@@ -150,21 +150,21 @@ bool RobotarmController::planAndExecuteRoute()
   Note how servo's with channel 1/3 have their theta inverted,
   the servo's are inverted (probably due to wrong mechanical assembly) */
   // Action (1/8), moving gripper to above the object.
-  moveRobotarmToPosition(lShapeAngle, lConfigurations, 0, lGripperAngle, RobotConstants::GRIPPER_OPEN_DEGREES, 3000, 100.0);
+  moveRobotarmToPosition(lShapeAngle, lConfigurations, 0, lGripperAngle, RobotConstants::GRIPPER_OPEN_DEGREES, 800, 100.0);
   // Action (2/8), moving gripper down to the object.
-  moveRobotarmToPosition(lShapeAngle, lConfigurations, 1, lGripperAngle, RobotConstants::GRIPPER_OPEN_DEGREES, 3000, 100.0);
+  moveRobotarmToPosition(lShapeAngle, lConfigurations, 1, lGripperAngle, RobotConstants::GRIPPER_OPEN_DEGREES, 800, 100.0);
   // Action (3/8), closing gripper.
-  moveRobotarmToPosition(lShapeAngle, lConfigurations, 1, lGripperAngle, lClosedGripperDegrees, 3000, 100.0);
+  moveRobotarmToPosition(lShapeAngle, lConfigurations, 1, lGripperAngle, lClosedGripperDegrees, 800, 100.0);
   // Action (4/8), moving upwards.
-  moveRobotarmToPosition(lShapeAngle, lConfigurations, 0, lGripperAngle, lClosedGripperDegrees, 3000, 100.0);
+  moveRobotarmToPosition(lShapeAngle, lConfigurations, 0, lGripperAngle, lClosedGripperDegrees, 800, 100.0);
   // Action (5/8), moving to above the dropping point.
-  moveRobotarmToPosition(lDropAngle, lConfigurations, 2, 0, lClosedGripperDegrees, 3000, 100.0);
+  moveRobotarmToPosition(lDropAngle, lConfigurations, 2, 0, lClosedGripperDegrees, 800, 100.0);
   // Action (6/8), moving down to the dropping point.
-  moveRobotarmToPosition(lDropAngle, lConfigurations, 3, 0, lClosedGripperDegrees, 3000, 100.0);
+  moveRobotarmToPosition(lDropAngle, lConfigurations, 3, 0, lClosedGripperDegrees, 800, 100.0);
   // Action (7/8), opening the gripper dropping the object.
-  moveRobotarmToPosition(lDropAngle, lConfigurations, 3, 0, RobotConstants::GRIPPER_OPEN_DEGREES, 3000, 100.0);
+  moveRobotarmToPosition(lDropAngle, lConfigurations, 3, 0, RobotConstants::GRIPPER_OPEN_DEGREES, 800, 100.0);
   // Action (8/8), moving gripper upwards again.
-  moveRobotarmToPosition(lDropAngle, lConfigurations, 2, 0, RobotConstants::GRIPPER_OPEN_DEGREES, 3000, 100.0);
+  moveRobotarmToPosition(lDropAngle, lConfigurations, 2, 0, RobotConstants::GRIPPER_OPEN_DEGREES, 800, 100.0);
   return true;
 }
 
