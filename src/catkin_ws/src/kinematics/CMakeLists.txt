@@ -4,7 +4,7 @@ project(kinematics)
 ## Compile as C++11, supported in ROS Kinetic and newer
 set (CMAKE_CXX_STANDARD 14)
 
-set(CMAKE_CXX_CPPCHECK "cppcheck" "--enable=all")
+set(CMAKE_CXX_CPPCHECK "cppcheck" "--enable=all" "--suppress=noExplicitConstructor" "--suppress=unusedFunction")
 
 ##set(CMAKE_VERBOSE_MAKEFILE ON)
 find_package(OpenCV 3.2.0 REQUIRED)
