@@ -120,13 +120,14 @@ bool RobotarmController::retrieveObject()
     if (lDeviation < lClosestShapeDeviation)
     {
       lClosestShape = lShape;
-      lClosestDeviation = lDeviation;
+      lClosestShapeDeviation = lDeviation;
     }
   }
 
+  mShape = lClosestShape;
+
   if (lClosestShape.mShapeWidth <= lDesiredWidth + (lClosestShape.mShapeWidth * RobotConstants::SHAPE_SIZE_COMPENSATION) && lClosestShape.mShapeWidth >= lDesiredWidth - (mShape.mShapeWidth * RobotConstants::SHAPE_SIZE_COMPENSATION) && mShape.mShapeHeight <= lDesiredHeight + (mShape.mShapeHeight * RobotConstants::SHAPE_SIZE_COMPENSATION) && mShape.mShapeHeight >= lDesiredHeight - (mShape.mShapeHeight * RobotConstants::SHAPE_SIZE_COMPENSATION))
   {
-    mShape = lClosestShape;
     std::cout << "Shape : " << mShape.mCenterPoint.at(0, 0) << " : " << mShape.mCenterPoint.at(1, 0) << std::endl;
     return true;
   }

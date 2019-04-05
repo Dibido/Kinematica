@@ -480,6 +480,7 @@ std::pair<std::vector<Shape>, Matrix<double, 2, 1>> Shapedetector::detectShapeCo
     if (parsingSucceeded == false)
     {
       std::cout << "Error: invalid specification entered" << std::endl;
+      throw std::invalid_argument("One of the commandline arguments is invalid");
     }
     mShapes.clear();
     detectRealtime();
