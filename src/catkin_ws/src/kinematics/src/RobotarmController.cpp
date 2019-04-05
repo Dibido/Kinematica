@@ -13,6 +13,9 @@ const double RobotConstants::GRIPPER_OPEN_WIDTH_CM = 3.0;
 const double RobotConstants::GRIPPER_CLOSED_WIDTH_CM = 0.0;
 const unsigned int RobotConstants::GRIPPER_CLOSE_OFFSET = 40;
 
+// Shape size detection compensation
+const double RobotConstants::SHAPE_SIZE_COMPENSATION = 0.5;
+
 // Relevant side lengths of the robot in CM (0 = shoulder to elbow, 1 = elbow to wrist, 2 = wrist to gripper)
 Matrix<double, 3, 1> RobotConstants::cSidelengths = {{{14.605}},
                                                      {{18.733}},
@@ -42,7 +45,10 @@ void RobotarmController::run()
 {
   while (true)
   {
-    retrieveObject();
+    while (!retrieveObject())
+    {
+      std::cout << "Unable to find correct shape, Looking for : " << mShapeSizeRequirements.at(0,0) << "x" << mShapeSizeRequirements.at(1,0) << " Actual shape is :" << mShape.mShapeWidth << "x" << mShape.mShapeHeight << "." << std::endl;
+    }
     planAndExecuteRoute();
     std::cout << "Select a new shape" << std::endl;
   }
@@ -63,14 +69,27 @@ void RobotarmController::initialize()
   mDropPoint = mDropPoint * (1.0 / mPixelsPerCm);
 }
 
-void RobotarmController::retrieveObject()
+bool RobotarmController::retrieveObject()
 {
-  mShape = mShapeDetector.detectShapeCoordinates(mCamIndex);
+  bool lReturn = false;
+  std::pair<Shape, Matrix<double, 2, 1>> lShapeReturnValue;
+  lShapeReturnValue = mShapeDetector.detectShapeCoordinates(mCamIndex);
+  mShape = lShapeReturnValue.first;
+  mShapeSizeRequirements = lShapeReturnValue.second;
 
   // Convert to cm
-
   mShape.mCenterPoint = mShape.mCenterPoint * (1.0 / mPixelsPerCm);
   mShape.mShapeWidth = mShape.mShapeWidth * (1.0 / mPixelsPerCm);
+  mShape.mShapeHeight = mShape.mShapeHeight * (1.0 / mPixelsPerCm);
+  // mShapeSizeRequirements = mShapeSizeRequirements * (1.0 / mPixelsPerCm)
+
+  // Check if found shape meets requirements
+  if(mShape.mShapeWidth <= mShapeSizeRequirements.at(0,0) + (mShape.mShapeWidth * RobotConstants::SHAPE_SIZE_COMPENSATION) && mShape.mShapeWidth >= mShapeSizeRequirements.at(0,0) - (mShape.mShapeWidth * RobotConstants::SHAPE_SIZE_COMPENSATION)
+    && mShape.mShapeHeight <= mShapeSizeRequirements.at(1,0) + (mShape.mShapeWidth * RobotConstants::SHAPE_SIZE_COMPENSATION) && mShape.mShapeHeight >= mShapeSizeRequirements.at(1,0 + (mShape.mShapeWidth * RobotConstants::SHAPE_SIZE_COMPENSATION)))
+  {
+    lReturn = true;
+  }
+  return lReturn;
 }
 
 bool RobotarmController::planAndExecuteRoute()

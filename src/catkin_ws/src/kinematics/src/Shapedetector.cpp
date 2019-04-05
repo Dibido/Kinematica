@@ -33,6 +33,10 @@ void Shapedetector::initializeValues()
   mShapePosition = {{{0}}, {{0}}};
   mShapeMinDistance = DBL_MAX;
 
+  // Set shape size to find
+  mFindShapeWidth = 0.0;
+  mFindShapeHeight = 0.0;
+
   // Set shape and color
   mCurrentColor = COLORS::UNKNOWNCOLOR;
   mCurrentShape = SHAPES::UNKNOWNSHAPE;
@@ -126,9 +130,13 @@ bool Shapedetector::parseSpec(const std::string &aShapeCommand)
   bool result = true;
 
   // Parse command
-  std::size_t delimiterPos = aShapeCommand.find(' ');
-  std::string shapeStr = aShapeCommand.substr(0, delimiterPos);
-  std::string colorStr = aShapeCommand.substr(delimiterPos + 1);
+  std::size_t lDelimiterPos = aShapeCommand.find(' ');
+  std::string shapeStr = aShapeCommand.substr(0, lDelimiterPos);
+  std::size_t lSecondDelimiterPos = aShapeCommand.find(' ', lDelimiterPos + 1);
+  mFindShapeWidth = std::stod(aShapeCommand.substr(lDelimiterPos + 1, lSecondDelimiterPos));
+  std::size_t lThirdDelimiterPos = aShapeCommand.find(' ', lSecondDelimiterPos + 1);
+  mFindShapeHeight = std::stod(aShapeCommand.substr(lSecondDelimiterPos + 1, lThirdDelimiterPos));
+  std::string colorStr = aShapeCommand.substr(lThirdDelimiterPos + 1);
 
   mCurrentColor = StringToColor(colorStr); // convert string to enum
   if (mCurrentColor == COLORS::UNKNOWNCOLOR)
@@ -303,7 +311,7 @@ Mat Shapedetector::removeNoise(Mat aImage)
 Matrix<double, 2, 1> Shapedetector::calibrateRobotarmBase(double aCoordinateConversionValue, int aDeviceId)
 {
   const double SHAPE_HEIGHT_SIZE_CM = 2.47;
-  const double BASE_RADIUS_CM = 3.75;
+  const double BASE_RADIUS_CM = 4.25;
   const double BASE_Y_DISTANCE_CM = (BASE_RADIUS_CM + (SHAPE_HEIGHT_SIZE_CM / 2));
 
   Matrix<double, 2, 1> lReturn;
@@ -458,13 +466,14 @@ double Shapedetector::calibrateCoordinates(int aDeviceId)
   return lReturn;
 }
 
-Shape Shapedetector::detectShapeCoordinates(int aDeviceId)
+std::pair<Shape, Matrix<double, 2, 1>> Shapedetector::detectShapeCoordinates(int aDeviceId)
 {
-  Shape lReturnValue;
+  std::pair<Shape, Matrix<double, 2, 1>> lReturnValue;
+  Matrix<double, 2, 1> lReturnMatrix;
   initCamera(aDeviceId);
   // Start webcam mode
   std::cout << "### Webcam mode ###" << std::endl;
-  std::cout << "Please enter [vorm] [kleur]" << std::endl;
+  std::cout << "Please enter [vorm] [breedte] [hoogte] [kleur]" << std::endl;
   std::cout << "> ";
   std::string command;
   getline(std::cin, command); // Get command
@@ -478,11 +487,14 @@ Shape Shapedetector::detectShapeCoordinates(int aDeviceId)
     }
     detectRealtime();
   }
-  lReturnValue.mCenterPoint = mShapePosition;
-  lReturnValue.mShapeWidth = mShapeWidth;
-  lReturnValue.mShapeHeight = mShapeHeight;
-  lReturnValue.mBoundingRect = mShapeBoundingRect;
-  lReturnValue.mShapeAngle = mShapeAngle;
+  lReturnValue.first.mCenterPoint = mShapePosition;
+  lReturnValue.first.mShapeWidth = mShapeWidth;
+  lReturnValue.first.mShapeHeight = mShapeHeight;
+  lReturnValue.first.mBoundingRect = mShapeBoundingRect;
+  lReturnValue.first.mShapeAngle = mShapeAngle;
+  lReturnMatrix.at(0,0) = mFindShapeWidth;
+  lReturnMatrix.at(1,0) = mFindShapeHeight;
+  lReturnValue.second = lReturnMatrix;
   return lReturnValue;
 }
 

@@ -27,6 +27,9 @@ extern const double GRIPPER_OPEN_WIDTH_CM;
 extern const double GRIPPER_CLOSED_WIDTH_CM;
 extern const unsigned int GRIPPER_CLOSE_OFFSET;
 
+// Shape size detection compensation
+extern const double SHAPE_SIZE_COMPENSATION;
+
 // Relevant side lengths of the robot in CM (0 = shoulder to elbow, 1 = elbow to wrist, 2 = wrist to gripper)
 extern Matrix<double, 3, 1> cSidelengths;
 
@@ -66,7 +69,7 @@ public:
   /**
    * @brief This function will let you locate and set a shape
    */
-  void retrieveObject();
+  bool retrieveObject();
 
   /**
    * @brief When an object is retrieved, this function will plan and execute the full route to
@@ -109,6 +112,9 @@ public:
 
   // Shape that robot will pick up.
   Shape mShape;
+
+  // The required shape of the object, width and height
+  Matrix<double, 2 ,1> mShapeSizeRequirements;
 
   // Base point of the robot base (x,y)
   Matrix<double, 2, 1> mRobotBase;
