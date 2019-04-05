@@ -47,7 +47,7 @@ void RobotarmController::run()
   {
     while (!retrieveObject())
     {
-      std::cout << "Unable to find correct shape, Looking for : " << mShapeSizeRequirements.at(0,0) << "x" << mShapeSizeRequirements.at(1,0) << " Actual shape is :" << mShape.mShapeWidth << "x" << mShape.mShapeHeight << "." << std::endl;
+      std::cout << "Unable to find correct shape, Looking for : " << mShapeSizeRequirements.at(0, 0) << "x" << mShapeSizeRequirements.at(1, 0) << " Actual shape is :" << mShape.mShapeWidth << "x" << mShape.mShapeHeight << "." << std::endl;
     }
     planAndExecuteRoute();
     std::cout << "Select a new shape" << std::endl;
@@ -71,29 +71,65 @@ void RobotarmController::initialize()
 
 bool RobotarmController::retrieveObject()
 {
-  bool lReturn = false;
   std::pair<std::vector<Shape>, Matrix<double, 2, 1>> lShapeReturnValue;
   lShapeReturnValue = mShapeDetector.detectShapeCoordinates(mCamIndex);
 
   mShapeSizeRequirements = lShapeReturnValue.second;
 
-  for(Shape lShape : lShapeReturnValue.first)
+  // If no shapes found
+  if (lShapeReturnValue.first.size() == 0)
   {
-    mShape = lShape;
+    return false;
+  }
+
+  // Select first shape
+  Shape lClosestShape = lShapeReturnValue.first.at(0);
+
+  double lDesiredWidth = 0;
+  double lDesiredHeight = 0;
+
+  // Width should always be smallest
+  if (mShapeSizeRequirements.at(0, 0) < mShapeSizeRequirements.at(1, 0))
+  {
+    lDesiredWidth = mShapeSizeRequirements.at(0, 0);
+    lDesiredHeight = mShapeSizeRequirements.at(1, 0);
+  }
+  else
+  {
+    lDesiredWidth = mShapeSizeRequirements.at(1, 0);
+    lDesiredHeight = mShapeSizeRequirements.at(0, 0);
+  }
+
+  // Total deviation in width and height to the desired shape width/height
+  double lClosestShapeDeviation = (std::fabs(lClosestShape.mShapeWidth - lDesiredWidth) + std::fabs(lClosestShape.mShapeHeight - lDesiredHeight));
+
+  for (Shape lShape : lShapeReturnValue.first)
+  {
     // Convert to cm
-    mShape.mCenterPoint.at(0,0) = mShape.mCenterPoint.at(0,0) * (1.0 / mPixelsPerCm);
-    mShape.mCenterPoint.at(1,0) = mShape.mCenterPoint.at(1,0) * (1.0 / mPixelsPerCm);
-    mShape.mShapeWidth = mShape.mShapeWidth * (1.0 / mPixelsPerCm);
-    mShape.mShapeHeight = mShape.mShapeHeight * (1.0 / mPixelsPerCm);
-    // Check if found shape meets requirements
-    if(mShape.mShapeWidth <= mShapeSizeRequirements.at(0,0) + (mShape.mShapeWidth * RobotConstants::SHAPE_SIZE_COMPENSATION) && mShape.mShapeWidth >= mShapeSizeRequirements.at(0,0) - (mShape.mShapeWidth * RobotConstants::SHAPE_SIZE_COMPENSATION)
-      && mShape.mShapeHeight <= mShapeSizeRequirements.at(1,0) + (mShape.mShapeHeight * RobotConstants::SHAPE_SIZE_COMPENSATION) && mShape.mShapeHeight >= mShapeSizeRequirements.at(1,0) - (mShape.mShapeHeight * RobotConstants::SHAPE_SIZE_COMPENSATION))
+    lShape.mCenterPoint.at(0, 0) = lShape.mCenterPoint.at(0, 0) * (1.0 / mPixelsPerCm);
+    lShape.mCenterPoint.at(1, 0) = lShape.mCenterPoint.at(1, 0) * (1.0 / mPixelsPerCm);
+    lShape.mShapeWidth = lShape.mShapeWidth * (1.0 / mPixelsPerCm);
+    lShape.mShapeHeight = lShape.mShapeHeight * (1.0 / mPixelsPerCm);
+
+    // Difference in width/height
+    double lDeviation = (std::fabs(lShape.mShapeWidth - lDesiredWidth) + std::fabs(lShape.mShapeHeight - lDesiredHeight));
+
+    // Check deviation from desired shape size
+    if (lDeviation < lClosestShapeDeviation)
     {
-      std::cout << "Shape : " << mShape.mCenterPoint.at(0,0) << " : " << mShape.mCenterPoint.at(1,0) << std::endl;
-      return true;
+      lClosestShape = lShape;
+      lClosestDeviation = lDeviation;
     }
   }
-  return lReturn;
+
+  if (lClosestShape.mShapeWidth <= lDesiredWidth + (lClosestShape.mShapeWidth * RobotConstants::SHAPE_SIZE_COMPENSATION) && lClosestShape.mShapeWidth >= lDesiredWidth - (mShape.mShapeWidth * RobotConstants::SHAPE_SIZE_COMPENSATION) && mShape.mShapeHeight <= lDesiredHeight + (mShape.mShapeHeight * RobotConstants::SHAPE_SIZE_COMPENSATION) && mShape.mShapeHeight >= lDesiredHeight - (mShape.mShapeHeight * RobotConstants::SHAPE_SIZE_COMPENSATION))
+  {
+    mShape = lClosestShape;
+    std::cout << "Shape : " << mShape.mCenterPoint.at(0, 0) << " : " << mShape.mCenterPoint.at(1, 0) << std::endl;
+    return true;
+  }
+
+  return false;
 }
 
 bool RobotarmController::planAndExecuteRoute()
@@ -101,13 +137,13 @@ bool RobotarmController::planAndExecuteRoute()
   // Calculate base angle to shape (when looking from above, considering horizontal line as X-axis of robot base)
   double lShapeAngle = MatrixFunctions::calculateBaseAngle(mRobotBase, mShape.mCenterPoint);
 
-  std::cout << "lShapeAngle : " << lShapeAngle <<  std::endl;
+  std::cout << "lShapeAngle : " << lShapeAngle << std::endl;
   std::cout << "mShape.mShapeAngle : " << mShape.mShapeAngle << std::endl;
 
   // Calculate the angle of the gripper
   double lGripperAngle = lShapeAngle - mShape.mShapeAngle;
 
-  if(lGripperAngle > 90.0)
+  if (lGripperAngle > 90.0)
   {
     lGripperAngle -= 180;
   }
@@ -161,7 +197,7 @@ bool RobotarmController::planAndExecuteRoute()
 
   Matrix<double, 3, 1> lParkConfiguration;
   // Set the ready position servo values
-  lParkConfiguration = {{{ -30 }, {{ 135 }}, {{ 60 }}}};
+  lParkConfiguration = {{{-30}, {{135}}, {{60}}}};
 
   // Check if there exist valid configurations for the 4 points.
   for (size_t lIndex = 0; lIndex < lConfigurations.size(); ++lIndex)
@@ -215,15 +251,15 @@ void RobotarmController::moveRobotarmToPosition(double aShapeAngle, Matrix<doubl
   lMoveServosMessage.servos.push_back(lServoPosition);
 
   lServoPosition.servoId = 1;
-  lServoPosition.position = static_cast<int>(-aConfiguration.at(0,0));
+  lServoPosition.position = static_cast<int>(-aConfiguration.at(0, 0));
   lMoveServosMessage.servos.push_back(lServoPosition);
 
   lServoPosition.servoId = 2;
-  lServoPosition.position = static_cast<int>(aConfiguration.at(1,0));
+  lServoPosition.position = static_cast<int>(aConfiguration.at(1, 0));
   lMoveServosMessage.servos.push_back(lServoPosition);
 
   lServoPosition.servoId = 3;
-  lServoPosition.position = static_cast<int>(-aConfiguration.at(2,0));
+  lServoPosition.position = static_cast<int>(-aConfiguration.at(2, 0));
   lMoveServosMessage.servos.push_back(lServoPosition);
 
   lServoPosition.servoId = 4;
