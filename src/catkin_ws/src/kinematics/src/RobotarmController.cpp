@@ -72,21 +72,24 @@ void RobotarmController::initialize()
 bool RobotarmController::retrieveObject()
 {
   bool lReturn = false;
-  std::pair<Shape, Matrix<double, 2, 1>> lShapeReturnValue;
+  std::pair<std::vector<Shape>, Matrix<double, 2, 1>> lShapeReturnValue;
   lShapeReturnValue = mShapeDetector.detectShapeCoordinates(mCamIndex);
-  mShape = lShapeReturnValue.first;
+
   mShapeSizeRequirements = lShapeReturnValue.second;
 
-  // Convert to cm
-  mShape.mCenterPoint = mShape.mCenterPoint * (1.0 / mPixelsPerCm);
-  mShape.mShapeWidth = mShape.mShapeWidth * (1.0 / mPixelsPerCm);
-  mShape.mShapeHeight = mShape.mShapeHeight * (1.0 / mPixelsPerCm);
-
-  // Check if found shape meets requirements
-  if(mShape.mShapeWidth <= mShapeSizeRequirements.at(0,0) + (mShape.mShapeWidth * RobotConstants::SHAPE_SIZE_COMPENSATION) && mShape.mShapeWidth >= mShapeSizeRequirements.at(0,0) - (mShape.mShapeWidth * RobotConstants::SHAPE_SIZE_COMPENSATION)
-    && mShape.mShapeHeight <= mShapeSizeRequirements.at(1,0) + (mShape.mShapeHeight * RobotConstants::SHAPE_SIZE_COMPENSATION) && mShape.mShapeHeight >= mShapeSizeRequirements.at(1,0) - (mShape.mShapeHeight * RobotConstants::SHAPE_SIZE_COMPENSATION))
+  for(Shape lShape : lShapeReturnValue.first)
   {
-    lReturn = true;
+    mShape = lShape;
+    // Convert to cm
+    mShape.mCenterPoint = mShape.mCenterPoint * (1.0 / mPixelsPerCm);
+    mShape.mShapeWidth = mShape.mShapeWidth * (1.0 / mPixelsPerCm);
+    mShape.mShapeHeight = mShape.mShapeHeight * (1.0 / mPixelsPerCm);
+    // Check if found shape meets requirements
+    if(mShape.mShapeWidth <= mShapeSizeRequirements.at(0,0) + (mShape.mShapeWidth * RobotConstants::SHAPE_SIZE_COMPENSATION) && mShape.mShapeWidth >= mShapeSizeRequirements.at(0,0) - (mShape.mShapeWidth * RobotConstants::SHAPE_SIZE_COMPENSATION)
+      && mShape.mShapeHeight <= mShapeSizeRequirements.at(1,0) + (mShape.mShapeHeight * RobotConstants::SHAPE_SIZE_COMPENSATION) && mShape.mShapeHeight >= mShapeSizeRequirements.at(1,0) - (mShape.mShapeHeight * RobotConstants::SHAPE_SIZE_COMPENSATION))
+    {
+      return true;
+    }
   }
   return lReturn;
 }

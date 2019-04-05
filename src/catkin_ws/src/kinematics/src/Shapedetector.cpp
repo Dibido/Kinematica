@@ -2,7 +2,7 @@
 #include "Shapedetector.h"
 
 // Constructor
-Shapedetector::Shapedetector() : mShapeHeight(0), mShapeWidth(0), mShapeAngle(0)
+Shapedetector::Shapedetector()
 {
   initializeValues();
 }
@@ -30,12 +30,12 @@ void Shapedetector::reset()
 
 void Shapedetector::initializeValues()
 {
-  mShapePosition = {{{0}}, {{0}}};
-  mShapeMinDistance = DBL_MAX;
-
   // Set shape size to find
   mFindShapeWidth = 0.0;
   mFindShapeHeight = 0.0;
+  
+  // Set shape position
+  mShapePosition = {{{0}}, {{0}}};
 
   // Set shape and color
   mCurrentColor = COLORS::UNKNOWNCOLOR;
@@ -465,9 +465,9 @@ double Shapedetector::calibrateCoordinates(int aDeviceId)
   return lReturn;
 }
 
-std::pair<Shape, Matrix<double, 2, 1>> Shapedetector::detectShapeCoordinates(int aDeviceId)
+std::pair<std::vector<Shape>, Matrix<double, 2, 1>> Shapedetector::detectShapeCoordinates(int aDeviceId)
 {
-  std::pair<Shape, Matrix<double, 2, 1>> lReturnValue;
+  std::pair<std::vector<Shape>, Matrix<double, 2, 1>> lReturnValue;
   Matrix<double, 2, 1> lReturnMatrix;
   initCamera(aDeviceId);
   // Start webcam mode
@@ -486,11 +486,7 @@ std::pair<Shape, Matrix<double, 2, 1>> Shapedetector::detectShapeCoordinates(int
     }
     detectRealtime();
   }
-  lReturnValue.first.mCenterPoint = mShapePosition;
-  lReturnValue.first.mShapeWidth = mShapeWidth;
-  lReturnValue.first.mShapeHeight = mShapeHeight;
-  lReturnValue.first.mBoundingRect = mShapeBoundingRect;
-  lReturnValue.first.mShapeAngle = mShapeAngle;
+  lReturnValue.first = mShapes;
   lReturnMatrix.at(0,0) = mFindShapeWidth;
   lReturnMatrix.at(1,0) = mFindShapeHeight;
   lReturnValue.second = lReturnMatrix;

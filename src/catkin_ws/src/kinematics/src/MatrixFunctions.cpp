@@ -140,6 +140,7 @@ std::pair<bool, Matrix<double, 3, 1>> MatrixFunctions::computeConfiguration(Matr
 
 double MatrixFunctions::calculateBaseAngle(Matrix<double, 2, 1> aBase, Matrix<double, 2, 1> aTarget)
 {
+  std::cout << "Target : " << aTarget[0][0] << " : " << aTarget[1][0] << " Base : " << aBase[0][0] << " : " << aBase[1][0] << std::endl;
   if(!(aTarget[0][0] < aBase[0][0]))
   {
     throw std::logic_error("calculateBaseAngle preconditions are not met, aTarget.x must be smaller then aBase.x for valid calculations");

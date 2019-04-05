@@ -296,7 +296,7 @@ public:
    * @param aDeviceId - The id of the webcam to use
    * @return std::pair<Matrix<double, 2, 1>, double> - A pair with the width and coordinates of the object
    */
-  std::pair<Shape, Matrix<double, 2, 1>> detectShapeCoordinates(int aDeviceId);
+  std::pair<std::vector<Shape>, Matrix<double, 2, 1>> detectShapeCoordinates(int aDeviceId);
 
   /**
    * @brief - detects and returns the coordinates of the base to drop the object at
@@ -313,16 +313,18 @@ public:
   Mat mMaskImage;          // color filtered image
   Mat mDisplayImage;       // image with shape outlines
 
-  // The location of the current shape
+  // The current shapes
+  std::vector<Shape> mShapes;
+  // The shape position
   Matrix<double, 2, 1> mShapePosition;
-  // The width of the shape
+  // // The width of the shape
   double mShapeMinDistance;
-  // A matrix with the x/y positions of every side of the bounding rect
-  Matrix<double, 2, 4> mShapeBoundingRect;
-  // Shape values
-  double mShapeHeight;
-  double mShapeWidth;
-  double mShapeAngle;
+  // // A matrix with the x/y positions of every side of the bounding rect
+  // std::vector<Matrix<double, 2, 4>> mShapeBoundingRect;
+  // // Shape values
+  // std::vector<double> mShapeHeight;
+  // std::vector<double> mShapeWidth;
+  // std::vector<double> mShapeAngle;
 
   double mFindShapeWidth;
   double mFindShapeHeight;
