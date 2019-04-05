@@ -143,6 +143,7 @@ add_dependencies(highleveldriver kinematics_generate_messages_cpp)
 target_link_libraries(highleveldriver ${catkin_LIBRARIES} lowleveldriver)
 
 add_executable(kinematics src/Main.cpp src/RobotarmController.cpp src/MatrixFunctions.cpp src/DetectColor.cpp src/DetectShapes.cpp src/Shapedetector.cpp)
+add_dependencies(kinematics kinematics_generate_messages_cpp)
 
 target_link_libraries(kinematics ${Boost_FILESYSTEM_LIBRARY}
                       ${Boost_SYSTEM_LIBRARY}
