@@ -147,10 +147,8 @@ add_executable(kinematics src/Main.cpp src/RobotarmController.cpp src/MatrixFunc
 target_link_libraries(kinematics ${Boost_FILESYSTEM_LIBRARY}
                       ${Boost_SYSTEM_LIBRARY}
                       ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY}
-                      ${catkin_LIBRARIES})
-
-target_link_libraries(kinematics ${OpenCV_LIBS})
-
+                      ${catkin_LIBRARIES}
+                      ${OpenCV_LIBS})
 
 if ( CMAKE_COMPILER_IS_GNUCC )
     target_compile_options(kinematics PRIVATE "-Wall")
