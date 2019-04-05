@@ -75,6 +75,8 @@ bool RobotarmController::retrieveObject()
   std::pair<std::vector<Shape>, Matrix<double, 2, 1>> lShapeReturnValue;
   lShapeReturnValue = mShapeDetector.detectShapeCoordinates(mCamIndex);
 
+  std::cout << "VectorSize : " << lShapeReturnValue.first.size() << std::endl;
+
   mShapeSizeRequirements = lShapeReturnValue.second;
 
   for(Shape lShape : lShapeReturnValue.first)
