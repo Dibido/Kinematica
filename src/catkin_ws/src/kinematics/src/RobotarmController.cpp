@@ -137,7 +137,7 @@ bool RobotarmController::planAndExecuteRoute()
   mCurrentThetas = lConfiguration.second;
 
   // Check if there exist valid configurations for the 4 points.
-  for (int lIndex = 0; lIndex < lConfigurations.size(); ++lIndex)
+  for (size_t lIndex = 0; lIndex < lConfigurations.size(); ++lIndex)
   {
     if (lConfigurations.at(lIndex).first == false)
     {
@@ -182,27 +182,27 @@ void RobotarmController::moveRobotarmToPosition(double aShapeAngle, std::vector<
 
   lMoveServosMessage.servos.clear();
   lServoPosition.servoId = 0;
-  lServoPosition.position = aShapeAngle;
+  lServoPosition.position = static_cast<int>(aShapeAngle);
   lMoveServosMessage.servos.push_back(lServoPosition);
 
   lServoPosition.servoId = 1;
-  lServoPosition.position = -aConfiguration.at(aConfigurationIndex).second[0][0];
+  lServoPosition.position = static_cast<int>(-aConfiguration.at(aConfigurationIndex).second[0][0]);
   lMoveServosMessage.servos.push_back(lServoPosition);
 
   lServoPosition.servoId = 2;
-  lServoPosition.position = aConfiguration.at(aConfigurationIndex).second[1][0];
+  lServoPosition.position = static_cast<int>(aConfiguration.at(aConfigurationIndex).second[1][0]);
   lMoveServosMessage.servos.push_back(lServoPosition);
 
   lServoPosition.servoId = 3;
-  lServoPosition.position = -aConfiguration.at(aConfigurationIndex).second[2][0];
+  lServoPosition.position = static_cast<int>(-aConfiguration.at(aConfigurationIndex).second[2][0]);
   lMoveServosMessage.servos.push_back(lServoPosition);
 
   lServoPosition.servoId = 4;
-  lServoPosition.position = aGripperDegree;
+  lServoPosition.position = static_cast<int>(aGripperDegree);
   lMoveServosMessage.servos.push_back(lServoPosition);
 
   lServoPosition.servoId = 5;
-  lServoPosition.position = aGripperRotationDegree;
+  lServoPosition.position = static_cast<int>(aGripperRotationDegree);
   lMoveServosMessage.servos.push_back(lServoPosition);
 
   ROS_INFO("Sending move servos message");
@@ -210,5 +210,5 @@ void RobotarmController::moveRobotarmToPosition(double aShapeAngle, std::vector<
   ros::spinOnce();
 
   // Sleep for the time that is needed to complete the move, plus a small margin to make sure the move is completed.
-  sleep((lMoveServosMessage.time + aMoveTimeDelay) / 1000.0);
+  sleep(static_cast<unsigned int>((lMoveServosMessage.time + aMoveTimeDelay) / 1000.0));
 }

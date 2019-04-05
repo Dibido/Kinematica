@@ -356,7 +356,7 @@ Matrix<double, 2, 1> Shapedetector::calibrateRobotarmBase(double aCoordinateConv
             line(mDisplayImage, vertices[j], vertices[(j + 1) % 4], Scalar(0, 255, 0));
           }
           // Calculate the base point using the block center point for reference
-          lBasePoint = Point(lBlockCenterPoint.x, lBlockCenterPoint.y + BASE_Y_DISTANCE_CM * aCoordinateConversionValue);
+          lBasePoint = Point(lBlockCenterPoint.x, lBlockCenterPoint.y + static_cast<int>(BASE_Y_DISTANCE_CM * aCoordinateConversionValue));
 
           std::cout << "lXCoordinateValue base : " << lBasePoint.x  << std::endl;
           std::cout << "lYCoordinateValue base : " << lBasePoint.y  << std::endl;
@@ -386,9 +386,9 @@ Matrix<double, 2, 1> Shapedetector::calibrateRobotarmBase(double aCoordinateConv
 
 double Shapedetector::calibrateCoordinates(int aDeviceId)
 {
-  const unsigned int SHAPE_WIDTH_SIZE_CM = 4.97;
+  const double SHAPE_WIDTH_SIZE_CM = 4.97;
   // Factor to compensate for the camera angle, based on measurements
-  const double SHAPE_COMPENSATION_FACTOR = 0.85;
+  const double SHAPE_COMPENSATION_FACTOR = 1.06;
   unsigned int lPixels = 0;
   double lReturn;
 
@@ -424,7 +424,6 @@ double Shapedetector::calibrateCoordinates(int aDeviceId)
         if (contourSizeAllowed(mCurrentContours.at(i), mMinContourSize, mMaxContourSize))
         {
           // Get longest side length
-          Moments currentmoments = moments(mCurrentContours.at(i));
           RotatedRect lRotatedRect = minAreaRect(mCurrentContours.at(i));
           double lMaxDistance = 0.0;
           Point2f vertices[4];
@@ -435,11 +434,11 @@ double Shapedetector::calibrateCoordinates(int aDeviceId)
             double lDistance = (double)cv::norm(vertices[j] - vertices[(j + 1) % 4]);
             if (lDistance > lMaxDistance)
             {
-              lMaxDistance = (double)lDistance;
+              lMaxDistance = lDistance;
             }
           }
           std::cout << "MaxDistance : " << lMaxDistance << std::endl;
-          lPixels = lMaxDistance;
+          lPixels = static_cast<unsigned int>(lMaxDistance);
           setShapeValues(mDisplayImage, mCurrentContours.at(i));
           imshow("result", mDisplayImage);
         }

@@ -6,7 +6,7 @@ set (CMAKE_CXX_STANDARD 14)
 
 set(CMAKE_CXX_CPPCHECK "cppcheck" "--enable=all")
 
-set(CMAKE_VERBOSE_MAKEFILE ON)
+##set(CMAKE_VERBOSE_MAKEFILE ON)
 find_package(OpenCV 3.2.0 REQUIRED)
 
 ## Find catkin macros and libraries
@@ -123,7 +123,7 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 include_directories(
-  include
+  SYSTEM include
   ${catkin_INCLUDE_DIRS}
 )
 

@@ -241,7 +241,7 @@ void Shapedetector::setShapeValues(Mat aImage, Mat aContour)
       lMaxDistance = (double)lDistance;
     }
   }
-  circle(mDisplayImage, Point(mShapePosition.at(0,0), mShapePosition.at(1,0)), 3, Scalar(0,0,255), -1, 8, 0 );
+  circle(mDisplayImage, Point(static_cast<int>(mShapePosition.at(0,0)), static_cast<int>(mShapePosition.at(1,0))), 3, Scalar(0,0,255), -1, 8, 0 );
   // Set the bounding rect corners in the return value
   for (int i = 0; i < 4; i++)
   {

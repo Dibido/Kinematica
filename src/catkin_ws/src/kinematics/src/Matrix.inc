@@ -410,7 +410,7 @@ Matrix< T, M, N > Matrix< T, M, N >::inverse() const
 	// Get the identity matrix
 	Matrix < T, M, N > identityMatrix = result.identity();
 	// Gauss eliminate the matrices
-	for(std::size_t currentRow = 0, pivotColumn = 0; currentRow < M, pivotColumn < N; currentRow++, pivotColumn++)
+	for(std::size_t currentRow = 0, pivotColumn = 0; pivotColumn < N; currentRow++, pivotColumn++)
 	{
 		// Swap the row with the highest value to the top.
 		std::size_t maxValueRow = currentRow;
@@ -425,7 +425,6 @@ Matrix< T, M, N > Matrix< T, M, N >::inverse() const
 		std::swap(identityMatrix[maxValueRow], identityMatrix[currentRow]);
 		// 1. Divide the first number on the row by itself to get 1
 		T divideValue = result[currentRow][pivotColumn];
-		T divideIdentityValue = identityMatrix[currentRow][pivotColumn];
 		for(std::size_t divideColumn = 0; divideColumn < N; divideColumn++)
 		{
 			result[currentRow][divideColumn] = result[currentRow][divideColumn] / divideValue;
@@ -437,7 +436,6 @@ Matrix< T, M, N > Matrix< T, M, N >::inverse() const
 		{
 			// Get the first number from the row if it is non-zero
 			T currentRowValue = result[zeroRow][pivotColumn];
-			T currentIdentityRowValue = identityMatrix[zeroRow][pivotColumn];
 			// Multiply the first number by a multiple of the first row and subtract the multiplied value from the row
 			for(std::size_t multiplyColumn = 0; multiplyColumn < N; multiplyColumn++)
 			{
@@ -447,7 +445,7 @@ Matrix< T, M, N > Matrix< T, M, N >::inverse() const
 		}
 	}
 	// Jordan eliminate the matrices
-	for(int currentRow = M - 1, pivotColumn = N - 1; currentRow > 0, pivotColumn >= 0; currentRow--, pivotColumn--)
+	for(int currentRow = M - 1, pivotColumn = N - 1; pivotColumn >= 0; currentRow--, pivotColumn--)
 	{
 		int zeroRow = currentRow - 1;
 		// 2. Multiply every other non-zero row by a multiple of the first row to get 0
@@ -519,7 +517,7 @@ bool equals(	const Matrix< T, M, 1 >& lhs,
 	for(std::size_t currentRow = 0; currentRow < M; currentRow++)
 	{
 		T diff = lhs[currentRow][0] - rhs[currentRow][0];
-		if((diff > (aPrecision  * aFactor)) || (-diff > (aPrecision * aFactor)))
+		if((diff > (aPrecision  * static_cast<T>(aFactor))) || (-diff > (aPrecision * static_cast<T>(aFactor))))
 		{
 			lReturn = false;
 			break;
