@@ -296,7 +296,7 @@ public:
    * @param aDeviceId - The id of the webcam to use
    * @return std::pair<Matrix<double, 2, 1>, double> - A pair with the width and coordinates of the object
    */
-  Shape detectShapeCoordinates(int aDeviceId);
+  std::pair<Shape, Matrix<double, 2, 1>> detectShapeCoordinates(int aDeviceId);
 
   /**
    * @brief - detects and returns the coordinates of the base to drop the object at
@@ -324,6 +324,8 @@ public:
   double mShapeWidth;
   double mShapeAngle;
 
+  double mFindShapeWidth;
+  double mFindShapeHeight;
 private:
   // Program variables
   std::string mImagePath;
